@@ -1,23 +1,50 @@
 <div class="container mt-4">
-  <!-- Main Heading -->
-  <h1 class="text-center text-primary mb-4">Player Dashboard</h1>
+  <h1 class="text-center text-primary mb-4 font-weight-bold">
+    Player Dashboard
+  </h1>
 
-  <!-- Navbar for Navigation (horizontal layout with space between links) -->
-  <nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm rounded">
+  <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm rounded">
     <div class="navbar-nav d-flex justify-content-between w-100">
-      <a class="nav-item nav-link ml-3" href="#" (click)="setSelectedTab('player')">
+      <a
+        class="nav-item nav-link text-white"
+        href="#"
+        (click)="setSelectedTab('player')"
+      >
         <i class="fas fa-user-circle"></i> Player Details
       </a>
-      <a class="nav-item nav-link ml-3" href="#" (click)="setSelectedTab('team')">
+      <a
+        class="nav-item nav-link text-white"
+        href="#"
+        (click)="setSelectedTab('coach')"
+      >
+        <i class="fas fa-chalkboard-teacher"></i> My Coach
+      </a>
+      <a
+        class="nav-item nav-link text-white"
+        href="#"
+        (click)="setSelectedTab('team')"
+      >
         <i class="fas fa-users"></i> Team Details
       </a>
-      <a class="nav-item nav-link ml-3" href="#" (click)="setSelectedTab('training')">
+      <a
+        class="nav-item nav-link text-white"
+        href="#"
+        (click)="setSelectedTab('training')"
+      >
         <i class="fas fa-dumbbell"></i> Training Sessions
       </a>
-      <a class="nav-item nav-link ml-3" href="#" (click)="setSelectedTab('performance')">
+      <a
+        class="nav-item nav-link text-white"
+        href="#"
+        (click)="setSelectedTab('performance')"
+      >
         <i class="fas fa-chart-line"></i> Performance Reports
       </a>
-      <a class="nav-item nav-link ml-3" href="#" (click)="setSelectedTab('goals')">
+      <a
+        class="nav-item nav-link text-white"
+        href="#"
+        (click)="setSelectedTab('goals')"
+      >
         <i class="fas fa-trophy"></i> Player Goals
       </a>
     </div>
@@ -33,6 +60,9 @@
         <div class="row">
           <div class="col-md-6">
             <p><strong>Name:</strong> {{ player.name }}</p>
+            <p><strong>Age:</strong> {{ player.age }}</p>
+            <p><strong>Weight:</strong> {{ player.weight }}</p>
+            <p><strong>Height:</strong> {{ player.height }}</p>
             <p><strong>Sport:</strong> {{ player.sport }}</p>
             <p><strong>Team ID:</strong> {{ player.teamId }}</p>
           </div>
@@ -40,8 +70,27 @@
       </div>
     </div>
   </div>
+  <div *ngIf="selectedTab === 'coach' && coach" class="mt-4">
+    <div class="card shadow-sm mb-4">
+      <div class="card-header bg-primary text-white">
+        <h5 class="mb-0">
+          <i class="fas fa-chalkboard-teacher"></i> Coach Details
+        </h5>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-6">
+            <p><strong>Name:</strong> {{ coach.name }}</p>
+            <p><strong>Sport:</strong> {{ coach.sport }}</p>
+            <p><strong>Age:</strong> {{ coach.age }}</p>
+            <p><strong>Email:</strong> {{ coach.email }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-  <!-- Team Details Section (Table Format) -->
+  <!-- Team Details Section -->
   <div *ngIf="selectedTab === 'team'" class="mt-4">
     <h3 class="text-success"><i class="fas fa-users"></i> Team Members</h3>
     <div *ngIf="teamMembers.length > 0">
@@ -68,9 +117,12 @@
       <p>No team members found.</p>
     </div>
   </div>
-  <!-- Training Sessions Section (Table Format) -->
-  <div *ngIf="selectedTab === 'training' && trainingSessions.length > 0" class="mt-4">
-    <h2 class="text-warning"><i class="fas fa-dumbbell"></i> Training Sessions</h2>
+
+  <!-- Training Sessions Section -->
+  <div *ngIf="selectedTab === 'training'" class="mt-4">
+    <h3 class="text-warning">
+      <i class="fas fa-dumbbell"></i> Training Sessions
+    </h3>
     <div *ngIf="trainingSessions.length > 0">
       <table class="table table-striped table-bordered table-hover">
         <thead>
@@ -86,12 +138,8 @@
           <tr *ngFor="let session of trainingSessions">
             <td>{{ session.sessionId }}</td>
             <td>{{ session.coachId }}</td>
-            <td>
-              <!-- Only call join if playerIds is an array -->
-             
-                {{ session.playerIds }}
-             
-            </td>
+            <td>{{ session.playerIds }}</td>
+
             <td>{{ session.date }}</td>
             <td>{{ session.duration }}</td>
           </tr>
@@ -101,7 +149,7 @@
     <div *ngIf="trainingSessions.length === 0">
       <p>No training sessions found.</p>
     </div>
-    </div>
+  </div>
 
   <!-- Player Goals Section -->
   <div *ngIf="selectedTab === 'goals'" class="mt-4">
@@ -113,8 +161,16 @@
           <p><strong>Goal Description:</strong> {{ goal.goalDescription }}</p>
           <p><strong>Target Value:</strong> {{ goal.targetValue }}</p>
           <p><strong>Achieved Value:</strong> {{ goal.achievedValue }}</p>
-          <p><strong>Status:</strong> {{ goal.status }}</p>
-          <p><strong>Deadline:</strong> {{ goal.deadline | date: 'short' }}</p>
+          <p>
+            <strong>Status:</strong>
+            <span
+              class="badge badge-{{
+                goal.status === 'Achieved' ? 'success' : 'danger'
+              }}"
+              >{{ goal.status }}</span
+            >
+          </p>
+          <p><strong>Deadline:</strong> {{ goal.deadline | date : "short" }}</p>
           <p><strong>Feedback Remarks:</strong> {{ goal.feedbackRemarks }}</p>
         </li>
       </ul>
@@ -126,31 +182,59 @@
 
   <!-- Performance Reports Section -->
   <div *ngIf="selectedTab === 'performance'" class="mt-4">
-    <h3 class="text-info"><i class="fas fa-chart-line"></i> Player Performance Reports</h3>
+    <h3 class="text-info">
+      <i class="fas fa-chart-line"></i> Performance Reports
+    </h3>
     <!-- Report Option Selector -->
-    <div class="btn-group mb-3" role="group" aria-label="Performance Report Options">
-      <button type="button" class="btn btn-outline-primary" (click)="setSelectedReportOption('individualMetrics')">
+    <div
+      class="btn-group mb-3"
+      role="group"
+      aria-label="Performance Report Options"
+    >
+      <button
+        type="button"
+        class="btn btn-outline-primary"
+        (click)="setSelectedReportOption('individualMetrics')"
+      >
         Individual Performance Metrics
       </button>
-      <button type="button" class="btn btn-outline-primary" (click)="setSelectedReportOption('individualReports')">
+      <button
+        type="button"
+        class="btn btn-outline-primary"
+        (click)="setSelectedReportOption('individualReports')"
+      >
         Individual Performance Reports
       </button>
-      <button type="button" class="btn btn-outline-primary" (click)="setSelectedReportOption('teamAverageReports')">
+      <button
+        type="button"
+        class="btn btn-outline-primary"
+        (click)="setSelectedReportOption('teamAverageReports')"
+      >
         Team Average Performance Report
       </button>
     </div>
 
-    <!-- Conditional Rendering of Reports -->
     <div *ngIf="selectedReportOption === 'individualMetrics'">
       <div *ngIf="playerMetrics.length > 0">
         <ul class="list-group">
           <li *ngFor="let metric of playerMetrics" class="list-group-item">
-            <p><strong>Date:</strong> {{ metric.recordDateTime }}</p>
+            <p>
+              <strong>Date:</strong>
+              {{ metric.recordDateTime | date : "short" }}
+            </p>
             <p><strong>HRV:</strong> {{ metric.hrv }}</p>
-            <p><strong>Top Speed:</strong> {{ metric.topSpeed }}</p>
+            <p>
+              <strong>Top Speed:</strong>
+              <i class="fas fa-tachometer-alt"></i> {{ metric.topSpeed }}
+            </p>
             <p><strong>Player Load:</strong> {{ metric.playerLoad }}</p>
-            <p><strong>Distance:</strong> {{ metric.totalDistanceCovered }}</p>
-            <p><strong>Calories:</strong> {{ metric.caloriesBurned }}</p>
+            <p>
+              <strong>Distance:</strong> {{ metric.totalDistanceCovered }} km
+            </p>
+            <p>
+              <strong>Calories:</strong> <i class="fas fa-fire"></i>
+              {{ metric.caloriesBurned }} kcal
+            </p>
           </li>
         </ul>
       </div>
@@ -158,44 +242,88 @@
         <p>No individual performance metrics found.</p>
       </div>
     </div>
-
     <div *ngIf="selectedReportOption === 'individualReports'">
       <div *ngIf="playerReports.length > 0">
-        <ul class="list-group">
-          <li *ngFor="let report of playerReports" class="list-group-item">
-            <p><strong>Date:</strong> {{ report.reportDate  }}</p>
-            <p><strong>HRV Status:</strong> {{ report.hrvStatus }}</p>
-            <p><strong>Top Speed Status:</strong> {{ report.topSpeedStatus }}</p>
-            <p><strong>Player Load Status:</strong> {{ report.playerLoadStatus }}</p>
-            <p><strong>Distance Status:</strong> {{ report.distanceStatus }}</p>
-            <p><strong>Calories Status:</strong> {{ report.caloriesStatus }}</p>
-          </li>
-        </ul>
+        <div *ngFor="let report of playerReports">
+          <table class="table table-bordered mb-3">
+            <thead>
+              <tr>
+                <th colspan="2" class="text-center date-row">
+                  <strong>Performance Report - {{ report.reportDate | date: 'short' }}</strong>
+                </th>
+              </tr>
+              <br>
+            </thead>
+            <tbody>
+              <!-- HRV Status Row -->
+              <tr [ngClass]="{'highlight': report.hrvStatus === 'Below Standard'}">
+                <td><strong>HRV Status</strong></td>
+                <td>{{ report.hrvStatus }}</td>
+              </tr>
+              <!-- Top Speed Status Row -->
+              <tr [ngClass]="{'highlight': report.topSpeedStatus === 'Below Standard'}">
+                <td><strong>Top Speed Status</strong></td>
+                <td>{{ report.topSpeedStatus }}</td>
+              </tr>
+              <!-- Player Load Status Row -->
+              <tr [ngClass]="{'highlight': report.playerLoadStatus === 'Below Standard'}">
+                <td><strong>Player Load Status</strong></td>
+                <td>{{ report.playerLoadStatus }}</td>
+              </tr>
+              <!-- Distance Status Row -->
+              <tr [ngClass]="{'highlight': report.distanceStatus === 'Below Standard'}">
+                <td><strong>Distance Status</strong></td>
+                <td>{{ report.distanceStatus }}</td>
+              </tr>
+              <!-- Calories Status Row -->
+              <tr [ngClass]="{'highlight': report.caloriesStatus === 'Below Standard'}">
+                <td><strong>Calories Status</strong></td>
+                <td>{{ report.caloriesStatus }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
       <div *ngIf="playerReports.length === 0">
         <p>No individual performance reports found.</p>
       </div>
     </div>
+    
 
     <div *ngIf="selectedReportOption === 'teamAverageReports'">
       <div *ngIf="teammatesReports.length > 0">
         <h4>Teammates' Performance Reports</h4>
         <ul class="list-group">
           <li *ngFor="let report of teammatesReports" class="list-group-item">
-            <p><strong>{{ report.playerName }}</strong></p>
-            <p><strong>Report Date:</strong> {{ report.reportDate | date: 'short' }}</p>
+            <p>
+              <strong>{{ report.playerName }}</strong>
+            </p>
+            <p>
+              <strong>Report Date:</strong>
+              {{ report.reportDate | date : "short" }}
+            </p>
             <p><strong>HRV Status:</strong> {{ report.hrvStatus }}</p>
-            <p><strong>Top Speed Status:</strong> {{ report.topSpeedStatus }}</p>
-            <p><strong>Player Load Status:</strong> {{ report.playerLoadStatus }}</p>
-            <p><strong>Distance Status:</strong> {{ report.distanceStatus }}</p>
-            <p><strong>Calories Status:</strong> {{ report.caloriesStatus }}</p>
+            <p>
+              <strong>Top Speed Status:</strong>
+              {{ report.topSpeedStatus }}km/hr
+            </p>
+            <p>
+              <strong>Player Load Status:</strong>
+              {{ report.playerLoadStatus }}
+            </p>
+            <p>
+              <strong>Distance Status:</strong> {{ report.distanceStatus }}km
+            </p>
+            <p>
+              <strong>Calories Status:</strong>
+              {{ report.caloriesStatus }}kcal
+            </p>
           </li>
         </ul>
       </div>
       <div *ngIf="teammatesReports.length === 0">
-        <p>No teammates' performance reports found.</p>
+        <p>No team average performance reports found.</p>
       </div>
     </div>
-
   </div>
 </div>

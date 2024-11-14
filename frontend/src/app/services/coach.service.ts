@@ -18,6 +18,11 @@ export class CoachService {
 
   constructor(private http: HttpClient) {}
 
+
+  createCoach(coach: Coach): Observable<Coach> {
+    return this.http.post<Coach>(`${this.apiUrl}/coaches`, coach);
+  }
+
   getTeamsByCoachId(coachId: number): Observable<Team[]> {
     return this.http.get<Team[]>(`${this.apiUrl}/${coachId}/teams`);
   }

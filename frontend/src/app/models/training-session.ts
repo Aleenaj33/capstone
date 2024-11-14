@@ -1,4 +1,5 @@
 export interface TrainingSession {
+ 
   sessionId: number;
   coachId: number;
   date: string;

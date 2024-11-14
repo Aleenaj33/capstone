@@ -5,6 +5,7 @@ import { TrainingSession } from 'src/app/models/training-session';
 import { PlayerGoal } from 'src/app/models/playergoal';
 import { PlayerPerformance } from 'src/app/models/playerperformance';
 import { PlayerPerformanceReport } from 'src/app/models/playerperformancereport';
+import { Coach } from 'src/app/models/coach';
 
 @Component({
   selector: 'app-dashboard',
@@ -22,6 +23,11 @@ export class DashboardComponent implements OnInit {
   playerMetrics: PlayerPerformance[] = [];
   playerReports: PlayerPerformanceReport[] = [];
   teammatesReports: any[] = []; // Changed to generic 'any' to handle specific fields
+  playerNames: string|null=null;
+  sessions: TrainingSession[] = []; // Initialize as empty array
+  playerIds:number[]|null=null;
+  coach: Coach | undefined;
+
 
   constructor(private playerService: PlayerService) {}
 
@@ -33,6 +39,7 @@ export class DashboardComponent implements OnInit {
     this.loadPlayerMetrics();
     this.loadPlayerReports();
     this.loadTeammatesReports(); // Load teammates' performance reports
+    this.loadCoachData();
   }
 
   setSelectedTab(tab: string): void {
@@ -55,11 +62,15 @@ export class DashboardComponent implements OnInit {
     });
   }
 
+  
   loadTrainingSessions(): void {
     this.playerService.getTrainingSessionsByPlayerId(this.playerId).subscribe((data) => {
       this.trainingSessions = data;
     });
   }
+  
+ 
+  
 
   loadPlayerGoals(): void {
     this.playerService.getGoalsByPlayerId(this.playerId).subscribe(
@@ -105,4 +116,16 @@ export class DashboardComponent implements OnInit {
       }
     );
   }
+  loadCoachData(): void {
+    this.playerService.getCoachForPlayer(this.playerId).subscribe(
+      (data) => {
+        this.coach = data;
+      },
+      (error) => {
+        console.error('Error loading coach data:', error);
+      }
+    );
+  }
+  
+  
 }

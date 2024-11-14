@@ -5,10 +5,11 @@ import { PlayerPerformanceReport } from "../models/playerperformancereport";
 import { PlayerPerformance } from "../models/playerperformance";
 import { environment } from "src/environments/environment";
 import { Injectable } from "@angular/core";
-import { HttpClient } from "@angular/common/http";
+import { HttpClient, HttpParams } from "@angular/common/http";
 import { Player } from "../models/player";
 import { TrainingSession } from "../models/training-session";
 import { PlayerGoal } from "../models/playergoal";
+import { Coach } from "../models/coach";
 
 @Injectable({
   providedIn: 'root'
@@ -17,6 +18,11 @@ export class PlayerService {
   private apiUrl = `${environment.apiBaseUrl}/api/athletes`;
 
   constructor(private http: HttpClient) {}
+
+  //add player to the form
+  createPlayer(player: Player): Observable<Player> {
+    return this.http.post<Player>(`${this.apiUrl}/players`, player);
+  }
 
   getPlayerById(playerId: number): Observable<Player> {
     return this.http.get<Player>(`${this.apiUrl}/players/${playerId}`);
@@ -53,4 +59,16 @@ export class PlayerService {
   getTeamAveragePerformanceReport(playerId: number): Observable<PlayerPerformanceReport> {
     return this.http.get<PlayerPerformanceReport>(`${this.apiUrl}/player/${playerId}/team-average-performance`);
   }
-}
+  getCoachForPlayer(playerId: number): Observable<Coach> {
+    return this.http.get<Coach>(`${this.apiUrl}/${playerId}/coach`);
+  }
+
+  //
+  //
+  //
+  
+  }
+  
+ 
+
+
