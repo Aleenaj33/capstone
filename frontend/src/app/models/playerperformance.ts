@@ -1,5 +1,6 @@
-export interface PlayerPerformance {
-    id: number;
+
+  export interface PlayerPerformance {
+    id?: number;  // Make id optional
     playerId: number;
     playerName: string;
     recordDateTime: string;
@@ -9,4 +10,5 @@ export interface PlayerPerformance {
     totalDistanceCovered: number;
     caloriesBurned: number;
   }
+  
   

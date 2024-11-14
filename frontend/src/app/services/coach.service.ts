@@ -8,6 +8,7 @@ import { TrainingSession } from '../models/training-session';
 import { PlayerGoal } from '../models/playergoal';
 import { PlayerPerformanceReport } from '../models/playerperformancereport';
 import { Player } from '../models/player';
+import { PlayerPerformance } from '../models/playerperformance';
 
 @Injectable({
   providedIn: 'root'
@@ -33,14 +34,24 @@ export class CoachService {
     const url = `${this.apiUrl}/coach/${coachId}/goals`;  // Backend endpoint URL
     return this.http.get<PlayerGoal[]>(url);
   }
-  getTeamReports(teamId: number): Observable<PlayerPerformanceReport[]> {
-    const url = `${this.apiUrl}/coach/team/${teamId}/reports`;  // Backend endpoint URL
-    return this.http.get<PlayerPerformanceReport[]>(url);
+  getPlayerMetrics(playerId: number): Observable<PlayerPerformance[]> {
+    return this.http.get<PlayerPerformance[]>(`${this.apiUrl}/player/${playerId}/metrics`);
   }
 
-  uploadMetrics(playerId: number, metrics: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}/coach/player/${playerId}/metrics`, metrics);
+  // Get Player Performance Reports by Player ID
+  getPlayerReports(playerId: number): Observable<PlayerPerformanceReport[]> {
+    return this.http.get<PlayerPerformanceReport[]>(`${this.apiUrl}/player/${playerId}/reports`);
   }
+
+  // Get Teammates' Performance Reports by Player ID
+  getTeammatesReports(playerId: number): Observable<PlayerPerformanceReport[]> {
+    return this.http.get<PlayerPerformanceReport[]>(`${this.apiUrl}/player/${playerId}/teammates-reports`);
+  }
+
+  uploadMetrics(playerId: number, metrics: PlayerPerformance): Observable<any> {
+    return this.http.post(`${this.apiUrl}/coach/player/${playerId}/metrics`, metrics, { responseType: 'text' });
+  }
+  
   getUnassignedPlayers(): Observable<Player[]> {
     return this.http.get<Player[]>(`${this.apiUrl}/players/unassigned`);
   }

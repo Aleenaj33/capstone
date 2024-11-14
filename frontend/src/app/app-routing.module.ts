@@ -6,7 +6,7 @@ import { CoachComponent } from './components/coach/coach.component';
 
 
   const routes: Routes = [
-    { path: '', component: DashboardComponent },  // Default route to Dashboard
+    { path: '', component: CoachComponent },  // Default route to Dashboard
     { path: '**', redirectTo: '', pathMatch: 'full' }  // Redirect unknown routes to Dashboard
   ];
 

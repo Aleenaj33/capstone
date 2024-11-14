@@ -207,202 +207,187 @@
         <p><strong>Feedback:</strong> {{ goal.feedbackRemarks }}</p>
       </li>
     </ul>
+  
     <div *ngIf="goals.length === 0">
       <p>No goals found for this coach.</p>
     </div>
-    <h2>Create Goal</h2>
+  
+    <!-- Dropdown to select goal to update -->
+    <h2>Update Goal</h2>
+    <label for="goalSelect">Select Goal to Update:</label>
+    <select id="goalSelect" (change)="onSelectGoal($event)">
+      <option *ngFor="let goal of goals" [value]="goal.goalId">
+        {{ goal.goalType }} (Player: {{ goal.playerId }})
+      </option>
+    </select>
+  
+    <!-- Update Goal Form -->
+    <form [formGroup]="updateGoalForm" (ngSubmit)="updateGoal()">
+      <div>
+        <label for="achievedValue">Achieved Value:</label>
+        <input
+          id="achievedValue"
+          formControlName="achievedValue"
+          type="number"
+        />
+      </div>
+  
+      <div>
+        <label for="status">Status:</label>
+        <input
+          id="status"
+          formControlName="status"
+          type="text"
+          required
+        />
+        <div *ngIf="updateGoalForm.get('status')?.invalid && updateGoalForm.get('status')?.touched">
+          <small class="error">Status is required.</small>
+        </div>
+      </div>
+  
+      <div>
+        <label for="feedbackRemarks">Feedback Remarks:</label>
+        <textarea
+          id="feedbackRemarks"
+          formControlName="feedbackRemarks"
+        ></textarea>
+      </div>
+  
+      <button type="submit" [disabled]="updateGoalForm.invalid || !selectedGoal">Update Goal</button>
+    </form>
+  </div>
+  
+  
 
-<form [formGroup]="createGoalForm" (ngSubmit)="createGoal()">
-  <div>
-    <label for="playerId">Player ID:</label>
-    <input
-      id="playerId"
-      formControlName="playerId"
-      type="number"
-      required
-    />
-    <div *ngIf="createGoalForm.get('playerId')?.invalid && createGoalForm.get('playerId')?.touched">
-      <small class="error">Player ID is required.</small>
+    
+<div *ngIf="selectedTab === 'performance'" class="mt-4">
+  <h3 class="text-info"><i class="fas fa-chart-line"></i> Player Performance Reports</h3>
+  <!-- Report Option Selector -->
+  <div class="btn-group mb-3" role="group" aria-label="Performance Report Options">
+    <button type="button" class="btn btn-outline-primary" (click)="setSelectedReportOption('individualMetrics')">
+      Individual Performance Metrics
+    </button>
+    <button type="button" class="btn btn-outline-primary" (click)="setSelectedReportOption('individualReports')">
+      Individual Performance Reports
+    </button>
+    <button type="button" class="btn btn-outline-primary" (click)="setSelectedReportOption('teamAverageReports')">
+      Team Average Performance Report
+    </button>
+    <button type="button" class="btn btn-outline-primary" (click)="setSelectedReportOption('UploadMetrics')">
+      Upload Metrics
+    </button>
+  </div>
+
+  <!-- Conditional Rendering of Reports -->
+  <div *ngIf="selectedReportOption === 'individualMetrics'">
+    <div *ngIf="playerMetrics.length > 0">
+      <ul class="list-group">
+        <li *ngFor="let metric of playerMetrics" class="list-group-item">
+          <p><strong>Name:</strong> {{ metric.playerName }}</p>
+          <p><strong>Date:</strong> {{ metric.recordDateTime }}</p>
+          <p><strong>HRV:</strong> {{ metric.hrv }}</p>
+          <p><strong>Top Speed:</strong> {{ metric.topSpeed }}</p>
+          <p><strong>Player Load:</strong> {{ metric.playerLoad }}</p>
+          <p><strong>Distance:</strong> {{ metric.totalDistanceCovered }}</p>
+          <p><strong>Calories:</strong> {{ metric.caloriesBurned }}</p>
+        </li>
+      </ul>
+    </div>
+    <div *ngIf="playerMetrics.length === 0">
+      <p>No individual performance metrics found.</p>
     </div>
   </div>
 
-  <div>
-    <label for="coachId">Coach ID:</label>
-    <input
-      id="coachId"
-      formControlName="coachId"
-      type="number"
-      required
-    />
-    <div *ngIf="createGoalForm.get('coachId')?.invalid && createGoalForm.get('coachId')?.touched">
-      <small class="error">Coach ID is required.</small>
+  <div *ngIf="selectedReportOption === 'individualReports'">
+    <div *ngIf="playerReports.length > 0">
+      <ul class="list-group">
+        <li *ngFor="let report of playerReports" class="list-group-item">
+          <p><strong>Name:</strong> {{ report.playerName }}</p>
+          <p><strong>Date:</strong> {{ report.reportDate  }}</p>
+          <p><strong>HRV Status:</strong> {{ report.hrvStatus }}</p>
+          <p><strong>Top Speed Status:</strong> {{ report.topSpeedStatus }}</p>
+          <p><strong>Player Load Status:</strong> {{ report.playerLoadStatus }}</p>
+          <p><strong>Distance Status:</strong> {{ report.distanceStatus }}</p>
+          <p><strong>Calories Status:</strong> {{ report.caloriesStatus }}</p>
+        </li>
+      </ul>
+    </div>
+    <div *ngIf="playerReports.length === 0">
+      <p>No individual performance reports found.</p>
     </div>
   </div>
 
-  <div>
-    <label for="goalType">Goal Type:</label>
-    <input
-      id="goalType"
-      formControlName="goalType"
-      type="text"
-      required
-    />
-    <div *ngIf="createGoalForm.get('goalType')?.invalid && createGoalForm.get('goalType')?.touched">
-      <small class="error">Goal Type is required.</small>
+  <div *ngIf="selectedReportOption === 'teamAverageReports'">
+    <div *ngIf="teammatesReports.length > 0">
+      <h4>Teammates' Performance Reports</h4>
+      <ul class="list-group">
+        <li *ngFor="let report of teammatesReports" class="list-group-item">
+          <p><strong>{{ report.playerName }}</strong></p>
+          <p><strong>Report Date:</strong> {{ report.reportDate | date: 'short' }}</p>
+          <p><strong>HRV Status:</strong> {{ report.hrvStatus }}</p>
+          <p><strong>Top Speed Status:</strong> {{ report.topSpeedStatus }}</p>
+          <p><strong>Player Load Status:</strong> {{ report.playerLoadStatus }}</p>
+          <p><strong>Distance Status:</strong> {{ report.distanceStatus }}</p>
+          <p><strong>Calories Status:</strong> {{ report.caloriesStatus }}</p>
+        </li>
+      </ul>
+    </div>
+    <div *ngIf="teammatesReports.length === 0">
+      <p>No teammates' performance reports found.</p>
     </div>
   </div>
 
-  <div>
-    <label for="goalDescription">Goal Description:</label>
-    <textarea
-      id="goalDescription"
-      formControlName="goalDescription"
-      required
-    ></textarea>
-    <div *ngIf="createGoalForm.get('goalDescription')?.invalid && createGoalForm.get('goalDescription')?.touched">
-      <small class="error">Goal Description is required.</small>
-    </div>
-  </div>
-
-  <div>
-    <label for="targetValue">Target Value:</label>
-    <input
-      id="targetValue"
-      formControlName="targetValue"
-      type="number"
-      required
-    />
-    <div *ngIf="createGoalForm.get('targetValue')?.invalid && createGoalForm.get('targetValue')?.touched">
-      <small class="error">Target Value is required.</small>
-    </div>
-  </div>
-
-  <div>
-    <label for="deadline">Deadline:</label>
-    <input
-      id="deadline"
-      formControlName="deadline"
-      type="date"
-      required
-    />
-    <div *ngIf="createGoalForm.get('deadline')?.invalid && createGoalForm.get('deadline')?.touched">
-      <small class="error">Deadline is required.</small>
-    </div>
-  </div>
-
-  <button type="submit" [disabled]="createGoalForm.invalid">Create Goal</button>
-</form>
-<h2>Update Goal</h2>
-
-<form [formGroup]="updateGoalForm" (ngSubmit)="updateGoal()">
-  <div>
-    <label for="achievedValue">Achieved Value:</label>
-    <input
-      id="achievedValue"
-      formControlName="achievedValue"
-      type="number"
-    />
-  </div>
-
-  <div>
-    <label for="status">Status:</label>
-    <input
-      id="status"
-      formControlName="status"
-      type="text"
-      required
-    />
-    <div *ngIf="updateGoalForm.get('status')?.invalid && updateGoalForm.get('status')?.touched">
-      <small class="error">Status is required.</small>
-    </div>
-  </div>
-
-  <div>
-    <label for="feedbackRemarks">Feedback Remarks:</label>
-    <textarea
-      id="feedbackRemarks"
-      formControlName="feedbackRemarks"
-    ></textarea>
-  </div>
-
-  <button type="submit" [disabled]="updateGoalForm.invalid">Update Goal</button>
-</form>
-  </div>
-
-  <!-- Performance Reports Section -->
-  <div *ngIf="selectedTab === 'performance'" class="mt-4">
-    <h3 class="text-info"><i class="fas fa-chart-line"></i> Team Performance Reports</h3>
-    <ul class="list-group">
-      <li *ngFor="let report of performanceReports" class="list-group-item">
-        <p><strong>Player Name:</strong> {{ report.playerName }}</p>
-        <p><strong>Report Date:</strong> {{ report.reportDate }}</p>
-        <p><strong>HRV Status:</strong> {{ report.hrvStatus }}</p>
-        <p><strong>Top Speed Status:</strong> {{ report.topSpeedStatus }}</p>
-        <p><strong>Player Load Status:</strong> {{ report.playerLoadStatus }}</p>
-        <p><strong>Distance Status:</strong> {{ report.distanceStatus }}</p>
-        <p><strong>Calories Status:</strong> {{ report.caloriesStatus }}</p>
-      </li>
-    </ul>
-    <div *ngIf="performanceReports.length === 0">
-      <p>No performance reports found for this team.</p>
-    </div>
-      <!-- Coach Dashboard Form for Uploading Metrics -->
+  <div *ngIf="selectedReportOption === 'UploadMetrics'">
 <div class="section">
   <h2>Upload Player Metrics</h2>
 
-  <!-- Success or Error Messages -->
-  <div *ngIf="successMessage" class="alert alert-success">{{ successMessage }}</div>
-  <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
+<!-- Success or Error Messages -->
+<div *ngIf="successMessage" class="alert alert-success">{{ successMessage }}</div>
+<div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
 
-  <!-- Form to upload metrics -->
-  <form [formGroup]="metricsForm" (ngSubmit)="onSubmit()">
-    <div class="form-group">
-      <label for="playerName">Player Name</label>
-      <input id="playerName" formControlName="playerName" class="form-control" type="text" />
-    </div>
-
-    <div class="form-group">
-      <label for="recordDateTime">Record Date & Time</label>
-      <input id="recordDateTime" formControlName="recordDateTime" class="form-control" type="string" />
-    </div>
-
-    <div class="form-group">
-      <label for="hrv">HRV</label>
-      <input id="hrv" formControlName="hrv" class="form-control" type="number" />
-    </div>
-
-    <div class="form-group">
-      <label for="topSpeed">Top Speed (km/h)</label>
-      <input id="topSpeed" formControlName="topSpeed" class="form-control" type="number" />
-    </div>
-
-    <div class="form-group">
-      <label for="playerLoad">Player Load</label>
-      <input id="playerLoad" formControlName="playerLoad" class="form-control" type="number" />
-    </div>
-
-    <div class="form-group">
-      <label for="totalDistanceCovered">Total Distance Covered (km)</label>
-      <input id="totalDistanceCovered" formControlName="totalDistanceCovered" class="form-control" type="number" />
-    </div>
-
-    <div class="form-group">
-      <label for="caloriesBurned">Calories Burned</label>
-      <input id="caloriesBurned" formControlName="caloriesBurned" class="form-control" type="number" />
-    </div>
-
-    <button type="submit" class="btn btn-primary" [disabled]="metricsForm.invalid">Upload Metrics</button>
-  </form>
-</div>
+<!-- Form to upload metrics -->
+<form [formGroup]="metricsForm" (ngSubmit)="submitMetricsForm()">
+  <div class="form-group">
+    <label for="playerName">Player Name</label>
+    <input id="playerName" formControlName="playerName" class="form-control" type="text" />
   </div>
 
+  <div class="form-group">
+    <label for="recordDateTime">Record Date & Time</label>
+    <input id="recordDateTime" formControlName="recordDateTime" class="form-control" type="text" />
+  </div>
 
+  <div class="form-group">
+    <label for="hrv">HRV</label>
+    <input id="hrv" formControlName="hrv" class="form-control" type="number" />
+  </div>
 
+  <div class="form-group">
+    <label for="topSpeed">Top Speed (km/h)</label>
+    <input id="topSpeed" formControlName="topSpeed" class="form-control" type="number" />
+  </div>
 
+  <div class="form-group">
+    <label for="playerLoad">Player Load</label>
+    <input id="playerLoad" formControlName="playerLoad" class="form-control" type="number" />
+  </div>
 
+  <div class="form-group">
+    <label for="totalDistanceCovered">Total Distance Covered (km)</label>
+    <input id="totalDistanceCovered" formControlName="totalDistanceCovered" class="form-control" type="number" />
+  </div>
 
+  <div class="form-group">
+    <label for="caloriesBurned">Calories Burned</label>
+    <input id="caloriesBurned" formControlName="caloriesBurned" class="form-control" type="number" />
+  </div>
 
+  <button type="submit" class="btn btn-primary" [disabled]="metricsForm.invalid">Upload Metrics</button>
+</form>
 
+  </div>
+</div>
 </div>
 
+</div>
 

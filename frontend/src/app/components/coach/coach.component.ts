@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Coach } from 'src/app/models/coach';
 import { Player } from 'src/app/models/player';
 import { PlayerGoal } from 'src/app/models/playergoal';
+import { PlayerPerformance } from 'src/app/models/playerperformance';
 import { PlayerPerformanceReport } from 'src/app/models/playerperformancereport';
 import { Team } from 'src/app/models/team';
 import { TrainingSession } from 'src/app/models/training-session';
@@ -30,18 +31,28 @@ export class CoachComponent implements OnInit {
   updateGoalForm!: FormGroup;
   selectedGoalId!: number;
   selectedTab: string = 'coach'; 
- teamIdC:number=1;
+  selectedReportOption: string = 'individualMetrics'; // Default option
+  playerMetrics: PlayerPerformance[] = [];
+  playerReports: PlayerPerformanceReport[] = [];
+  teammatesReports: any[] = [];
+
+ // Store the selected goal ID
+  selectedGoal: PlayerGoal | null = null;
+ 
 
   setSelectedTab(tab: string) {
    
     this.selectedTab = tab;
   }
+  setSelectedReportOption(option: string) {
+    this.selectedReportOption = option;
+  }
 
 
   playerId: number = 1;
   metricsForm: FormGroup;
-  successMessage: string = '';
-  errorMessage: string = '';
+  successMessage: string | null = null;
+  errorMessage: string | null = null;
   createTeamForm: FormGroup;
 
   constructor(private coachService: CoachService,
@@ -51,11 +62,11 @@ export class CoachComponent implements OnInit {
     this.metricsForm = this.fb.group({
       playerName: ['', Validators.required],
       recordDateTime: ['', Validators.required],
-      hrv: [null, [Validators.required, Validators.min(0)]],
-      topSpeed: [null, [Validators.required, Validators.min(0)]],
-      playerLoad: [null, [Validators.required, Validators.min(0)]],
-      totalDistanceCovered: [null, [Validators.required, Validators.min(0)]],
-      caloriesBurned: [null, [Validators.required, Validators.min(0)]],
+      hrv: [null, Validators.required],
+      topSpeed: [null, Validators.required],
+      playerLoad: [null, Validators.required],
+      totalDistanceCovered: [null, Validators.required],
+      caloriesBurned: [null, Validators.required],
     });
     this.createTeamForm = this.fb.group({
       teamName: ['', Validators.required],
@@ -89,7 +100,9 @@ export class CoachComponent implements OnInit {
     this.getCoachTeams();
     this.fetchTrainingSessions();
     this.getGoalsForCoach(); 
-    this.getTeamReports();
+    this.loadPlayerMetrics();
+    this.loadPlayerReports();
+    this.loadTeammatesReports();
     this.getUnassignedPlayers();
     
      
@@ -122,47 +135,42 @@ export class CoachComponent implements OnInit {
       
     );
   }
-  getTeamReports(): void {
-    this.coachService.getTeamReports(this.teamId).subscribe(
-      (reports: PlayerPerformanceReport[]) => {
-        this.performanceReports = reports;
+  loadPlayerMetrics(): void {
+    this.coachService.getPlayerMetrics(this.playerId).subscribe(
+      (data) => {
+        this.playerMetrics = data;
       },
       (error) => {
-        console.error('Error fetching team performance reports:', error);
+        console.error('Error loading performance metrics:', error);
       }
     );
   }
 
-  onSubmit(): void {
-    if (this.metricsForm.valid) {
-      const metrics = {
-        id: 0,  // Backend will handle ID (can be set if necessary)
-        playerId: this.playerId,
-        playerName: this.metricsForm.value.playerName,
-        recordDateTime: this.metricsForm.value.recordDateTime,
-        hrv: this.metricsForm.value.hrv,
-        topSpeed: this.metricsForm.value.topSpeed,
-        playerLoad: this.metricsForm.value.playerLoad,
-        totalDistanceCovered: this.metricsForm.value.totalDistanceCovered,
-        caloriesBurned: this.metricsForm.value.caloriesBurned,
-      };
-
-      this.coachService.uploadMetrics(this.playerId, metrics).subscribe(
-        response => {
-          this.successMessage = 'Metrics uploaded successfully!';
-          this.errorMessage = '';
-          this.metricsForm.reset(); // Reset form after success
-        },
-        error => {
-          this.errorMessage = 'An error occurred while uploading metrics.';
-          this.successMessage = '';
-        }
-      );
-    } else {
-      this.errorMessage = 'Please fill in all required fields correctly.';
-      this.successMessage = '';
-    }
+  loadPlayerReports(): void {
+    this.coachService.getPlayerReports(this.playerId).subscribe(
+      (data) => {
+        this.playerReports = data;
+      },
+      (error) => {
+        console.error('Error loading player reports:', error);
+      }
+    );
   }
+
+  // Fetch teammates' performance reports
+  loadTeammatesReports(): void {
+    this.coachService.getTeammatesReports(this.playerId).subscribe(
+      (data) => {
+        this.teammatesReports = data; // Store teammates' performance reports
+      },
+      (error) => {
+        console.error('Error loading teammates reports:', error);
+      }
+    );
+  }
+
+
+  
 
 
   getUnassignedPlayers(): void {
@@ -177,28 +185,33 @@ export class CoachComponent implements OnInit {
   }
   createTeam(): void {
     if (this.createTeamForm.invalid) {
-      return;  // If form is invalid, do not submit
+      return; // If the form is invalid, do not submit
     }
-  const newTeam: Team = {
-    teamId:this.teamIdC,
-    name: this.createTeamForm.get('teamName')?.value,
-    sportCategory: this.createTeamForm.get('sportCategory')?.value,
-    coachId: this.coachId,  // Set coachId dynamically
-    playerIds: this.createTeamForm.get('playerIds')?.value,  // Get selected player IDs
-  };
-
-  this.coachService.createTeam(newTeam).subscribe(
-    (response) => {
-      console.log('Team created successfully', response);
-      const createdTeam: Team = response;  // Assuming response includes the generated teamId
-      console.log('Generated teamId:', createdTeam.teamId);
-      this.createTeamForm.reset();  // Reset the form
-    },
-    (error) => {
-      console.error('Error creating team:', error);
-    }
-  );
-}
+  
+    // Prepare the new team object without setting teamId
+    const newTeam: Team = {
+      name: this.createTeamForm.get('teamName')?.value,
+      sportCategory: this.createTeamForm.get('sportCategory')?.value,
+      coachId: this.coachId,  // Set coachId dynamically
+      playerIds: this.createTeamForm.get('playerIds')?.value,  // Get selected player IDs
+    };
+  
+    this.coachService.createTeam(newTeam).subscribe(
+      (response) => {
+        console.log('Team created successfully', response);
+  
+        // Assume the response includes the newly generated teamId from the backend
+        const createdTeam: Team = response;
+        console.log('Generated teamId:', createdTeam.teamId);
+  
+        this.createTeamForm.reset(); // Reset the form after successful submission
+      },
+      (error) => {
+        console.error('Error creating team:', error);
+      }
+    );
+  }
+  
 
 createSession(): void {
   
@@ -228,49 +241,82 @@ createSession(): void {
 }
 
 
+submitMetricsForm(): void {
+  if (this.metricsForm.valid) {
+    const metricsData = {
+      playerId: this.playerId, // Set dynamically based on selected player
+      playerName: this.metricsForm.get('playerName')?.value,
+      recordDateTime: this.metricsForm.get('recordDateTime')?.value,
+      hrv: this.metricsForm.get('hrv')?.value,
+      topSpeed: this.metricsForm.get('topSpeed')?.value,
+      playerLoad: this.metricsForm.get('playerLoad')?.value,
+      totalDistanceCovered: this.metricsForm.get('totalDistanceCovered')?.value,
+      caloriesBurned: this.metricsForm.get('caloriesBurned')?.value,
+    };
 
-
-
-
-
-  createGoal(): void {
-    if (this.createGoalForm.valid) {
-      const newGoal: PlayerGoal = this.createGoalForm.value;
-      this.coachService.createGoal(newGoal).subscribe(
-        (response) => {
-          console.log('Goal created successfully:', response);
-          this.createGoalForm.reset();
-        },
-        (error) => {
-          console.error('Error creating goal:', error);
-        }
-      );
-    }
+    this.coachService.uploadMetrics(this.playerId, metricsData).subscribe({
+      next: (response) => {
+        this.successMessage = 'Metrics uploaded successfully!';
+        this.errorMessage = null;
+        this.metricsForm.reset();
+      },
+      error: (error) => {
+        this.errorMessage = 'Failed to upload metrics. Please try again.';
+        this.successMessage = null;
+        console.error('Error uploading metrics:', error);
+      }
+    });
   }
+}
 
-  updateGoal(): void {
-    if (this.updateGoalForm.valid && this.selectedGoalId) {
-      const updatedGoal: Partial<PlayerGoal> = this.updateGoalForm.value;
-      this.coachService.updateGoal(this.selectedGoalId, updatedGoal).subscribe(
-        (response) => {
-          console.log('Goal updated successfully:', response);
-          this.updateGoalForm.reset();
-          this.selectedGoalId = 0; // Clear the goal ID after updating
-        },
-        (error) => {
-          console.error('Error updating goal:', error);
-        }
-      );
-    } else {
-      console.error('Goal ID is required for updating the goal');
-    }
-  }
 
-  // Use this method to set the goal ID for updating
-  selectGoalToUpdate(goalId: number): void {
-    this.selectedGoalId = goalId;
+
+createGoal(): void {
+  if (this.createGoalForm.valid) {
+    const newGoal = this.createGoalForm.value;
+    this.coachService.createGoal(newGoal).subscribe({
+      next: () => {
+        this.successMessage = 'Goal created successfully!';
+        this.createGoalForm.reset();
+        this.getGoalsForCoach(); // Refresh the goals list
+      },
+      error: () => {
+        this.errorMessage = 'Error creating goal. Please try again.';
+      }
+    });
   }
- 
+}
+onSelectGoal(event: Event): void {
+  const selectElement = event.target as HTMLSelectElement; // Cast to HTMLSelectElement
+  if (selectElement) {
+    const goalId = Number(selectElement.value); // Get the selected goal ID
+    this.selectedGoal = this.goals.find(goal => goal.goalId === goalId) || null;
+  }
+}
+
+
+updateGoal(): void {
+  if (this.updateGoalForm.valid && this.selectedGoal) {
+    const updatedGoal = { ...this.selectedGoal, ...this.updateGoalForm.value };
+    const goalId = this.selectedGoal.goalId;
+
+    this.coachService.updateGoal(goalId, updatedGoal).subscribe({
+      next: () => {
+        this.successMessage = 'Goal updated successfully!';
+        this.errorMessage = null;
+        this.updateGoalForm.reset();
+        this.selectedGoal = null;
+        this.getGoalsForCoach();
+      },
+      error: () => {
+        this.errorMessage = 'Error updating goal. Please try again.';
+      }
+    });
+  }
+}
+
+
+
 }
 
   
