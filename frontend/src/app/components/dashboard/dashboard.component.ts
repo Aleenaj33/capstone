@@ -12,7 +12,7 @@ import { PlayerPerformanceReport } from 'src/app/models/playerperformancereport'
   styleUrls: ['./dashboard.component.css']
 })
 export class DashboardComponent implements OnInit {
-  playerId: number = 3; // Hardcoded playerId for now
+  playerId: number = 2; // Hardcoded playerId for now
   player: Player | undefined;
   teamMembers: Player[] = [];
   trainingSessions: TrainingSession[] = [];

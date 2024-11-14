@@ -6,6 +6,7 @@ import { RouterModule } from '@angular/router';  // Import RouterModule
 
 import { AppComponent } from './app.component';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
+
 import { AppRoutingModule } from './app-routing.module';  // Import AppRoutingModule
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
@@ -15,16 +16,22 @@ import { RegisterComponent } from './register/register.component';
 // import { PlayerFormComponent } from './player-form/player-form.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
+import { CoachComponent } from './components/coach/coach.component';
+
+  // Import AppRoutingModule
+
 @NgModule({
   providers: [DatePipe],
   declarations: [
    
     AppComponent,
     DashboardComponent,
+
     LoginComponent,
-    RegisterComponent
+    RegisterComponent,
     // PlayerFormComponent,
-   
+    CoachComponent
+
   ],
   imports: [
     NgbModule,
@@ -32,9 +39,11 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
     HttpClientModule,
     CommonModule,
     AppRoutingModule,  // Include AppRoutingModule
+
     RouterModule  ,
     ReactiveFormsModule,
     FormsModule
+
   ],
   bootstrap: [AppComponent]
 })

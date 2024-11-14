@@ -1,0 +1,188 @@
+/* Container for all content */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  
+  /* Heading Styles */
+  h1, h3, h2 {
+    text-align: center;
+    color: #333;
+  }
+  
+  h1 {
+    font-size: 2.5rem;
+    color: #007bff;
+  }
+  
+  h3 {
+    font-size: 1.8rem;
+  }
+  
+  h2 {
+    font-size: 1.5rem;
+    margin-top: 20px;
+    margin-bottom: 20px;
+  }
+  
+  /* Navbar Styles */
+  .navbar {
+    background-color: #f8f9fa;
+    border-radius: 5px;
+    margin-bottom: 20px;
+  }
+  
+  .navbar-nav {
+    display: flex;
+    justify-content: space-between;
+  }
+  
+  .navbar-nav .nav-item {
+    margin-left: 20px;
+    font-size: 1rem;
+  }
+  
+  .navbar-nav .nav-link {
+    color: #007bff;
+    text-decoration: none;
+  }
+  
+  .navbar-nav .nav-link:hover {
+    color: #0056b3;
+  }
+  
+  /* Card Styles */
+  .card {
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+  }
+  
+  .card-header {
+    background-color: #007bff;
+    color: #fff;
+    font-weight: bold;
+    padding: 15px;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+  }
+  
+  .card-body {
+    padding: 20px;
+  }
+  
+  /* Table Styles */
+  .table {
+    width: 100%;
+    margin-bottom: 20px;
+    border-collapse: collapse;
+  }
+  
+  .table th, .table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+  }
+  
+  .table-striped tbody tr:nth-child(odd) {
+    background-color: #f9f9f9;
+  }
+  
+  .table-bordered {
+    border: 1px solid #ddd;
+  }
+  
+  .table-hover tbody tr:hover {
+    background-color: #f1f1f1;
+  }
+  
+  /* Form Styles */
+  form {
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  form .form-group {
+    margin-bottom: 20px;
+  }
+  
+  label {
+    display: block;
+    font-size: 1rem;
+    margin-bottom: 5px;
+  }
+  
+  input, select, textarea {
+    width: 100%;
+    padding: 10px;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  
+  input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: #007bff;
+  }
+  
+  .error {
+    color: red;
+    font-size: 0.875rem;
+  }
+  
+  button {
+    display: inline-block;
+    padding: 10px 20px;
+    font-size: 1rem;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  button:hover {
+    background-color: #0056b3;
+  }
+  
+  button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+  }
+  
+  /* List Group Styles */
+  .list-group {
+    margin-bottom: 20px;
+  }
+  
+  .list-group-item {
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    margin-bottom: 10px;
+    padding: 15px;
+    border-radius: 5px;
+  }
+  
+  .list-group-item p {
+    margin: 5px 0;
+  }
+  
+  /* Success/Error Messages */
+  .alert {
+    margin-top: 20px;
+  }
+  
+  .alert-success {
+    background-color: #28a745;
+    color: white;
+  }
+  
+  .alert-danger {
+    background-color: #dc3545;
+    color: white;
+  }
+  

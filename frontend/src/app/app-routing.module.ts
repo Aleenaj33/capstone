@@ -12,6 +12,9 @@ const routes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent }, 
 ];
+import { CoachComponent } from './components/coach/coach.component';
+
+
 
 @NgModule({
   imports: [RouterModule.forRoot(routes)],
