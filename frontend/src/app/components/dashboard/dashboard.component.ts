@@ -22,6 +22,10 @@ export class DashboardComponent implements OnInit {
   playerMetrics: PlayerPerformance[] = [];
   playerReports: PlayerPerformanceReport[] = [];
   teammatesReports: any[] = []; // Changed to generic 'any' to handle specific fields
+  playerNames: string|null=null;
+  sessions: TrainingSession[] = []; // Initialize as empty array
+  playerIds:number[]|null=null;
+
 
   constructor(private playerService: PlayerService) {}
 
@@ -55,11 +59,15 @@ export class DashboardComponent implements OnInit {
     });
   }
 
+  
   loadTrainingSessions(): void {
     this.playerService.getTrainingSessionsByPlayerId(this.playerId).subscribe((data) => {
       this.trainingSessions = data;
     });
   }
+  
+ 
+  
 
   loadPlayerGoals(): void {
     this.playerService.getGoalsByPlayerId(this.playerId).subscribe(
@@ -105,4 +113,6 @@ export class DashboardComponent implements OnInit {
       }
     );
   }
+  
+  
 }

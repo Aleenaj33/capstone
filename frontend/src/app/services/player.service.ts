@@ -5,7 +5,7 @@ import { PlayerPerformanceReport } from "../models/playerperformancereport";
 import { PlayerPerformance } from "../models/playerperformance";
 import { environment } from "src/environments/environment";
 import { Injectable } from "@angular/core";
-import { HttpClient } from "@angular/common/http";
+import { HttpClient, HttpParams } from "@angular/common/http";
 import { Player } from "../models/player";
 import { TrainingSession } from "../models/training-session";
 import { PlayerGoal } from "../models/playergoal";
@@ -53,4 +53,10 @@ export class PlayerService {
   getTeamAveragePerformanceReport(playerId: number): Observable<PlayerPerformanceReport> {
     return this.http.get<PlayerPerformanceReport>(`${this.apiUrl}/player/${playerId}/team-average-performance`);
   }
+  //
+  //
+  //
+  
+ 
+
 }

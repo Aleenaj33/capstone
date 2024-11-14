@@ -4,4 +4,6 @@ export interface TrainingSession {
     playerIds: number[];
     date: string;
     duration: string;
+
+    
   }

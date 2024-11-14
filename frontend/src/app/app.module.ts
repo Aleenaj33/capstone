@@ -7,17 +7,34 @@ import { RouterModule } from '@angular/router';  // Import RouterModule
 import { AppComponent } from './app.component';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { AppRoutingModule } from './app-routing.module';  // Import AppRoutingModule
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+
+import { CommonModule, DatePipe } from '@angular/common';
+import { LoginComponent } from './login/login.component';
+import { RegisterComponent } from './register/register.component';
+// import { PlayerFormComponent } from './player-form/player-form.component';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 @NgModule({
+  providers: [DatePipe],
   declarations: [
+   
     AppComponent,
-    DashboardComponent
+    DashboardComponent,
+    LoginComponent,
+    RegisterComponent
+    // PlayerFormComponent,
+   
   ],
   imports: [
+    NgbModule,
     BrowserModule,
     HttpClientModule,
+    CommonModule,
     AppRoutingModule,  // Include AppRoutingModule
-    RouterModule  // Ensure RouterModule is imported here
+    RouterModule  ,
+    ReactiveFormsModule,
+    FormsModule
   ],
   bootstrap: [AppComponent]
 })
