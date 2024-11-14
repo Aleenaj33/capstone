@@ -6,18 +6,23 @@ import { RouterModule } from '@angular/router';  // Import RouterModule
 
 import { AppComponent } from './app.component';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
-import { AppRoutingModule } from './app-routing.module';  // Import AppRoutingModule
+import { AppRoutingModule } from './app-routing.module';
+import { CoachComponent } from './components/coach/coach.component';
+import { ReactiveFormsModule } from '@angular/forms';
+  // Import AppRoutingModule
 
 @NgModule({
   declarations: [
     AppComponent,
-    DashboardComponent
+    DashboardComponent,
+    CoachComponent
   ],
   imports: [
     BrowserModule,
     HttpClientModule,
     AppRoutingModule,  // Include AppRoutingModule
-    RouterModule  // Ensure RouterModule is imported here
+    RouterModule ,
+    ReactiveFormsModule
   ],
   bootstrap: [AppComponent]
 })

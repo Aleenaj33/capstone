@@ -86,7 +86,12 @@
           <tr *ngFor="let session of trainingSessions">
             <td>{{ session.sessionId }}</td>
             <td>{{ session.coachId }}</td>
-            <td>{{ session.playerIds.join(', ') }}</td>
+            <td>
+              <!-- Only call join if playerIds is an array -->
+             
+                {{ session.playerIds }}
+             
+            </td>
             <td>{{ session.date }}</td>
             <td>{{ session.duration }}</td>
           </tr>
@@ -140,7 +145,7 @@
       <div *ngIf="playerMetrics.length > 0">
         <ul class="list-group">
           <li *ngFor="let metric of playerMetrics" class="list-group-item">
-            <p><strong>Date:</strong> {{ metric.recordDateTime | date: 'short' }}</p>
+            <p><strong>Date:</strong> {{ metric.recordDateTime }}</p>
             <p><strong>HRV:</strong> {{ metric.hrv }}</p>
             <p><strong>Top Speed:</strong> {{ metric.topSpeed }}</p>
             <p><strong>Player Load:</strong> {{ metric.playerLoad }}</p>
@@ -158,7 +163,7 @@
       <div *ngIf="playerReports.length > 0">
         <ul class="list-group">
           <li *ngFor="let report of playerReports" class="list-group-item">
-            <p><strong>Date:</strong> {{ report.reportDate | date: 'short' }}</p>
+            <p><strong>Date:</strong> {{ report.reportDate  }}</p>
             <p><strong>HRV Status:</strong> {{ report.hrvStatus }}</p>
             <p><strong>Top Speed Status:</strong> {{ report.topSpeedStatus }}</p>
             <p><strong>Player Load Status:</strong> {{ report.playerLoadStatus }}</p>

@@ -1,7 +1,7 @@
 export interface Team {
-    teamId: number;
-    name: string;
-    sportCategory: string;
-    coachId: number;
-    playerIds: number[];
-  }
+  teamId: number;  // Make teamId optional
+  name: string;
+  sportCategory: string;
+  coachId: number;
+  playerIds: number[];
+}
