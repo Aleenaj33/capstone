@@ -14,6 +14,27 @@ h1, h2, h3, h4, h5, h6 {
   font-weight: bold;
   font-size: 1.1rem;
 }
+/* Ensure highlight style applies correctly */
+table tbody tr.highlight {
+  background-color: #f8d7da !important; /* Light red background */
+  color: #721c24 !important; /* Dark red text */
+}
+/* Increase the table border size */
+
+
+
+.highlight td {
+  background-color: #f8d7da !important; /* Ensure it applies to all table cells */
+  color: #721c24 !important; /* Ensure it applies to all table cells */
+}
+
+.date-row {
+  height: 60px;
+  vertical-align: middle;  /* Optional: Centers the text vertically */
+}
+
+
+
 
 /* Styling for cards */
 .card {

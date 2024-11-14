@@ -1,6 +1,10 @@
 import { Component } from '@angular/core';
-import { Router } from '@angular/router'; // Import Router for navigation
+import { Router } from '@angular/router';
 import { NgForm } from '@angular/forms';
+import { PlayerService } from '../services/player.service';
+import { CoachService } from '../services/coach.service'; // Correct import for CoachService
+import { Player } from '../models/player';
+import { Coach } from '../models/coach';
 
 @Component({
   selector: 'app-register',
@@ -15,38 +19,62 @@ export class RegisterComponent {
   showRoleForm: boolean = false;
 
   // Player and Coach objects
-  player = { name: '', sport: '', teamId: null, age: null, height: null, weight: null };
-  coach = { name: '', sport: '', age: null, email: '' };
+  player: Player = { playerId: 0, name: '', email: '', sport: '', teamId: 0, age: 0, height: 0, weight: 0 };
+  coach: Coach = { coachId: 0, name: '', email: '', sport: '', age: 0, teamIds: [0] };
 
-  constructor(private router: Router) {}
+  constructor(
+    private router: Router,
+    private playerService: PlayerService,
+    private coachService: CoachService // Inject CoachService correctly
+  ) {}
 
-  // Determine if the form is valid
+  // Check if the initial form is valid
   get isFormValid(): boolean {
-    return this.password === this.confirmPassword && this.role !== '' && this.email !== '' && this.password !== '' && this.confirmPassword !== '';
+    return (
+      this.password === this.confirmPassword &&
+      this.role !== '' &&
+      this.email !== '' &&
+      this.password !== '' &&
+      this.confirmPassword !== ''
+    );
   }
 
-  // Handle initial registration form submit
+  // Handle initial registration form submission
   onRegisterSubmit(form: NgForm): void {
     if (this.isFormValid) {
       this.showRoleForm = true;
     }
   }
 
-  // Create Player form
+  // Handle player creation
   createPlayerForm(playerForm: NgForm): void {
     if (playerForm.valid) {
-      // Save player data logic here (e.g., HTTP request to save data)
-      // Redirect to login page
-      this.router.navigate(['/login']);
+      this.player.email = this.email; // Assign the initial form email to player
+      this.playerService.createPlayer(this.player).subscribe(
+        () => {
+          console.log('Player added successfully');
+          this.router.navigate(['/login']);
+        },
+        (error) => {
+          console.error('Error saving player:', error);
+        }
+      );
     }
   }
 
-  // Create Coach form
+  // Handle coach creation
   createCoachForm(coachForm: NgForm): void {
     if (coachForm.valid) {
-      // Save coach data logic here (e.g., HTTP request to save data)
-      // Redirect to login page
-      this.router.navigate(['/login']);
+      this.coach.email = this.email; // Assign the initial form email to coach
+      this.coachService.createCoach(this.coach).subscribe(
+        () => {
+          console.log('Coach added successfully');
+          this.router.navigate(['/login']);
+        },
+        (error) => {
+          console.error('Error saving coach:', error);
+        }
+      );
     }
   }
 }
