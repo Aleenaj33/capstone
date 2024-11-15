@@ -4,15 +4,17 @@ import { RouterModule, Routes } from '@angular/router';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { LoginComponent } from './login/login.component';
 import { RegisterComponent } from './register/register.component';
-
-const routes: Routes = [
-  { path: '', component: DashboardComponent },  // Default route to Dashboard
-  { path: '**', redirectTo: '', pathMatch: 'full' }  // Redirect unknown routes to Dashboard
-  // { path: '', component: LoginComponent },  // Default route to login page
-  // { path: 'login', component: LoginComponent },
-  // { path: 'register', component: RegisterComponent }, 
-];
 import { CoachComponent } from './components/coach/coach.component';
+
+
+ const routes: Routes = [
+  { path: 'login', component: LoginComponent },
+  { path: 'register', component: RegisterComponent },
+  { path: 'player-dashboard', component: DashboardComponent }, // Protected route
+  { path: 'coach-dashboard', component: CoachComponent}, // Protected route
+  { path: '', redirectTo: '/login', pathMatch: 'full' } // Default route
+];
+
 
 
 

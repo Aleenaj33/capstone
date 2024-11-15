@@ -5,19 +5,19 @@
   <!-- Navbar for Navigation -->
   <nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm rounded">
     <div class="navbar-nav d-flex justify-content-between w-100">
-      <a class="nav-item nav-link ml-3" href="#" (click)="setSelectedTab('coach')">
+      <a class="nav-item nav-link ml-3" href="#" (click)="setSelectedTab('coach'); $event.preventDefault()">
         <i class="fas fa-user-circle"></i> Coach Details
       </a>
-      <a class="nav-item nav-link ml-3" href="#" (click)="setSelectedTab('teams')">
+      <a class="nav-item nav-link ml-3" href="#" (click)="setSelectedTab('teams'); $event.preventDefault()">
         <i class="fas fa-users"></i> Teams
       </a>
-      <a class="nav-item nav-link ml-3" href="#" (click)="setSelectedTab('training')">
+      <a class="nav-item nav-link ml-3" href="#" (click)="setSelectedTab('training'); $event.preventDefault()">
         <i class="fas fa-dumbbell"></i> Training Sessions
       </a>
-      <a class="nav-item nav-link ml-3" href="#" (click)="setSelectedTab('goals')">
+      <a class="nav-item nav-link ml-3" href="#" (click)="setSelectedTab('goals'); $event.preventDefault()">
         <i class="fas fa-trophy"></i> Player Goals
       </a>
-      <a class="nav-item nav-link ml-3" href="#" (click)="setSelectedTab('performance')">
+      <a class="nav-item nav-link ml-3" href="#" (click)="setSelectedTab('performance'); $event.preventDefault()">
         <i class="fas fa-chart-line"></i> Performance Reports
       </a>
     </div>

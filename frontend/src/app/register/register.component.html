@@ -29,8 +29,8 @@
 
       <!-- Role Selection -->
       <div class="mb-3">
-        <label for="role" class="form-label">Role</label>
-        <select id="role" name="role" [(ngModel)]="role" class="form-control" required>
+        <label for="roles" class="form-label">Role</label>
+        <select id="roles" name="roles" [(ngModel)]="roles" class="form-control" required>
           <option value="" disabled selected>Select Role</option>
           <option value="player">Player</option>
           <option value="coach">Coach</option>
@@ -43,7 +43,7 @@
   </div>
 
   <!-- Player Form (Visible if role is 'player' and after submit) -->
-  <div *ngIf="showRoleForm && role === 'player'" class="mt-5 col-md-6 mx-auto">
+  <div *ngIf="showRoleForm && roles === 'player'" class="mt-5 col-md-6 mx-auto">
     <h3>Player Details</h3>
     <form #playerForm="ngForm" (ngSubmit)="createPlayerForm(playerForm)" class="form-group">
       <div class="mb-3">
@@ -79,7 +79,7 @@
   </div>
 
   <!-- Coach Form (Visible if role is 'coach' and after submit) -->
-  <div *ngIf="showRoleForm && role === 'coach'" class="mt-5 col-md-6 mx-auto">
+  <div *ngIf="showRoleForm && roles === 'coach'" class="mt-5 col-md-6 mx-auto">
     <h3>Coach Details</h3>
     <form #coachForm="ngForm" (ngSubmit)="createCoachForm(coachForm)" class="form-group">
       <div class="mb-3">

@@ -8,42 +8,42 @@
       <a
         class="nav-item nav-link text-white"
         href="#"
-        (click)="setSelectedTab('player')"
+        (click)="setSelectedTab('player'); $event.preventDefault()"
       >
         <i class="fas fa-user-circle"></i> Player Details
       </a>
       <a
         class="nav-item nav-link text-white"
         href="#"
-        (click)="setSelectedTab('coach')"
+        (click)="setSelectedTab('coach'); $event.preventDefault()"
       >
         <i class="fas fa-chalkboard-teacher"></i> My Coach
       </a>
       <a
         class="nav-item nav-link text-white"
         href="#"
-        (click)="setSelectedTab('team')"
+        (click)="setSelectedTab('team'); $event.preventDefault()"
       >
         <i class="fas fa-users"></i> Team Details
       </a>
       <a
         class="nav-item nav-link text-white"
         href="#"
-        (click)="setSelectedTab('training')"
+        (click)="setSelectedTab('training'); $event.preventDefault()"
       >
         <i class="fas fa-dumbbell"></i> Training Sessions
       </a>
       <a
         class="nav-item nav-link text-white"
         href="#"
-        (click)="setSelectedTab('performance')"
+        (click)="setSelectedTab('performance'); $event.preventDefault()"
       >
         <i class="fas fa-chart-line"></i> Performance Reports
       </a>
       <a
         class="nav-item nav-link text-white"
         href="#"
-        (click)="setSelectedTab('goals')"
+        (click)="setSelectedTab('goals'); $event.preventDefault()"
       >
         <i class="fas fa-trophy"></i> Player Goals
       </a>
@@ -194,21 +194,21 @@
       <button
         type="button"
         class="btn btn-outline-primary"
-        (click)="setSelectedReportOption('individualMetrics')"
+        (click)="setSelectedReportOption('individualMetrics'); $event.preventDefault()"
       >
         Individual Performance Metrics
       </button>
       <button
         type="button"
         class="btn btn-outline-primary"
-        (click)="setSelectedReportOption('individualReports')"
+        (click)="setSelectedReportOption('individualReports'); $event.preventDefault()"
       >
         Individual Performance Reports
       </button>
       <button
         type="button"
         class="btn btn-outline-primary"
-        (click)="setSelectedReportOption('teamAverageReports')"
+        (click)="setSelectedReportOption('teamAverageReports'); $event.preventDefault()"
       >
         Team Average Performance Report
       </button>
