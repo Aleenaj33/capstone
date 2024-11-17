@@ -92,7 +92,7 @@
 
   <!-- Team Details Section -->
   <div *ngIf="selectedTab === 'team'" class="mt-4">
-    <h3 class="text-success"><i class="fas fa-users"></i> Team Members</h3>
+    
     <div *ngIf="teamMembers.length > 0">
       <table class="table table-striped table-bordered table-hover">
         <thead>
@@ -120,9 +120,7 @@
 
   <!-- Training Sessions Section -->
   <div *ngIf="selectedTab === 'training'" class="mt-4">
-    <h3 class="text-warning">
-      <i class="fas fa-dumbbell"></i> Training Sessions
-    </h3>
+    
     <div *ngIf="trainingSessions.length > 0">
       <table class="table table-striped table-bordered table-hover">
         <thead>
@@ -153,7 +151,7 @@
 
   <!-- Player Goals Section -->
   <div *ngIf="selectedTab === 'goals'" class="mt-4">
-    <h3 class="text-warning"><i class="fas fa-trophy"></i> Player Goals</h3>
+    
     <div *ngIf="playerGoals.length > 0">
       <ul class="list-group">
         <li *ngFor="let goal of playerGoals" class="list-group-item">
@@ -182,9 +180,7 @@
 
   <!-- Performance Reports Section -->
   <div *ngIf="selectedTab === 'performance'" class="mt-4">
-    <h3 class="text-info">
-      <i class="fas fa-chart-line"></i> Performance Reports
-    </h3>
+   
     <!-- Report Option Selector -->
     <div
       class="btn-group mb-3"
@@ -225,14 +221,14 @@
             <p><strong>HRV:</strong> {{ metric.hrv }}</p>
             <p>
               <strong>Top Speed:</strong>
-              <i class="fas fa-tachometer-alt"></i> {{ metric.topSpeed }}
+               {{ metric.topSpeed }}
             </p>
             <p><strong>Player Load:</strong> {{ metric.playerLoad }}</p>
             <p>
               <strong>Distance:</strong> {{ metric.totalDistanceCovered }} km
             </p>
             <p>
-              <strong>Calories:</strong> <i class="fas fa-fire"></i>
+              <strong>Calories:</strong> 
               {{ metric.caloriesBurned }} kcal
             </p>
           </li>

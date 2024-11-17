@@ -4,7 +4,8 @@ export interface Coach {
     sport: string;
     teamIds: number[];
     age:number;
-    email:string 
+    email:string;
+    
  
   }
   

@@ -8,6 +8,10 @@ import { PlayerPerformanceReport } from 'src/app/models/playerperformancereport'
 import { Team } from 'src/app/models/team';
 import { TrainingSession } from 'src/app/models/training-session';
 import { CoachService } from 'src/app/services/coach.service';
+import { forkJoin } from 'rxjs';
+import { map } from 'rxjs/operators';
+
+
 
 @Component({
   selector: 'app-coach',
@@ -17,10 +21,10 @@ import { CoachService } from 'src/app/services/coach.service';
 export class CoachComponent implements OnInit {
   coach: Coach | undefined;
   teams: Team[] = [];
-  coachId: number =10;
+  coachId: number =1;
   trainingSessions: TrainingSession[] = [];
-  goals: PlayerGoal[] = [];
-  teamId: number = 2;
+ 
+  teamId: number = 1;
   performanceReports: PlayerPerformanceReport[] = [];
   unassignedPlayers: Player[] = [];
   teamName: string = '';
@@ -30,15 +34,25 @@ export class CoachComponent implements OnInit {
   createGoalForm!: FormGroup;
   updateGoalForm!: FormGroup;
   selectedGoalId!: number;
-  selectedTab: string = 'coach'; 
+  selectedTab: string = 'profile'; 
   selectedReportOption: string = 'individualMetrics'; // Default option
   playerMetrics: PlayerPerformance[] = [];
   playerReports: PlayerPerformanceReport[] = [];
   teammatesReports: any[] = [];
+  showGoalModal = false;
+  editingGoal = false;
+  goals: PlayerGoal[] = [];
+  metricsForm: FormGroup;
+  createTeamForm: FormGroup;
+  successMessage: string | null = null;
+  errorMessage: string | null = null;
+  showCreateTeamModal = false;
+  showCreateSessionModal = false;
+  showUpdateGoalModal = false;
 
  // Store the selected goal ID
   selectedGoal: PlayerGoal | null = null;
- 
+  players: Player[] = [];
 
   setSelectedTab(tab: string) {
    
@@ -50,10 +64,11 @@ export class CoachComponent implements OnInit {
 
 
   playerId: number = 1;
-  metricsForm: FormGroup;
-  successMessage: string | null = null;
-  errorMessage: string | null = null;
-  createTeamForm: FormGroup;
+
+  logout() {
+    // Implement your logout logic here
+    console.log('Logging out...');
+  }
 
   constructor(private coachService: CoachService,
     private fb: FormBuilder,
@@ -80,11 +95,10 @@ export class CoachComponent implements OnInit {
       playerIds: [[], Validators.required]
     });
     this.createGoalForm = this.fb.group({
-      playerId: [null, Validators.required],
-      coachId: [null, Validators.required],
+      playerId: ['', Validators.required],
       goalType: ['', Validators.required],
       goalDescription: ['', Validators.required],
-      targetValue: [null, Validators.required],
+      targetValue: ['', [Validators.required, Validators.min(0)]],
       deadline: ['', Validators.required]
     });
 
@@ -104,8 +118,7 @@ export class CoachComponent implements OnInit {
     this.loadPlayerReports();
     this.loadTeammatesReports();
     this.getUnassignedPlayers();
-    
-     
+    this.getPlayers();
   }
 
   getCoachInfo(): void {
@@ -271,6 +284,103 @@ submitMetricsForm(): void {
 
 
 
+// Add these properties
+
+
+// Add these methods
+openCreateTeamModal(): void {
+  this.showCreateTeamModal = true;
+}
+
+cancelCreateTeam(): void {
+  this.showCreateTeamModal = false;
+  this.createTeamForm.reset();
+}
+
+
+
+editTeam(team: Team): void {
+  // Implement edit team logic
+  console.log('Editing team:', team);
+}
+
+deleteTeam(teamId: number | undefined): void {
+  if (!teamId) {
+    console.error('Team ID is undefined');
+    return;
+  }
+
+  if (confirm('Are you sure you want to delete this team?')) {
+    this.coachService.deleteTeam(teamId).subscribe({
+      next: () => {
+        this.teams = this.teams.filter(team => team.teamId !== teamId);
+      },
+      error: (error) => {
+        console.error('Error deleting team:', error);
+      }
+    });
+  }
+}
+
+
+
+openCreateSessionModal(): void {
+  this.showCreateSessionModal = true;
+}
+
+cancelCreateSession(): void {
+  this.showCreateSessionModal = false;
+  this.createSessionForm.reset();
+}
+
+getPlayerCount(playerIds: string | number[]): number {
+  if (Array.isArray(playerIds)) {
+    return playerIds.length;
+  }
+  return playerIds.split(',').length;
+}
+
+deleteSession(sessionId: number): void {
+  if (confirm('Are you sure you want to delete this session?')) {
+    this.coachService.deleteTrainingSession(sessionId).subscribe({
+      next: () => {
+        this.trainingSessions = this.trainingSessions.filter(
+          session => session.sessionId !== sessionId
+        );
+      },
+      error: (error) => {
+        console.error('Error deleting session:', error);
+      }
+    });
+  }
+}
+
+editSession(session: TrainingSession): void {
+  // Implement edit functionality
+  console.log('Editing session:', session);
+}
+
+showCreateGoalModal = false;
+
+
+
+
+
+
+
+
+
+
+getPlayers(): void {
+  this.coachService.getPlayers().subscribe(
+    (players: Player[]) => {
+      this.players = players;
+    },
+    (error) => {
+      console.error('Error fetching players:', error);
+    }
+  );
+}
 createGoal(): void {
   if (this.createGoalForm.valid) {
     const newGoal = this.createGoalForm.value;
@@ -294,7 +404,6 @@ onSelectGoal(event: Event): void {
   }
 }
 
-
 updateGoal(): void {
   if (this.updateGoalForm.valid && this.selectedGoal) {
     const updatedGoal = { ...this.selectedGoal, ...this.updateGoalForm.value };
@@ -315,11 +424,124 @@ updateGoal(): void {
   }
 }
 
+openGoalModal(): void {
+  this.showGoalModal = true;
+  this.editingGoal = false;
+}
+
+closeGoalModal(): void {
+  this.showGoalModal = false;
+  this.createGoalForm.reset();
+}
+
+openUpdateGoalModal(): void {
+  this.showUpdateGoalModal = true;
+}
+
+closeUpdateGoalModal(): void {
+  this.showUpdateGoalModal = false;
+  this.updateGoalForm.reset();
+  this.selectedGoal = null;
+}
+
+deleteGoal(goalId: number): void {
+  if (confirm('Are you sure you want to delete this goal?')) {
+    this.coachService.deleteGoal(goalId).subscribe({
+      next: () => {
+        this.goals = this.goals.filter(goal => goal.goalId !== goalId);
+        this.successMessage = 'Goal deleted successfully!';
+      },
+      error: (error) => {
+        console.error('Error deleting goal:', error);
+        this.errorMessage = 'Error deleting goal. Please try again.';
+      }
+    });
+  }
+}
+
+openCreateGoalModal(): void {
+  this.showGoalModal = true;
+  this.editingGoal = false;
+  this.createGoalForm.reset();
+}
+
+editGoal(goal: PlayerGoal): void {
+  this.selectedGoal = goal;
+  this.updateGoalForm.patchValue({
+    achievedValue: goal.achievedValue,
+    status: goal.status,
+    feedbackRemarks: goal.feedbackRemarks
+  });
+  this.showUpdateGoalModal = true;
+}
+
+// Add these properties
+selectedDateRange: string = '7';
+selectedTeam: string = '';
+
+// Add these methods
+getAverageHRV(): number {
+  if (!this.playerMetrics.length) return 0;
+  return this.playerMetrics.reduce((acc, curr) => acc + curr.hrv, 0) / this.playerMetrics.length;
+}
+
+getAverageTopSpeed(): number {
+  if (!this.playerMetrics.length) return 0;
+  return this.playerMetrics.reduce((acc, curr) => acc + curr.topSpeed, 0) / this.playerMetrics.length;
+}
+
+getAverageCalories(): number {
+  if (!this.playerMetrics.length) return 0;
+  return this.playerMetrics.reduce((acc, curr) => acc + curr.caloriesBurned, 0) / this.playerMetrics.length;
+}
+
+isPositiveTrend(metric: string): boolean {
+  // Implement your trend logic here
+  return Math.random() > 0.5; // Placeholder implementation
+}
+
+getMetricTrend(metric: string): number {
+  // Implement your trend calculation logic here
+  return Math.floor(Math.random() * 20); // Placeholder implementation
+}
+
+exportMetrics(): void {
+  // Implement your export logic here
+  console.log('Exporting metrics...');
+}
+
+isGoodPerformance(metric: PlayerPerformance): boolean {
+  // Implement your performance evaluation logic
+  return metric.hrv > 70 && metric.topSpeed > 25;
+}
+
+isWarningPerformance(metric: PlayerPerformance): boolean {
+  // Implement your warning evaluation logic
+  return metric.hrv > 50 && metric.hrv <= 70;
+}
+
+isPoorPerformance(metric: PlayerPerformance): boolean {
+  // Implement your poor performance evaluation logic
+  return metric.hrv <= 50;
+}
+
+getPerformanceStatus(metric: PlayerPerformance): string {
+  if (this.isGoodPerformance(metric)) return 'Good';
+  if (this.isWarningPerformance(metric)) return 'Warning';
+  return 'Poor';
+}
+
+// Add this property
+showUploadMetricsModal = false;
+
+
+
+
+
 
 
 }
 
   
   
-
 

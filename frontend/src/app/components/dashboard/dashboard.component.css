@@ -54,7 +54,7 @@ table tbody tr.highlight {
 }
 
 h2, h3 {
-  color: #007bff;
+  color: #3333c4 !important;
 }
 
 /* Add margin to the card body */

@@ -49,14 +49,14 @@ export class RegisterComponent {
         (response) => {
           console.log('Registration successful:', response);
           // If the response is a success message, you can display it
-          alert(response); // Show success message (optional)
+   // Show success message (optional)
           // Redirect to login page or another page after successful registration
           this.router.navigate(['/login']);
         },
         (error) => {
-          console.error('Registration failed:', error);
+          console.log('Registration failed:', error);
           // Display the error message in the UI (using error.message)
-          alert('Registration failed: ' + error.message); // Alert the user with the error message
+          console.log('Registration failed: ' + error.message); // Alert the user with the error message
         }
       );
     } this.showRoleForm = true;

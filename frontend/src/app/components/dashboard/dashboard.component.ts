@@ -13,7 +13,7 @@ import { Coach } from 'src/app/models/coach';
   styleUrls: ['./dashboard.component.css']
 })
 export class DashboardComponent implements OnInit {
-  playerId: number = 2; // Hardcoded playerId for now
+  playerId: number = 1; // Hardcoded playerId for now
   player: Player | undefined;
   teamMembers: Player[] = [];
   trainingSessions: TrainingSession[] = [];

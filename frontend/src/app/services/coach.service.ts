@@ -76,4 +76,33 @@ export class CoachService {
   updateGoal(goalId:number,goal: Partial<PlayerGoal>): Observable<PlayerGoal> {
     return this.http.put<PlayerGoal>(`${this.apiUrl}/goal/{goalId}`, goal);
   }
+
+  getTeamPlayers(teamId: number): Observable<Player[]> {
+    return this.http.get<Player[]>(`${this.apiUrl}/teams/${teamId}/players`);
+  }
+
+  getPlayerDetails(playerId: number): Observable<Player> {
+    return this.http.get<Player>(`${this.apiUrl}/players/${playerId}`);
+  }
+
+  deleteTeam(teamId: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/teams/${teamId}`);
+  }
+
+  deleteTrainingSession(sessionId: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/training-sessions/${sessionId}`);
+  }
+
+  getPlayers(): Observable<Player[]> {
+    return this.http.get<Player[]>(`${this.apiUrl}/players`);
+  }
+
+  deleteGoal(goalId: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/goals/${goalId}`);
+  }
+
+  // Add this method to get player name by ID
+  getPlayerName(playerId: number): Observable<any> {
+    return this.http.get(`${this.apiUrl}/players/${playerId}`);
+  }
 }
