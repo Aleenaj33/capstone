@@ -1,104 +1,130 @@
-<div class="container mt-5"> 
-  <!-- Heading -->
-  <h2 class="text-center mb-4">Register</h2>
+<div class="register-container">
+  <div class="background-overlay"></div>
+  
+  <div class="content-wrapper">
+    <header class="header">
+      <img src="\assets\images\logo1-removebg-preview.png" alt="AthleteEdge Logo" class="logo">
+    </header>
 
-  <!-- Initial Registration Form (Email, Password, Role) -->
-  <div class="col-md-6 mx-auto">
-    <form #registerForm="ngForm" (ngSubmit)="onRegisterSubmit(registerForm)" class="form-group">
-
-      <!-- Email -->
-      <div class="mb-3">
-        <label for="email" class="form-label">Email</label>
-        <input type="email" id="email" class="form-control" [(ngModel)]="email" name="email" required>
-      </div>
-
-      <!-- Password -->
-      <div class="mb-3">
-        <label for="password" class="form-label">Password</label>
-        <input type="password" id="password" class="form-control" [(ngModel)]="password" name="password" required>
-      </div>
-
-      <!-- Confirm Password -->
-      <div class="mb-3">
-        <label for="confirmPassword" class="form-label">Confirm Password</label>
-        <input type="password" id="confirmPassword" class="form-control" [(ngModel)]="confirmPassword" name="confirmPassword" required>
-        <div *ngIf="password !== confirmPassword" class="text-danger mt-1">
-          Passwords do not match.
+    <!-- Initial Registration Form -->
+    <div class="register-box" *ngIf="!showRoleForm">
+      <h2>Create Account</h2>
+      <form #registerForm="ngForm" (ngSubmit)="onRegisterSubmit(registerForm)" class="form-group">
+        <div class="mb-3">
+          <label for="email" class="form-label">Email</label>
+          <input type="email" id="email" class="form-control" [(ngModel)]="email" name="email" required>
         </div>
-      </div>
 
+        <div class="mb-3">
+          <label for="password" class="form-label">Password</label>
+          <input type="password" id="password" class="form-control" [(ngModel)]="password" name="password" required>
+        </div>
       <!-- Role Selection -->
-      <div class="mb-3">
-        <label for="roles" class="form-label">Role</label>
-        <select id="roles" name="roles" [(ngModel)]="roles" class="form-control" required>
-          <option value="" disabled selected>Select Role</option>
-          <option value="player">Player</option>
-          <option value="coach">Coach</option>
-        </select>
-      </div>
+      
 
-      <!-- Next Button (Disabled if form is invalid or passwords do not match) -->
-      <button type="submit" class="btn btn-primary" [disabled]="!isFormValid">Next</button>
-    </form>
-  </div>
+        <div class="mb-3">
+          <label for="confirmPassword" class="form-label">Confirm Password</label>
+          <input type="password" id="confirmPassword" class="form-control" [(ngModel)]="confirmPassword" name="confirmPassword" required>
+          <div *ngIf="password !== confirmPassword" class="text-danger mt-1">
+            Passwords do not match.
+          </div>
+        </div>
 
-  <!-- Player Form (Visible if role is 'player' and after submit) -->
-  <div *ngIf="showRoleForm && roles === 'player'" class="mt-5 col-md-6 mx-auto">
-    <h3>Player Details</h3>
-    <form #playerForm="ngForm" (ngSubmit)="createPlayerForm(playerForm)" class="form-group">
-      <div class="mb-3">
-        <label for="email" class="form-label">Email</label>
-        <input type="email" id="email" class="form-control" [(ngModel)]="email" name="email" required disabled>
-      </div>
-      <div class="mb-3">
-        <label for="name" class="form-label">Name</label>
-        <input type="text" id="name" class="form-control" [(ngModel)]="player.name" name="name" required>
-      </div>
-      <div class="mb-3">
-        <label for="sport" class="form-label">Sport</label>
-        <input type="text" id="sport" class="form-control" [(ngModel)]="player.sport" name="sport" required>
-      </div>
-      <div class="mb-3">
-        <label for="teamId" class="form-label">Team ID</label>
-        <input type="number" id="teamId" class="form-control" [(ngModel)]="player.teamId" name="teamId" required>
-      </div>
-      <div class="mb-3">
-        <label for="age" class="form-label">Age</label>
-        <input type="number" id="age" class="form-control" [(ngModel)]="player.age" name="age" required>
-      </div>
-      <div class="mb-3">
-        <label for="height" class="form-label">Height</label>
-        <input type="number" id="height" class="form-control" [(ngModel)]="player.height" name="height" required>
-      </div>
-      <div class="mb-3">
-        <label for="weight" class="form-label">Weight</label>
-        <input type="number" id="weight" class="form-control" [(ngModel)]="player.weight" name="weight" required>
-      </div>
-      <button type="submit" class="btn btn-success">Save Player</button>
-    </form>
-  </div>
+        <div class="mb-3">
+          <label for="role" class="form-label">I am a</label>
+          <select id="role" name="role" [(ngModel)]="selectedRole" class="form-control" required>
+            <option value="" disabled selected>Select Role</option>
+            <option value="player">Player</option>
+            <option value="coach">Coach</option>
+          </select>
+        </div>
 
-  <!-- Coach Form (Visible if role is 'coach' and after submit) -->
-  <div *ngIf="showRoleForm && roles === 'coach'" class="mt-5 col-md-6 mx-auto">
-    <h3>Coach Details</h3>
-    <form #coachForm="ngForm" (ngSubmit)="createCoachForm(coachForm)" class="form-group">
-      <div class="mb-3">
-        <label for="email" class="form-label">Email</label>
-        <input type="email" id="email" class="form-control" [(ngModel)]="email" name="email" required disabled>
+        <button type="submit" class="btn btn-primary w-100" [disabled]="!isFormValid">
+          Continue
+          <i class="fas fa-arrow-right"></i>
+        </button>
+      </form>
+
+      <div class="login-link mt-3">
+        <p>Already have an account? <a routerLink="/login">Sign in</a></p>
       </div>
-      <div class="mb-3">
-        <label for="name" class="form-label">Name</label>
-        <input type="text" id="name" class="form-control" [(ngModel)]="coach.name" name="name" required>
-      </div>
-      <div class="mb-3">
-        <label for="sport" class="form-label">Sport</label>
-        <input type="text" id="sport" class="form-control" [(ngModel)]="coach.sport" name="sport" required>
-      </div>
-      <div class="mb-3">
-        <label for="age" class="form-label">Age</label>
-        <input type="number" id="age" class="form-control" [(ngModel)]="coach.age" name="age" required>
-      </div>
-      <button type="submit" class="btn btn-success">Save Coach</button>
-    </form>
+    </div>
+
+    <!-- Player Details Form -->
+    <div class="register-box role-details" *ngIf="showRoleForm && selectedRole === 'player'">
+      <h2>Player Details</h2>
+      <form #playerForm="ngForm" (ngSubmit)="createPlayerForm(playerForm)" class="form-group">
+        <!-- ... player form fields ... -->
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label for="name" class="form-label">Full Name</label>
+            <input type="text" id="name" class="form-control" [(ngModel)]="player.name" name="name" required>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label for="playerEmail" class="form-label">Email</label>
+            <input type="email" id="playerEmail" class="form-control" [value]="email" disabled>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label for="age" class="form-label">Age</label>
+            <input type="number" id="age" class="form-control" [(ngModel)]="player.age" name="age" required>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label for="teamId" class="form-label">Team ID</label>
+            <input type="number" id="teamId" class="form-control" [(ngModel)]="player.teamId" name="teamId" required>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label for="height" class="form-label">Height (cm)</label>
+            <input type="number" id="height" class="form-control" [(ngModel)]="player.height" name="height" required>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label for="weight" class="form-label">Weight (kg)</label>
+            <input type="number" id="weight" class="form-control" [(ngModel)]="player.weight" name="weight" required>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary w-100">
+          Complete Registration
+         
+        </button>
+      </form>
+    </div>
+
+    <!-- Coach Details Form -->
+    <div class="register-box role-details" *ngIf="showRoleForm && selectedRole === 'coach'">
+      <h2>Coach Details</h2>
+      <form #coachForm="ngForm" (ngSubmit)="createCoachForm(coachForm)" class="form-group">
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label for="name" class="form-label">Full Name</label>
+            <input type="text" id="name" class="form-control" [(ngModel)]="coach.name" name="name" required>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label for="coachEmail" class="form-label">Email</label>
+            <input type="email" id="coachEmail" class="form-control" [value]="email" disabled>
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label for="age" class="form-label">Age</label>
+          <input type="number" id="age" class="form-control" [(ngModel)]="coach.age" name="age" required>
+        </div>
+
+        <div class="mb-3">
+          <label for="sport" class="form-label">Sport</label>
+          <input type="text" id="sport" class="form-control" [(ngModel)]="coach.sport" name="sport" required>
+        </div>
+
+        <button type="submit" class="btn btn-primary w-100">
+          Complete Registration
+          
+        </button>
+      </form>
+    </div>
   </div>
 </div>

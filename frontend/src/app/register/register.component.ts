@@ -19,6 +19,7 @@ export class RegisterComponent {
   confirmPassword: string = '';
   roles: string = '';
   showRoleForm: boolean = false;
+  selectedRole: string = '';
 
   // Player and Coach objects initialized
   player: Player = { playerId: 0, name: '', email: '', sport: '', teamId: 0, age: 0, height: 0, weight: 0 };
@@ -93,5 +94,8 @@ export class RegisterComponent {
         }
       );
     }this.router.navigate(['/login']);
+  }
+  onRoleSelect(role: string): void {
+    this.selectedRole = role;
   }
 }

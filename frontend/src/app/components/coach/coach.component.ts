@@ -31,27 +31,27 @@ export class CoachComponent implements OnInit {
   sportCategory: string = '';
   playerIds: number[] = [];
   createSessionForm!: FormGroup;
-  createGoalForm!: FormGroup;
-  updateGoalForm!: FormGroup;
-  selectedGoalId!: number;
+  
+ 
   selectedTab: string = 'profile'; 
   selectedReportOption: string = 'individualMetrics'; // Default option
   playerMetrics: PlayerPerformance[] = [];
   playerReports: PlayerPerformanceReport[] = [];
   teammatesReports: any[] = [];
-  showGoalModal = false;
-  editingGoal = false;
-  goals: PlayerGoal[] = [];
+  
+ 
+  
   metricsForm: FormGroup;
   createTeamForm: FormGroup;
   successMessage: string | null = null;
   errorMessage: string | null = null;
-  showCreateTeamModal = false;
+
   showCreateSessionModal = false;
-  showUpdateGoalModal = false;
+  showCreateTeamModal = false;
+ 
 
  // Store the selected goal ID
-  selectedGoal: PlayerGoal | null = null;
+
   players: Player[] = [];
 
   setSelectedTab(tab: string) {
@@ -94,31 +94,30 @@ export class CoachComponent implements OnInit {
       duration: ['', Validators.required],
       playerIds: [[], Validators.required]
     });
-    this.createGoalForm = this.fb.group({
-      playerId: ['', Validators.required],
-      goalType: ['', Validators.required],
-      goalDescription: ['', Validators.required],
-      targetValue: ['', [Validators.required, Validators.min(0)]],
-      deadline: ['', Validators.required]
-    });
+     this.goalForm = this.fb.group({
+    playerId: ['', Validators.required],
+    goalType: ['', Validators.required],
+    goalDescription: ['', Validators.required],
+    targetValue: ['', [Validators.required, Validators.min(0)]],
+    deadline: ['', Validators.required]
+  });
+    
 
-    this.updateGoalForm = this.fb.group({
-      achievedValue: [null],
-      status: ['', Validators.required],
-      feedbackRemarks: ['']
-    });
+   
+   
   }
 
   ngOnInit(): void {
     this.getCoachInfo();
     this.getCoachTeams();
     this.fetchTrainingSessions();
-    this.getGoalsForCoach(); 
+  
     this.loadPlayerMetrics();
     this.loadPlayerReports();
     this.loadTeammatesReports();
     this.getUnassignedPlayers();
     this.getPlayers();
+    this.loadGoals();
   }
 
   getCoachInfo(): void {
@@ -140,14 +139,19 @@ export class CoachComponent implements OnInit {
       }
     );
   }
-  getGoalsForCoach(): void {
-    this.coachService.getGoalsForCoach(this.coachId).subscribe(
-      (goals: PlayerGoal[]) => {
+  getGoalsForCoach() {
+    // ... existing ngOnInit code ...
+    
+    this.coachService.getGoalsForCoach(this.coachId).subscribe({
+      next: (goals) => {
         this.goals = goals;
       },
-      
-    );
+      error: (error) => {
+        console.error('Error fetching goals:', error);
+      }
+    });
   }
+  
   loadPlayerMetrics(): void {
     this.coachService.getPlayerMetrics(this.playerId).subscribe(
       (data) => {
@@ -381,99 +385,18 @@ getPlayers(): void {
     }
   );
 }
-createGoal(): void {
-  if (this.createGoalForm.valid) {
-    const newGoal = this.createGoalForm.value;
-    this.coachService.createGoal(newGoal).subscribe({
-      next: () => {
-        this.successMessage = 'Goal created successfully!';
-        this.createGoalForm.reset();
-        this.getGoalsForCoach(); // Refresh the goals list
-      },
-      error: () => {
-        this.errorMessage = 'Error creating goal. Please try again.';
-      }
-    });
-  }
-}
-onSelectGoal(event: Event): void {
-  const selectElement = event.target as HTMLSelectElement; // Cast to HTMLSelectElement
-  if (selectElement) {
-    const goalId = Number(selectElement.value); // Get the selected goal ID
-    this.selectedGoal = this.goals.find(goal => goal.goalId === goalId) || null;
-  }
-}
 
-updateGoal(): void {
-  if (this.updateGoalForm.valid && this.selectedGoal) {
-    const updatedGoal = { ...this.selectedGoal, ...this.updateGoalForm.value };
-    const goalId = this.selectedGoal.goalId;
 
-    this.coachService.updateGoal(goalId, updatedGoal).subscribe({
-      next: () => {
-        this.successMessage = 'Goal updated successfully!';
-        this.errorMessage = null;
-        this.updateGoalForm.reset();
-        this.selectedGoal = null;
-        this.getGoalsForCoach();
-      },
-      error: () => {
-        this.errorMessage = 'Error updating goal. Please try again.';
-      }
-    });
-  }
-}
 
-openGoalModal(): void {
-  this.showGoalModal = true;
-  this.editingGoal = false;
-}
 
-closeGoalModal(): void {
-  this.showGoalModal = false;
-  this.createGoalForm.reset();
-}
 
-openUpdateGoalModal(): void {
-  this.showUpdateGoalModal = true;
-}
 
-closeUpdateGoalModal(): void {
-  this.showUpdateGoalModal = false;
-  this.updateGoalForm.reset();
-  this.selectedGoal = null;
-}
 
-deleteGoal(goalId: number): void {
-  if (confirm('Are you sure you want to delete this goal?')) {
-    this.coachService.deleteGoal(goalId).subscribe({
-      next: () => {
-        this.goals = this.goals.filter(goal => goal.goalId !== goalId);
-        this.successMessage = 'Goal deleted successfully!';
-      },
-      error: (error) => {
-        console.error('Error deleting goal:', error);
-        this.errorMessage = 'Error deleting goal. Please try again.';
-      }
-    });
-  }
-}
 
-openCreateGoalModal(): void {
-  this.showGoalModal = true;
-  this.editingGoal = false;
-  this.createGoalForm.reset();
-}
 
-editGoal(goal: PlayerGoal): void {
-  this.selectedGoal = goal;
-  this.updateGoalForm.patchValue({
-    achievedValue: goal.achievedValue,
-    status: goal.status,
-    feedbackRemarks: goal.feedbackRemarks
-  });
-  this.showUpdateGoalModal = true;
-}
+
+
+
 
 // Add these properties
 selectedDateRange: string = '7';
@@ -534,14 +457,67 @@ getPerformanceStatus(metric: PlayerPerformance): string {
 // Add this property
 showUploadMetricsModal = false;
 
+// Add these properties at the top of your component class
+goals: PlayerGoal[] = [];
+goalForm: FormGroup;
 
 
 
+// Add these methods to your component class
+createGoal(): void {
+  if (this.goalForm.valid) {
+    const newGoal: PlayerGoal = {
+      ...this.goalForm.value,
+      coachId: this.coachId,
+      achievedValue: 0,
+      status: 'In Progress',
+      feedbackRemarks: ''
+    };
 
+    this.coachService.createGoal(newGoal).subscribe({
+      next: (response) => {
+        this.loadGoals();
+        this.showCreateGoalModal = false;
+        this.goalForm.reset();
+      },
+      error: (error) => {
+        console.error('Error creating goal:', error);
+      }
+    });
+  }
+}
 
+editGoal(goal: PlayerGoal): void {
+  // Implement edit functionality
+  console.log('Editing goal:', goal);
+}
 
+deleteGoal(goalId: number): void {
+  if (confirm('Are you sure you want to delete this goal?')) {
+    this.coachService.deleteGoal(goalId).subscribe({
+      next: () => {
+        this.goals = this.goals.filter(g => g.goalId !== goalId);
+      },
+      error: (error) => {
+        console.error('Error deleting goal:', error);
+      }
+    });
+  }
+}
+
+// Add this to your ngOnInit()
+loadGoals(): void {
+  this.coachService.getGoalsForCoach(this.coachId).subscribe({
+    next: (goals) => {
+      console.log('Loaded goals:', goals); // Debug log
+      this.goals = goals;
+    },
+    error: (error) => {
+      console.error('Error loading goals:', error);
+    }
+  });
 }
 
   
-  
+}  
 

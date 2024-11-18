@@ -27,7 +27,7 @@
       </div>
 
       <!-- Goals Item -->
-      <div class="nav-item" [class.active]="selectedTab === 'goals'" (click)="setSelectedTab('goals')">
+      <div class="nav-item" (click)="setSelectedTab('goals')" [class.active]="selectedTab === 'goals'">
         <i class="fas fa-bullseye"></i>
         <span>Goals</span>
       </div>
@@ -360,128 +360,66 @@
     </div>
 
     <!-- Goals Section -->
-    <div *ngIf="selectedTab === 'goals'" class="goals-section">
-      <div class="section-header">
-        <h2>Player Goals</h2>
-        <button class="create-btn" (click)="openCreateGoalModal()">
+    <div class="goals-section">
+      <div class="goals-header">
+        <h2>Goals Management</h2>
+        <button class="add-goal-btn" (click)="showCreateGoalModal = true">
           <i class="fas fa-plus"></i>
-          Create New Goal
+          Create Goal
         </button>
       </div>
 
-      <!-- Goals Grid -->
       <div class="goals-container">
-        <div class="goal-card" *ngFor="let goal of goals">
-          <div class="goal-header">
-            <h3>{{goal.goalType}}</h3>
-            <span class="status-badge" [ngClass]="goal.status.toLowerCase()">
-              {{goal.status}}
-            </span>
-          </div>
-          <div class="goal-content">
-            <p class="goal-description">{{goal.goalDescription}}</p>
-            <div class="goal-metrics">
-              <div class="target">
-                <span class="label">Target:</span>
-                <span class="value">{{goal.targetValue}}</span>
-              </div>
-              <div class="achieved" *ngIf="goal.achievedValue">
-                <span class="label">Achieved:</span>
-                <span class="value">{{goal.achievedValue}}</span>
-              </div>
-            </div>
-            <div class="goal-footer">
-              <div class="deadline">
-                <i class="far fa-calendar-alt"></i>
-                <span>{{goal.deadline | date}}</span>
-              </div>
-              <div class="goal-actions">
-                <button class="edit-btn" (click)="editGoal(goal)">
-                  <i class="fas fa-edit"></i>
-                </button>
-                <button class="delete-btn" (click)="deleteGoal(goal.goalId)">
-                  <i class="fas fa-trash"></i>
-                </button>
-              </div>
-            </div>
-          </div>
+        <div *ngIf="goals.length === 0" class="no-goals">
+          <p>No goals have been created yet.</p>
         </div>
-      </div>
 
-      <!-- Create Goal Modal -->
-      <div class="modal-overlay" *ngIf="showGoalModal">
-        <div class="create-goal-modal">
-          <div class="modal-header">
-            <h2>Create New Goal</h2>
-            <button class="close-btn" (click)="closeGoalModal()">
-              <i class="fas fa-times"></i>
-            </button>
+        <div class="goals-list">
+          <div class="list-header">
+            <div class="col-type">Type</div>
+            <div class="col-description">Description</div>
+            <div class="col-progress">Progress</div>
+            <div class="col-deadline">Deadline</div>
+            <div class="col-status">Status</div>
+            <div class="col-actions">Actions</div>
           </div>
-          <form [formGroup]="createGoalForm" (ngSubmit)="createGoal()">
-            <div class="form-group">
-              <label for="playerId">Player</label>
-              <select id="playerId" formControlName="playerId" class="form-control">
-                <option value="">Select Player</option>
-                <option *ngFor="let player of players" [value]="player.playerId">
-                  {{player.name}}
-                </option>
-              </select>
-            </div>
 
-            <div class="form-group">
-              <label for="goalType">Goal Type</label>
-              <select id="goalType" formControlName="goalType" class="form-control">
-                <option value="">Select Goal Type</option>
-                <option value="Performance">Performance</option>
-                <option value="Fitness">Fitness</option>
-                <option value="Skill">Skill</option>
-                <option value="Team">Team</option>
-              </select>
+          <div class="goal-item" *ngFor="let goal of goals">
+            <div class="col-type">
+              <i class="fas fa-bullseye"></i>
+              {{ goal.goalType }}
             </div>
-
-            <div class="form-group">
-              <label for="goalDescription">Description</label>
-              <textarea
-                id="goalDescription"
-                formControlName="goalDescription"
-                class="form-control"
-                rows="3"
-              ></textarea>
+            
+            <div class="col-description">
+              {{ goal.goalDescription }}
             </div>
-
-            <div class="form-group">
-              <label for="targetValue">Target Value</label>
-              <input
-                type="number"
-                id="targetValue"
-                formControlName="targetValue"
-                class="form-control"
-              >
+            
+            <div class="col-progress">
+              <div class="progress-bar">
+                <div class="progress-fill" [style.width]="(goal.achievedValue / goal.targetValue * 100) + '%'"></div>
+              </div>
+              <span class="progress-text">{{ (goal.achievedValue / goal.targetValue * 100) | number:'1.0-0' }}%</span>
             </div>
-
-            <div class="form-group">
-              <label for="deadline">Deadline</label>
-              <input
-                type="date"
-                id="deadline"
-                formControlName="deadline"
-                class="form-control"
-              >
+            
+            <div class="col-deadline">
+              {{ goal.deadline | date:'mediumDate' }}
             </div>
-
-            <div class="form-actions">
-              <button type="button" class="btn-secondary" (click)="closeGoalModal()">
-                Cancel
+            
+            <div class="col-status">
+              <span class="status-badge" [ngClass]="goal.status.toLowerCase().replace(' ', '')">
+                {{ goal.status }}
+              </span>
+            </div>
+            
+            <div class="col-actions">
+              <button class="icon-btn" (click)="editGoal(goal)" title="Edit">
+                <i class="fas fa-edit"></i>
               </button>
-              <button
-                type="submit"
-                class="btn-primary"
-                [disabled]="createGoalForm.invalid"
-              >
-                Create Goal
+              <button class="icon-btn delete" (click)="deleteGoal(goal.goalId)" title="Delete">
+                <i class="fas fa-trash"></i>
               </button>
             </div>
-          </form>
+          </div>
         </div>
       </div>
     </div>
