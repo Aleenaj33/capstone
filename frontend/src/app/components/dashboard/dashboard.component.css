@@ -1,13 +1,13 @@
-
 .dashboard-wrapper {
   display: flex;
   min-height: 100vh;
   background: #f0f2f8;
 }
 
+
 .sidebar {
   width: 250px;
-  background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+  background: linear-gradient(180deg, #2c3e50 0%, #3498db 100%);
   padding: 1.5rem 0;
   position: fixed;
   height: 100vh;
@@ -26,6 +26,9 @@
   list-style: none;
   padding: 0;
   margin: 0;
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 100px);
 }
 
 .sidebar-nav-item {
@@ -178,7 +181,7 @@
 
 .profile-cover {
   height: 200px;
-  background: linear-gradient(135deg, #1a237e 0%, #3949ab 100%);
+  background: linear-gradient(180deg, #2c3e50 0%, #3498db 100%);
   border-radius: 8px 8px 0 0;
 }
 
@@ -192,7 +195,7 @@
   width: 150px;
   height: 150px;
   margin: 0 auto;
-  background: #fff;
+  background: linear-gradient(135deg, #3498db, #2c3e50);
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -202,7 +205,7 @@
 
 .profile-avatar i {
   font-size: 80px;
-  color: #1a237e;
+  color: white;
 }
 
 .profile-name {
@@ -314,7 +317,7 @@
 
 .coach-cover {
   height: 200px;
-  background: linear-gradient(135deg, #1a237e 0%, #3949ab 100%);
+  background: linear-gradient(180deg, #2c3e50 0%, #3498db 100%);
   border-radius: 8px 8px 0 0;
 }
 
@@ -338,7 +341,7 @@
 
 .coach-avatar i {
   font-size: 80px;
-  color: #1a237e;
+  color: white;
 }
 
 .coach-name {
@@ -448,7 +451,7 @@
 
 .team-cover {
   height: 200px;
-  background: linear-gradient(135deg, #1a237e 0%, #3949ab 100%);
+  background: linear-gradient(180deg, #2c3e50 0%, #3498db 100%);
   border-radius: 8px 8px 0 0;
 }
 
@@ -472,7 +475,7 @@
 
 .team-avatar i {
   font-size: 80px;
-  color: #1a237e;
+  color: white;
 }
 
 .team-title {
@@ -737,13 +740,13 @@
 
 .progress-fill {
   height: 100%;
-  background: linear-gradient(to right, #1a237e, #3949ab);
+  background: linear-gradient(to right, #3498db, #2980b9);
   border-radius: 4px;
   transition: width 0.3s ease;
 }
 
 .progress-fill.achieved {
-  background: linear-gradient(to right, #2e7d32, #43a047);
+  background: linear-gradient(to right, #2ecc71, #27ae60);
 }
 
 .goal-footer {
@@ -782,64 +785,530 @@
   }
 }
 
-/* Add these training session styles */
-
+/* Training Sessions Section Styles */
 .training-section {
-  background: #fff;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+}
+
+.training-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+  padding: 1.5rem;
+}
+
+.training-card {
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #edf2f7;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s ease;
+}
+
+.training-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  padding: 1rem;
+  border-bottom: 1px solid #edf2f7;
+}
+
+.session-badge, .coach-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.875rem;
+  background: #f8fafc;
+  color: #1a237e;
+}
+
+.card-body {
+  padding: 1rem;
+}
+
+.session-detail {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #edf2f7;
+}
+
+.session-detail:last-child {
+  border-bottom: none;
+}
+
+.session-detail i {
+  color: #1a237e;
+  font-size: 1.25rem;
+  width: 24px;
+}
+
+.detail-content {
+  flex: 1;
+}
+
+.detail-content label {
+  display: block;
+  color: #64748b;
+  font-size: 0.875rem;
+  margin-bottom: 0.25rem;
+}
+
+.detail-content span {
+  color: #1e293b;
+  font-weight: 500;
+}
+
+.players-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.player-chip {
+  background: #f1f5f9;
+  padding: 0.25rem 0.75rem;
+  border-radius: 16px;
+  font-size: 0.875rem;
+  color: #1e293b;
+}
+
+.no-players {
+  color: #64748b;
+  font-style: italic;
+  font-size: 0.875rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .training-grid {
+    grid-template-columns: 1fr;
+    padding: 1rem;
+  }
+
+  .card-header {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .session-badge, .coach-badge {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* Individual Performance Reports Styles */
+.reports-section {
+  padding: 1rem;
+}
+
+.reports-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.report-card {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s ease;
+}
+
+.report-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.report-card.warning {
+  border-left: 4px solid #ff9800;
+}
+
+.report-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #edf2f7;
+}
+
+.report-date {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #64748b;
+  font-size: 0.875rem;
+}
+
+.report-status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.875rem;
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.report-status.warning {
+  background: #fff3e0;
+  color: #e65100;
+}
+
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.metric-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: #f8fafc;
   border-radius: 8px;
+  transition: transform 0.2s ease;
+}
+
+.metric-item:hover {
+  transform: translateY(-2px);
+}
+
+.metric-item.warning {
+  background: #fff3e0;
+}
+
+.metric-icon {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: white;
+  border-radius: 8px;
+  color: #1a237e;
+}
+
+.metric-icon i {
+  font-size: 1.25rem;
+}
+
+.metric-content {
+  flex: 1;
+}
+
+.metric-content label {
+  display: block;
+  color: #64748b;
+  font-size: 0.75rem;
+  margin-bottom: 0.25rem;
+}
+
+.metric-content span {
+  color: #1e293b;
+  font-weight: 500;
+}
+
+.metric-item.warning .metric-icon {
+  color: #e65100;
+}
+
+.metric-item.warning .metric-content span {
+  color: #e65100;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .reports-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .metrics-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .report-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+}
+
+/* Team Average Performance Reports Styles */
+.team-reports-section {
+  padding: 1rem;
+}
+
+.team-reports-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+}
+
+.team-report-card {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s ease;
+}
+
+.team-report-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.team-report-card.warning {
+  border-left: 4px solid #ff9800;
+}
+
+.player-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #edf2f7;
+}
+
+.player-avatar {
+  width: 48px;
+  height: 48px;
+  background: #f8fafc;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.player-avatar i {
+  font-size: 24px;
+  color: white;
+}
+
+.player-info {
+  flex: 1;
+}
+
+.player-name {
+  margin: 0;
+  color: #1e293b;
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+.report-date {
+  color: #64748b;
+  font-size: 0.875rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+}
+
+.status-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.875rem;
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.status-badge.warning {
+  background: #fff3e0;
+  color: #e65100;
+}
+
+.team-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .team-reports-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .team-metrics-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .player-header {
+    flex-direction: column;
+    align-items: flex-start;
+    text-align: center;
+  }
+
+  .player-avatar {
+    margin: 0 auto;
+  }
+
+  .status-badge {
+    margin: 0.5rem auto 0;
+  }
+}
+
+/* Performance Reports Section Styles */
+.performance-section {
+  background: white;
+  border-radius: 12px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   margin-bottom: 2rem;
 }
 
 .section-header {
-  background: #1a237e;
+  background: linear-gradient(135deg, #1a237e 0%, #3949ab 100%);
+  padding: 1.5rem;
+  border-radius: 12px 12px 0 0;
   color: white;
-  padding: 1rem 1.5rem;
-  border-radius: 8px 8px 0 0;
 }
 
-.training-content {
+.section-subtitle {
+  color: rgba(255, 255, 255, 0.8);
+  margin: 0.5rem 0 0;
+  font-size: 0.9rem;
+}
+
+.report-options {
+  display: flex;
+  gap: 1rem;
+  padding: 1.5rem;
+  border-bottom: 1px solid #edf2f7;
+  flex-wrap: wrap;
+}
+
+.report-option {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1.5rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  background: white;
+  color: #4a5568;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.report-option:hover {
+  border-color: #3949ab;
+  color: #3949ab;
+  transform: translateY(-1px);
+}
+
+.report-option.active {
+  background: #3949ab;
+  border-color: #3949ab;
+  color: white;
+}
+
+.reports-container {
   padding: 1.5rem;
 }
 
-.table {
-  width: 100%;
-  margin-bottom: 1rem;
-  background-color: transparent;
+/* Responsive Design */
+@media (max-width: 768px) {
+  .report-options {
+    flex-direction: column;
+  }
+
+  .report-option {
+    width: 100%;
+    justify-content: center;
+  }
 }
 
-.table th {
-  background-color: #f8f9fa;
-  color: #1a237e;
+/* Performance Reports Sub-options Styles */
+.btn-group {
+  display: flex;
+  align-items: center;
+  background: white;
+  padding: 0.5rem;
+  border-radius: 16px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  margin: 1rem 0 2rem;
+  border: 1px solid #edf2f7;
+}
+
+.btn-group .btn {
+  flex: 1;
+  padding: 1rem 2rem;
+  border: none;
+  border-radius: 12px;
   font-weight: 600;
-  padding: 1rem;
-  vertical-align: middle;
+  font-size: 0.95rem;
+  color: #64748b;
+  background: transparent;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
 }
 
-.table td {
-  padding: 1rem;
-  vertical-align: middle;
+.btn-group .btn:hover {
+  color: #3949ab;
+  background: #f8fafc;
 }
 
-.table tbody tr:hover {
-  background-color: #f8f9fa;
-}
-
-.no-data {
-  text-align: center;
-  padding: 3rem;
-  color: #666;
-}
-
-.no-data i {
-  font-size: 3rem;
+.btn-group .btn.active {
   color: #1a237e;
-  margin-bottom: 1rem;
+  background: #e8eaf6;
 }
 
-/* Add these styles for the performance metrics */
+.btn-group .btn.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40%;
+  height: 3px;
+  background: #3949ab;
+  border-radius: 3px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .btn-group {
+    flex-direction: column;
+    padding: 0.75rem;
+    gap: 0.5rem;
+  }
+
+  .btn-group .btn {
+    width: 100%;
+    padding: 0.75rem;
+    text-align: center;
+  }
+
+  .btn-group .btn.active::after {
+    width: 25%;
+  }
+}
+
+/* Individual Performance Metrics Styles */
 .metrics-section {
-  padding: 1rem;
+  padding: 1.5rem;
 }
 
 .metrics-grid {
@@ -849,42 +1318,41 @@
 }
 
 .metric-card {
-  background: linear-gradient(to bottom right, #ffffff, #f8f9ff);
-  border-radius: 12px;
-  box-shadow: 0 4px 15px rgba(63, 81, 181, 0.1);
-  border: 1px solid rgba(63, 81, 181, 0.1);
-  overflow: hidden;
-  transition: transform 0.2s ease;
+  background: white;
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
 }
 
 .metric-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 6px 20px rgba(63, 81, 181, 0.15);
-  background: linear-gradient(to bottom right, #ffffff, #e8eaf6);
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
 }
 
 .metric-header {
-  background: linear-gradient(135deg, #3f51b5 0%, #5c6bc0 100%);
-  color: white;
-  padding: 1rem;
   display: flex;
   align-items: center;
   gap: 0.75rem;
+  padding-bottom: 1rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 2px solid #f1f5f9;
 }
 
 .metric-header i {
-  font-size: 1.25rem;
+  color: #1a237e;
+  font-size: 1.1rem;
 }
 
 .metric-date {
-  font-size: 0.875rem;
-  opacity: 0.9;
+  color: #64748b;
+  font-size: 0.95rem;
+  font-weight: 500;
 }
 
 .metrics-content {
-  padding: 1.5rem;
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
   gap: 1.25rem;
 }
 
@@ -892,31 +1360,31 @@
   display: flex;
   align-items: center;
   gap: 1rem;
-  padding: 0.75rem;
-  background: linear-gradient(to right, #f5f7ff, #ffffff);
-  border-radius: 8px;
-  border: 1px solid rgba(63, 81, 181, 0.1);
-  transition: background-color 0.2s ease;
+  padding: 1rem;
+  background: #f8fafc;
+  border-radius: 12px;
+  transition: all 0.3s ease;
 }
 
 .metric-item:hover {
-  background: linear-gradient(to right, #e8eaf6, #f5f7ff);
+  background: #f1f5f9;
+  transform: translateY(-2px);
 }
 
 .metric-icon {
-  width: 40px;
-  height: 40px;
-  background: linear-gradient(135deg, #5c6bc0 0%, #7986cb 100%);
-  color: white;
-  border-radius: 8px;
+  width: 45px;
+  height: 45px;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 3px 10px rgba(63, 81, 181, 0.2);
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .metric-icon i {
   font-size: 1.25rem;
+  color: #1a237e;
 }
 
 .metric-details {
@@ -925,252 +1393,66 @@
 
 .metric-details label {
   display: block;
-  color: #666;
-  font-size: 0.875rem;
+  color: #64748b;
+  font-size: 0.85rem;
   margin-bottom: 0.25rem;
 }
 
 .metric-value {
-  color: #1a237e;
-  font-size: 1.125rem;
+  color: #1e293b;
+  font-size: 1.1rem;
   font-weight: 600;
   margin: 0;
 }
 
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: 3rem 1.5rem;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+.empty-state-content i {
+  font-size: 3rem;
+  color: #1a237e;
+  margin-bottom: 1rem;
+}
+
+.empty-state-content h3 {
+  color: #1e293b;
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.empty-state-content p {
+  color: #64748b;
+  font-size: 1rem;
+}
+
+/* Responsive Design */
 @media (max-width: 768px) {
-  .metrics-grid {
+  .metrics-content {
     grid-template-columns: 1fr;
   }
   
-  .metric-item {
-    padding: 0.625rem;
-  }
-}
-
-/* Add these styles for the empty state */
-.empty-state {
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  padding: 3rem 2rem;
-  text-align: center;
-  margin: 2rem 0;
-  border: 1px solid rgba(74, 105, 189, 0.1);
-}
-
-.empty-state-content {
-  max-width: 400px;
-  margin: 0 auto;
-}
-
-.empty-state i {
-  font-size: 3.5rem;
-  color: #5c6bc0;
-  margin-bottom: 1.5rem;
-  opacity: 0.8;
-}
-
-.empty-state h3 {
-  color: #3f51b5;
-  font-size: 1.5rem;
-  margin-bottom: 1rem;
-  font-weight: 600;
-}
-
-.empty-state p {
-  color: #666;
-  font-size: 1rem;
-  margin: 0;
-  line-height: 1.5;
-}
-
-/* Add animation for empty state */
-.empty-state i {
-  animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-  0% {
-    transform: scale(1);
-    opacity: 0.8;
-  }
-  50% {
-    transform: scale(1.1);
-    opacity: 0.6;
-  }
-  100% {
-    transform: scale(1);
-    opacity: 0.8;
-  }
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-  .empty-state {
-    padding: 2rem 1rem;
-  }
-
-  .empty-state i {
-    font-size: 3rem;
-  }
-
-  .empty-state h3 {
-    font-size: 1.25rem;
-  }
-
-  .empty-state p {
-    font-size: 0.875rem;
-  }
-}
-
-/* Update the main wrapper and background colors */
-.dashboard-wrapper {
-  display: flex;
-  min-height: 100vh;
-  background: #f0f2f8;
-}
-
-/* Sidebar with darker gradient */
-.sidebar {
-  width: 250px;
-  background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
-  padding: 1.5rem 0;
-  position: fixed;
-  height: 100vh;
-  left: 0;
-  top: 0;
-  color: white;
-  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
-}
-
-/* Main content area */
-.main-content {
-  margin-left: 250px;
-  padding: 2rem;
-  width: calc(100% - 250px);
-  background: #f0f2f8;
-}
-
-/* Section headers with lighter blue */
-.section-header, .metric-header, .profile-cover, .team-cover, .coach-cover {
-  background: linear-gradient(135deg, #4a69bd 0%, #6a89cc 100%);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-/* Cards styling */
-.profile-card, .coach-card, .team-card, .metric-card {
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-  border: 1px solid rgba(0, 0, 0, 0.05);
-}
-
-/* Metric items with subtle gradient */
-.metric-item {
-  background: linear-gradient(to right, #f8f9fa, #ffffff);
-  border: 1px solid rgba(74, 105, 189, 0.1);
-  border-radius: 8px;
-}
-
-.metric-item:hover {
-  background: linear-gradient(to right, #f0f2f8, #f8f9fa);
-  border-color: rgba(74, 105, 189, 0.2);
-}
-
-/* Table styling */
-.table {
-  background: white;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-}
-
-.table thead th {
-  background: linear-gradient(to right, #4a69bd, #6a89cc);
-  color: white;
-  border-bottom: none;
-}
-
-.table tbody tr:hover {
-  background: #f8f9fa;
-}
-
-/* Button group styling */
-.btn-group .btn-outline-primary {
-  border-color: #4a69bd;
-  color: #4a69bd;
-}
-
-.btn-group .btn-outline-primary:hover, 
-.btn-group .btn-outline-primary:active {
-  background: linear-gradient(135deg, #4a69bd 0%, #6a89cc 100%);
-  border-color: transparent;
-  color: white;
-}
-
-/* Status badges */
-.goal-status-badge {
-  background: linear-gradient(135deg, #4a69bd 0%, #6a89cc 100%);
-}
-
-.goal-status-badge.achieved {
-  background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
-}
-
-/* Empty state styling */
-.empty-state {
-  background: white;
-  border: 1px solid rgba(74, 105, 189, 0.1);
-}
-
-.empty-state i {
-  color: #4a69bd;
-}
-
-/* Progress bar */
-.progress-bar {
-  background: #e9ecef;
-}
-
-.progress-fill {
-  background: linear-gradient(to right, #4a69bd, #6a89cc);
-}
-
-.progress-fill.achieved {
-  background: linear-gradient(to right, #27ae60, #2ecc71);
-}
-
-/* Metric icons */
-.metric-icon {
-  background: linear-gradient(135deg, #4a69bd 0%, #6a89cc 100%);
-  box-shadow: 0 3px 10px rgba(74, 105, 189, 0.2);
-}
-
-/* Info items */
-.info-item {
-  background: white;
-  border: 1px solid rgba(74, 105, 189, 0.1);
-  border-radius: 8px;
-  padding: 1rem;
-}
-
-.info-item:hover {
-  background: #f8f9fa;
-  border-color: rgba(74, 105, 189, 0.2);
-}
-
-/* Add subtle transitions */
-.metric-card, .info-item, .btn-outline-primary, .goal-card {
-  transition: all 0.3s ease;
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-  .main-content {
-    margin-left: 0;
-    width: 100%;
+  .metric-card {
+    padding: 1.25rem;
   }
   
-  .sidebar {
-    width: 200px;
-    transform: translateX(-100%);
+  .metric-item {
+    padding: 0.875rem;
   }
+}
+
+/* Add these styles for the logout option */
+.logout-item {
+  margin-top: auto;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+}
+
+.logout-item:hover {
+  background: rgba(255, 0, 0, 0.1);
 }

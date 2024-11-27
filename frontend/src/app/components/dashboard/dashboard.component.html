@@ -29,6 +29,10 @@
         <i class="fas fa-trophy"></i>
         <span>Player Goals</span>
       </li>
+      <li class="sidebar-nav-item logout-item" (click)="logout()">
+        <i class="fas fa-sign-out-alt"></i>
+        <span>Logout</span>
+      </li>
     </ul>
   </div>
 
@@ -236,51 +240,67 @@
       <div class="section-header">
         <div class="header-content">
           <h2><i class="fas fa-dumbbell"></i> Training Sessions</h2>
+          <p class="section-subtitle">View all your scheduled and completed training sessions</p>
         </div>
       </div>
 
       <div class="training-content">
-        <div *ngIf="trainingSessions.length > 0">
-          <table class="table table-bordered">
-            <thead>
-              <tr>
-                <th>Session ID</th>
-                <th>Date</th>
-                <th>Duration</th>
-                <th>Coach ID</th>
-                <th>Player Names</th>
-                <th>Player IDs</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let session of trainingSessions">
-                <td>#{{ session.sessionId }}</td>
-                <td>{{ session?.date | date:'medium' }}</td>
-                <td>{{ session.duration }} minutes</td>
-                <td>#{{ session.coachId }}</td>
-                <td>
-                  <span>
-                    Players: {{ getPlayerIdsArray(session.playerIds) }}
-                  </span>
-                </td>
-                <td>
-                  <ng-container *ngIf="isString(session.playerIds)">
-                    #{{ session.playerIds }}
-                  </ng-container>
-                  <ng-container *ngIf="isArray(session.playerIds)">
-                    <span *ngFor="let id of getPlayerIdsArray(session.playerIds); let last = index">
-                      Player {{id}}{{!last ? ', ' : ''}}
-                    </span>
-                  </ng-container>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+        <div *ngIf="trainingSessions && trainingSessions.length > 0" class="training-grid">
+          <!-- Training Session Cards -->
+          <div *ngFor="let session of trainingSessions" class="training-card">
+            <div class="card-header">
+              <div class="session-badge">
+                <i class="fas fa-clipboard-list"></i>
+                <span>Session #{{session?.sessionId || 'N/A'}}</span>
+              </div>
+              <div class="coach-badge">
+                <i class="fas fa-user-tie"></i>
+                <span>Coach #{{session?.coachId || 'N/A'}}</span>
+              </div>
+            </div>
+
+            <div class="card-body">
+              <div class="session-detail">
+                <i class="fas fa-calendar"></i>
+                <div class="detail-content">
+                  <label>Date</label>
+                  <span>{{session?.date || 'N/A'}}</span>
+                </div>
+              </div>
+
+              <div class="session-detail">
+                <i class="fas fa-clock"></i>
+                <div class="detail-content">
+                  <label>Duration</label>
+                  <span>{{session?.duration || 'N/A'}} minutes</span>
+                </div>
+              </div>
+
+              <div class="session-detail players-section">
+                <i class="fas fa-users"></i>
+                <div class="detail-content">
+                  <label>Participants</label>
+                  <div class="players-chips">
+                    <div *ngFor="let playerName of session?.playernames" class="player-chip">
+                      {{playerName}}
+                    </div>
+                    <div *ngIf="!session?.playernames?.length" class="no-players">
+                      No players assigned
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
-        <div *ngIf="trainingSessions.length === 0" class="no-data">
-          <i class="fas fa-calendar-times"></i>
-          <p>No training sessions found</p>
+        <!-- Empty State (Keep existing empty state) -->
+        <div *ngIf="!trainingSessions || trainingSessions.length === 0" class="empty-state">
+          <div class="empty-state-content">
+            <i class="fas fa-dumbbell"></i>
+            <h3>No Training Sessions</h3>
+            <p>There are no training sessions recorded yet.</p>
+          </div>
         </div>
       </div>
     </div>
@@ -458,48 +478,80 @@
           </div>
         </div>
       </div>
-      <div *ngIf="selectedReportOption === 'individualReports'">
-        <div *ngIf="playerReports.length > 0">
-          <div *ngFor="let report of playerReports">
-            <table class="table table-bordered mb-3">
-              <thead>
-                <tr>
-                  <th colspan="2" class="text-center date-row">
-                    <strong>Performance Report - {{ report.reportDate | date: 'short' }}</strong>
-                  </th>
-                </tr>
-                <br>
-              </thead>
-              <tbody>
-                <!-- HRV Status Row -->
-                <tr [ngClass]="{'highlight': report.hrvStatus === 'Below Standard'}">
-                  <td><strong>HRV Status</strong></td>
-                  <td>{{ report.hrvStatus }}</td>
-                </tr>
-                <!-- Top Speed Status Row -->
-                <tr [ngClass]="{'highlight': report.topSpeedStatus === 'Below Standard'}">
-                  <td><strong>Top Speed Status</strong></td>
-                  <td>{{ report.topSpeedStatus }}</td>
-                </tr>
-                <!-- Player Load Status Row -->
-                <tr [ngClass]="{'highlight': report.playerLoadStatus === 'Below Standard'}">
-                  <td><strong>Player Load Status</strong></td>
-                  <td>{{ report.playerLoadStatus }}</td>
-                </tr>
-                <!-- Distance Status Row -->
-                <tr [ngClass]="{'highlight': report.distanceStatus === 'Below Standard'}">
-                  <td><strong>Distance Status</strong></td>
-                  <td>{{ report.distanceStatus }}</td>
-                </tr>
-                <!-- Calories Status Row -->
-                <tr [ngClass]="{'highlight': report.caloriesStatus === 'Below Standard'}">
-                  <td><strong>Calories Status</strong></td>
-                  <td>{{ report.caloriesStatus }}</td>
-                </tr>
-              </tbody>
-            </table>
+      <div *ngIf="selectedReportOption === 'individualReports'" class="reports-section">
+        <div *ngIf="playerReports.length > 0" class="reports-grid">
+          <div *ngFor="let report of playerReports" class="report-card" [ngClass]="{'warning': hasWarningStatus(report)}">
+            <div class="report-header">
+              <div class="report-date">
+                <i class="fas fa-calendar-alt"></i>
+                {{ report.reportDate | date:'medium' }}
+              </div>
+              <div class="report-status" [ngClass]="{'warning': hasWarningStatus(report)}">
+                <i class="fas" [class]="getStatusIcon(report)"></i>
+                {{ getOverallStatus(report) }}
+              </div>
+            </div>
+
+            <div class="metrics-grid">
+              <!-- HRV Status -->
+              <div class="metric-item" [ngClass]="{'warning': report.hrvStatus === 'Below Standard'}">
+                <div class="metric-icon">
+                  <i class="fas fa-heartbeat"></i>
+                </div>
+                <div class="metric-content">
+                  <label>HRV Status</label>
+                  <span>{{ report.hrvStatus }}</span>
+                </div>
+              </div>
+
+              <!-- Top Speed Status -->
+              <div class="metric-item" [ngClass]="{'warning': report.topSpeedStatus === 'Below Standard'}">
+                <div class="metric-icon">
+                  <i class="fas fa-tachometer-alt"></i>
+                </div>
+                <div class="metric-content">
+                  <label>Top Speed Status</label>
+                  <span>{{ report.topSpeedStatus }}</span>
+                </div>
+              </div>
+
+              <!-- Player Load Status -->
+              <div class="metric-item" [ngClass]="{'warning': report.playerLoadStatus === 'Below Standard'}">
+                <div class="metric-icon">
+                  <i class="fas fa-weight"></i>
+                </div>
+                <div class="metric-content">
+                  <label>Player Load Status</label>
+                  <span>{{ report.playerLoadStatus }}</span>
+                </div>
+              </div>
+
+              <!-- Distance Status -->
+              <div class="metric-item" [ngClass]="{'warning': report.distanceStatus === 'Below Standard'}">
+                <div class="metric-icon">
+                  <i class="fas fa-route"></i>
+                </div>
+                <div class="metric-content">
+                  <label>Distance Status</label>
+                  <span>{{ report.distanceStatus }}</span>
+                </div>
+              </div>
+
+              <!-- Calories Status -->
+              <div class="metric-item" [ngClass]="{'warning': report.caloriesStatus === 'Below Standard'}">
+                <div class="metric-icon">
+                  <i class="fas fa-fire"></i>
+                </div>
+                <div class="metric-content">
+                  <label>Calories Status</label>
+                  <span>{{ report.caloriesStatus }}</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
+
+        <!-- Empty State -->
         <div *ngIf="playerReports.length === 0" class="empty-state">
           <div class="empty-state-content">
             <i class="fas fa-file-alt"></i>
@@ -509,48 +561,88 @@
         </div>
       </div>
       
-      <div *ngIf="selectedReportOption === 'teamAverageReports'">
-        <div *ngIf="teammatesReports.length > 0">
-          <br>
-          <h4>Teammate's Performance Reports</h4>
-          <br>
-          <div *ngFor="let report of teammatesReports" class="narrow-table">
-            <table class="table table-bordered" style="width: 100%;">
-              <thead>
-                <tr>
-                  <th colspan="2" class="text-center">{{ report.playerName }}</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td><strong>Report Date</strong></td>
-                  <td>{{ report.reportDate | date: "short" }}</td>
-                </tr>
-                <tr>
-                  <td><strong>HRV Status</strong></td>
-                  <td>{{ report.hrvStatus }}</td>
-                </tr>
-                <tr>
-                  <td><strong>Top Speed Status</strong></td>
-                  <td>{{ report.topSpeedStatus }}</td>
-                </tr>
-                <tr>
-                  <td><strong>Player Load Status</strong></td>
-                  <td>{{ report.playerLoadStatus }}</td>
-                </tr>
-                <tr>
-                  <td><strong>Distance Status</strong></td>
-                  <td>{{ report.distanceStatus }} km</td>
-                </tr>
-                <tr>
-                  <td><strong>Calories Status</strong></td>
-                  <td>{{ report.caloriesStatus }}</td>
-                </tr>
-              </tbody>
-            </table>
+      <div *ngIf="selectedReportOption === 'teamAverageReports'" class="team-reports-section">
+        <div *ngIf="teammatesReports.length > 0" class="team-reports-grid">
+          <div *ngFor="let report of teammatesReports" class="team-report-card" [ngClass]="{'warning': hasWarningStatus(report)}">
+            <!-- Player Header -->
+            <div class="player-header">
+              <div class="player-avatar">
+                <i class="fas fa-user-circle"></i>
+              </div>
+              <div class="player-info">
+                <h3 class="player-name">{{ report.playerName }}</h3>
+                <div class="report-date">
+                  <i class="fas fa-calendar-alt"></i>
+                  {{ report.reportDate | date: "medium" }}
+                </div>
+              </div>
+              <div class="status-badge" [ngClass]="{'warning': hasWarningStatus(report)}">
+                <i class="fas" [class]="getStatusIcon(report)"></i>
+                {{ getOverallStatus(report) }}
+              </div>
+            </div>
+
+            <!-- Metrics Grid -->
+            <div class="team-metrics-grid">
+              <!-- HRV Status -->
+              <div class="metric-item" [ngClass]="{'warning': report.hrvStatus === 'Below Standard'}">
+                <div class="metric-icon">
+                  <i class="fas fa-heartbeat"></i>
+                </div>
+                <div class="metric-content">
+                  <label>HRV Status</label>
+                  <span>{{ report.hrvStatus }}</span>
+                </div>
+              </div>
+
+              <!-- Top Speed Status -->
+              <div class="metric-item" [ngClass]="{'warning': report.topSpeedStatus === 'Below Standard'}">
+                <div class="metric-icon">
+                  <i class="fas fa-tachometer-alt"></i>
+                </div>
+                <div class="metric-content">
+                  <label>Top Speed Status</label>
+                  <span>{{ report.topSpeedStatus }}</span>
+                </div>
+              </div>
+
+              <!-- Player Load Status -->
+              <div class="metric-item" [ngClass]="{'warning': report.playerLoadStatus === 'Below Standard'}">
+                <div class="metric-icon">
+                  <i class="fas fa-weight"></i>
+                </div>
+                <div class="metric-content">
+                  <label>Player Load Status</label>
+                  <span>{{ report.playerLoadStatus }}</span>
+                </div>
+              </div>
+
+              <!-- Distance Status -->
+              <div class="metric-item" [ngClass]="{'warning': report.distanceStatus === 'Below Standard'}">
+                <div class="metric-icon">
+                  <i class="fas fa-route"></i>
+                </div>
+                <div class="metric-content">
+                  <label>Distance Status</label>
+                  <span>{{ report.distanceStatus }}</span>
+                </div>
+              </div>
+
+              <!-- Calories Status -->
+              <div class="metric-item" [ngClass]="{'warning': report.caloriesStatus === 'Below Standard'}">
+                <div class="metric-icon">
+                  <i class="fas fa-fire"></i>
+                </div>
+                <div class="metric-content">
+                  <label>Calories Status</label>
+                  <span>{{ report.caloriesStatus }}</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
-        
+
+        <!-- Empty State -->
         <div *ngIf="teammatesReports.length === 0" class="empty-state">
           <div class="empty-state-content">
             <i class="fas fa-users"></i>

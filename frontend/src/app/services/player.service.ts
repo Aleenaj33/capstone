@@ -1,6 +1,6 @@
 // src/app/services/player.service.ts
 
-import { Observable } from "rxjs";
+import { Observable, throwError } from "rxjs";
 import { PlayerPerformanceReport } from "../models/playerperformancereport";
 import { PlayerPerformance } from "../models/playerperformance";
 import { environment } from "src/environments/environment";
@@ -10,12 +10,14 @@ import { Player } from "../models/player";
 import { TrainingSession } from "../models/training-session";
 import { PlayerGoal } from "../models/playergoal";
 import { Coach } from "../models/coach";
+import { tap, catchError } from "rxjs/operators";
 
 @Injectable({
   providedIn: 'root'
 })
 export class PlayerService {
   private apiUrl = `${environment.apiBaseUrl}/api/athletes`;
+  private baseUrl = 'http://localhost:8089/api';
 
   constructor(private http: HttpClient) {}
 
@@ -33,7 +35,16 @@ export class PlayerService {
   }
 
   getTrainingSessionsByPlayerId(playerId: number): Observable<TrainingSession[]> {
-    return this.http.get<TrainingSession[]>(`${this.apiUrl}/training-sessions/player/${playerId}`);
+    const url = `${this.baseUrl}/athletes/training-sessions/player/${playerId}`;
+    console.log('Fetching training sessions from:', url);
+    
+    return this.http.get<TrainingSession[]>(url).pipe(
+      tap(data => console.log('Received training sessions:', data)),
+      catchError(error => {
+        console.error('Error fetching training sessions:', error);
+        return throwError(() => error);
+      })
+    );
   }
 
   getGoalsByPlayerId(playerId: number): Observable<PlayerGoal[]> {

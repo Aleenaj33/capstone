@@ -35,67 +35,49 @@ export class RegisterComponent {
   // Check if the initial form is valid
   get isFormValid(): boolean {
     return (
-      this.password === this.confirmPassword &&
-      this.roles !== '' &&
       this.email !== '' &&
       this.password !== '' &&
-      this.confirmPassword !== ''
+      this.confirmPassword !== '' &&
+      this.password === this.confirmPassword &&
+      this.selectedRole !== ''
     );
   }
 
   onRegisterSubmit(form: NgForm): void {
     if (this.isFormValid) {
-      const registerDto = new RegisterDto(this.email, this.password, this.roles);
-      this.authService.register(registerDto).subscribe(
-        (response) => {
-          console.log('Registration successful:', response);
-          // If the response is a success message, you can display it
-   // Show success message (optional)
-          // Redirect to login page or another page after successful registration
-          this.router.navigate(['/login']);
-        },
-        (error) => {
-          console.log('Registration failed:', error);
-          // Display the error message in the UI (using error.message)
-          console.log('Registration failed: ' + error.message); // Alert the user with the error message
-        }
-      );
-    } this.showRoleForm = true;
+      this.showRoleForm = true;
+    }
   }
-
 
   // Handle player creation
   createPlayerForm(playerForm: NgForm): void {
     if (playerForm.valid) {
-      this.player.email = this.email; // Assign the initial form email to player
+      this.player.email = this.email; // Automatically set email from initial form
       this.playerService.createPlayer(this.player).subscribe(
         () => {
           console.log('Player added successfully');
-          
+          this.router.navigate(['/login']);
         },
         (error) => {
           console.error('Error saving player:', error);
         }
       );
-    }this.router.navigate(['/login']);
+    }
   }
 
   // Handle coach creation
   createCoachForm(coachForm: NgForm): void {
     if (coachForm.valid) {
-      this.coach.email = this.email; // Assign the initial form email to coach
+      this.coach.email = this.email; // Automatically set email from initial form
       this.coachService.createCoach(this.coach).subscribe(
         () => {
           console.log('Coach added successfully');
-          
+          this.router.navigate(['/login']);
         },
         (error) => {
           console.error('Error saving coach:', error);
         }
       );
-    }this.router.navigate(['/login']);
-  }
-  onRoleSelect(role: string): void {
-    this.selectedRole = role;
+    }
   }
 }

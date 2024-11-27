@@ -17,6 +17,7 @@ import { RegisterComponent } from './register/register.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { CoachComponent } from './components/coach/coach.component';
+import { HomeComponent } from './components/home/home.component';
 
   // Import AppRoutingModule
 
@@ -30,7 +31,8 @@ import { CoachComponent } from './components/coach/coach.component';
     LoginComponent,
     RegisterComponent,
     // PlayerFormComponent,
-    CoachComponent
+    CoachComponent,
+    HomeComponent
 
   ],
   imports: [
