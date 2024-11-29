@@ -14,41 +14,32 @@ import { Router } from '@angular/router';
   styleUrls: ['./dashboard.component.css']
 })
 export class DashboardComponent implements OnInit {
-  playerId: number = 1; // Hardcoded playerId for now
+  playerId: number = 1;
   player: any = {};
   teamMembers: Player[] = [];
   trainingSessions: TrainingSession[] = [];
   playerGoals: PlayerGoal[] = [];
-  selectedTab: string = 'player';
-  selectedReportOption: string = 'individualMetrics'; // Default option
   playerMetrics: PlayerPerformance[] = [];
   playerReports: PlayerPerformanceReport[] = [];
-  teammatesReports: any[] = []; // Changed to generic 'any' to handle specific fields
-  //playerNames: string[]|null=null;
-  sessions: TrainingSession[] = []; // Initialize as empty array
-  playerIds:number[]|null=null;
-  coach: any = {};
+  teammatesReports: PlayerPerformanceReport[] = [];
+  coach: Coach | null = null;
+  selectedTab: string = 'player';
+  selectedReportOption: string = 'individualMetrics';
 
-
-  constructor(private playerService: PlayerService, private router: Router) {}
-
+  constructor(
+    private playerService: PlayerService,
+    private router: Router
+  ) { }
 
   ngOnInit(): void {
-    this.loadPlayerData();
-    this.loadTeamData();
+    this.loadPlayerDetails();
+    this.loadTeamMembers();
     this.loadTrainingSessions();
     this.loadPlayerGoals();
     this.loadPlayerMetrics();
     this.loadPlayerReports();
-    this.loadTeammatesReports(); // Load teammates' performance reports
-    this.loadCoachData();
-  }
-  setReportOption(option: string): void {
-    this.selectedReportOption = option;
-  }
-  logout() {
-    // Implement your logout logic here
-    this.router.navigate(['/login']);
+    this.loadTeammatesReports();
+    this.loadCoachDetails();
   }
 
   setSelectedTab(tab: string): void {
@@ -59,53 +50,47 @@ export class DashboardComponent implements OnInit {
     this.selectedReportOption = option;
   }
 
-  loadPlayerData(): void {
+  logout() {
+    this.router.navigate(['/login']);
+  }
+
+  loadPlayerDetails(): void {
     this.playerService.getPlayerById(this.playerId).subscribe((data) => {
       this.player = data;
     });
   }
 
-  loadTeamData(): void {
+  loadTeamMembers(): void {
     this.playerService.getTeamByPlayerId(this.playerId).subscribe((data) => {
       this.teamMembers = data;
     });
   }
 
-  
   loadTrainingSessions(): void {
-    this.playerService.getTrainingSessionsByPlayerId(this.playerId).subscribe((data) => {
-      this.trainingSessions = data;
+    console.log('Loading training sessions for player ID:', this.playerId);
+    
+    if (!this.playerId) {
+      console.error('Invalid player ID');
+      return;
+    }
+
+    this.playerService.getTrainingSessionsByPlayerId(this.playerId).subscribe({
+      next: (data) => {
+        console.log('Raw Training Sessions Data:', data); // Debug log
+        if (Array.isArray(data)) {
+          this.trainingSessions = data;
+          console.log('Processed Training Sessions:', this.trainingSessions); // Debug log
+        } else {
+          console.log('No training sessions found or empty array received');
+          this.trainingSessions = [];
+        }
+      },
+      error: (error) => {
+        console.error('Error fetching training sessions:', error);
+        this.trainingSessions = [];
+      }
     });
   }
-  
-  // loadTrainingSessions(): void {
-  //   this.playerService.getTrainingSessionsByPlayerId(this.playerId).subscribe((data) => {
-  //     this.trainingSessions = data;
-  
-  //     // Loop through each training session
-  //     this.trainingSessions.forEach((session) => {
-  //       // Initialize an empty array for player names
-  //       session.playerNames = [];
-  
-  //       // Create an array of observables for all player name fetches
-  //       const playerNameRequests = session.playerIds.map((playerId: number) => 
-  //         this.playerService.getPlayerNameById(playerId)
-  //       );
-  
-  //       // Wait for all requests to complete
-  //       forkJoin(playerNameRequests).subscribe((names: string[]) => {
-  //         // Populate the playerNames array with the fetched names
-  //         session.playerNames = names;
-  //       });
-  //     });
-  //   });
-  // }
-  
-  
-  
-  
- 
-  
 
   loadPlayerGoals(): void {
     this.playerService.getGoalsByPlayerId(this.playerId).subscribe(
@@ -140,18 +125,18 @@ export class DashboardComponent implements OnInit {
     );
   }
 
-  // Fetch teammates' performance reports
   loadTeammatesReports(): void {
     this.playerService.getTeammatesReports(this.playerId).subscribe(
       (data) => {
-        this.teammatesReports = data; // Store teammates' performance reports
+        this.teammatesReports = data;
       },
       (error) => {
         console.error('Error loading teammates reports:', error);
       }
     );
   }
-  loadCoachData(): void {
+
+  loadCoachDetails(): void {
     this.playerService.getCoachForPlayer(this.playerId).subscribe(
       (data) => {
         this.coach = data;
@@ -161,7 +146,7 @@ export class DashboardComponent implements OnInit {
       }
     );
   }
-  
+
   isString(value: any): boolean {
     return typeof value === 'string';
   }
@@ -169,7 +154,7 @@ export class DashboardComponent implements OnInit {
   isArray(value: any): boolean {
     return Array.isArray(value);
   }
-  
+
   getPlayerIdsArray(playerIds: string | number[]): number[] {
     if (Array.isArray(playerIds)) {
       return playerIds;
@@ -183,5 +168,24 @@ export class DashboardComponent implements OnInit {
       return playerIds.join(', ');
     }
     return playerIds;
+  }
+
+  getStatusIcon(report: any): string {
+    const hasWarning = this.hasWarningStatus(report);
+    return hasWarning ? 'fa-exclamation-triangle' : 'fa-check-circle';
+  }
+
+  hasWarningStatus(report: any): boolean {
+    return (
+      report.hrvStatus === 'Below Standard' ||
+      report.topSpeedStatus === 'Below Standard' ||
+      report.playerLoadStatus === 'Below Standard' ||
+      report.distanceStatus === 'Below Standard' ||
+      report.caloriesStatus === 'Below Standard'
+    );
+  }
+
+  getOverallStatus(report: any): string {
+    return this.hasWarningStatus(report) ? 'Needs Attention' : 'Good Standing';
   }
 }
