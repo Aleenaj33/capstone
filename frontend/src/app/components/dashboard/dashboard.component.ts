@@ -172,8 +172,16 @@ export class DashboardComponent implements OnInit {
   
   getPlayerIdsArray(playerIds: string | number[]): number[] {
     if (Array.isArray(playerIds)) {
-      return playerIds as number[];
+      return playerIds;
     }
-    return [];
+    // Convert comma-separated string to array of numbers
+    return playerIds.split(',').map(id => parseInt(id.trim(), 10));
+  }
+
+  getPlayerIdArray(playerIds: string | number[]): string {
+    if (Array.isArray(playerIds)) {
+      return playerIds.join(', ');
+    }
+    return playerIds;
   }
 }

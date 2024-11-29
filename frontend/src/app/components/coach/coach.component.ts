@@ -21,7 +21,7 @@ import { map } from 'rxjs/operators';
 export class CoachComponent implements OnInit {
   coach: Coach | undefined;
   teams: Team[] = [];
-  coachId: number =1;
+  coachId: number = 1;
   trainingSessions: TrainingSession[] = [];
  
   teamId: number = 1;
@@ -39,7 +39,9 @@ export class CoachComponent implements OnInit {
   playerReports: PlayerPerformanceReport[] = [];
   teammatesReports: any[] = [];
   
- 
+  showTeamPlayersModal = false;
+  selectedTeam: Team | null = null;
+  selectedTeamPlayers: Player[] = [];
   
   metricsForm: FormGroup;
   createTeamForm: FormGroup;
@@ -48,9 +50,14 @@ export class CoachComponent implements OnInit {
 
   showCreateSessionModal = false;
   showCreateTeamModal = false;
- 
+  
+  // Add these properties
+  searchTerm: string = '';
+  filterTeam: string = '';
+  filterStatus: string = '';
+  showCreateTrainingModal = false;
 
- // Store the selected goal ID
+  // Store the selected goal ID
 
   players: Player[] = [];
 
@@ -111,13 +118,65 @@ export class CoachComponent implements OnInit {
     this.getCoachInfo();
     this.getCoachTeams();
     this.fetchTrainingSessions();
-  
+    this.getGoalsForCoach();
     this.loadPlayerMetrics();
     this.loadPlayerReports();
     this.loadTeammatesReports();
     this.getUnassignedPlayers();
     this.getPlayers();
     this.loadGoals();
+    this.loadTeams();
+  }
+
+  loadTeams() {
+    this.coachService.getTeamsByCoachId(this.coachId).subscribe({
+      next: (teams) => {
+        this.teams = teams;
+      },
+      error: (error) => {
+        console.error('Error loading teams:', error);
+      }
+    });
+  }
+
+  viewTeamPlayers(team: Team) {
+    this.selectedTeam = team;
+    if (team.teamId) {
+      this.loadTeamPlayers(team.teamId);
+    }
+    this.showTeamPlayersModal = true;
+  }
+
+  loadTeamPlayers(teamId: number) {
+    this.coachService.getTeamPlayers(teamId).subscribe({
+      next: (players) => {
+        this.selectedTeamPlayers = players;
+      },
+      error: (error) => {
+        console.error('Error loading team players:', error);
+      }
+    });
+  }
+
+  removePlayerFromTeam(playerId: number, teamId: number) {
+    if (confirm('Are you sure you want to remove this player from the team?')) {
+      this.coachService.removePlayerFromTeam(playerId, teamId).subscribe({
+        next: () => {
+          this.selectedTeamPlayers = this.selectedTeamPlayers.filter(
+            player => player.playerId !== playerId
+          );
+        },
+        error: (error) => {
+          console.error('Error removing player from team:', error);
+        }
+      });
+    }
+  }
+
+  closeTeamPlayersModal() {
+    this.showTeamPlayersModal = false;
+    this.selectedTeam = null;
+    this.selectedTeamPlayers = [];
   }
 
   getCoachInfo(): void {
@@ -337,12 +396,7 @@ cancelCreateSession(): void {
   this.createSessionForm.reset();
 }
 
-getPlayerCount(playerIds: string | number[]): number {
-  if (Array.isArray(playerIds)) {
-    return playerIds.length;
-  }
-  return playerIds.split(',').length;
-}
+
 
 deleteSession(sessionId: number): void {
   if (confirm('Are you sure you want to delete this session?')) {
@@ -400,7 +454,7 @@ getPlayers(): void {
 
 // Add these properties
 selectedDateRange: string = '7';
-selectedTeam: string = '';
+
 
 // Add these methods
 getAverageHRV(): number {
@@ -492,18 +546,7 @@ editGoal(goal: PlayerGoal): void {
   console.log('Editing goal:', goal);
 }
 
-deleteGoal(goalId: number): void {
-  if (confirm('Are you sure you want to delete this goal?')) {
-    this.coachService.deleteGoal(goalId).subscribe({
-      next: () => {
-        this.goals = this.goals.filter(g => g.goalId !== goalId);
-      },
-      error: (error) => {
-        console.error('Error deleting goal:', error);
-      }
-    });
-  }
-}
+
 
 // Add this to your ngOnInit()
 loadGoals(): void {
@@ -518,6 +561,75 @@ loadGoals(): void {
   });
 }
 
+viewSessionDetails(session: TrainingSession): void {
+  console.log('Viewing session details:', session);
+  // Implement session details view logic
+}
+
+
+
+getSessionType(session: TrainingSession): string {
+  return 'Regular Training'; // Default type or implement your logic
+}
+
+getSessionLocation(): string {
+  return 'Training Ground'; // Default location or implement your logic
+}
+
+getSessionDescription(): string {
+  return 'Regular training session'; // Default description or implement your logic
+}
+
+getPresentCount(session: TrainingSession): number {
+  if (typeof session.playerIds === 'string') {
+    return session.playerIds.split(',').length;
+  }
+  return session.playerIds.length;
+}
+
+getAbsentCount(): number {
+  return 0; // Implement your attendance tracking logic
+}
+
+markAttendance(session: TrainingSession): void {
+  console.log('Marking attendance for session:', session);
+  // Implement attendance marking logic
+}
+
+
+
+deleteGoal(goalId: number): void {
+  if (confirm('Are you sure you want to delete this goal?')) {
+    this.coachService.deleteGoal(goalId).subscribe({
+      next: () => {
+        // Remove the deleted goal from the local array
+        this.goals = this.goals.filter(goal => goal.goalId !== goalId);
+        this.successMessage = 'Goal deleted successfully';
+      },
+      error: (error) => {
+        console.error('Error deleting goal:', error);
+        this.errorMessage = 'Failed to delete goal. Please try again.';
+      }
+    });
+  }
+}
+
+isPlayerSelected(playerId: number): boolean {  // Changed to number type since that's what your Player model likely uses
+  const selectedPlayers = this.createTeamForm.get('playerIds')?.value || [];
+  return selectedPlayers.includes(playerId);
+}
+
+togglePlayerSelection(playerId: number): void {  // Changed to number type
+  const playerIds = this.createTeamForm.get('playerIds');
+  const currentSelection = playerIds?.value || [];
   
+  if (this.isPlayerSelected(playerId)) {
+    // Remove player
+    playerIds?.setValue(currentSelection.filter((id: number) => id !== playerId));
+  } else {
+    // Add player
+    playerIds?.setValue([...currentSelection, playerId]);
+  }
+}
 }  
 

@@ -105,4 +105,11 @@ export class CoachService {
   getPlayerName(playerId: number): Observable<any> {
     return this.http.get(`${this.apiUrl}/players/${playerId}`);
   }
+
+  removePlayerFromTeam(playerId: number, teamId: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/teams/${teamId}/players/${playerId}`);
+  }
+
+
+ 
 }
