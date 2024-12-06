@@ -110,6 +110,13 @@ export class CoachService {
     return this.http.delete<void>(`${this.apiUrl}/teams/${teamId}/players/${playerId}`);
   }
 
+  // Add this method to the CoachService class
+  getPlayersByTeamId(teamId: number): Observable<Player[]> {
+    return this.http.get<Player[]>(`${this.apiUrl}/teams/${teamId}/players`);
+  }
 
- 
+  getCoachId(email: string):Observable<number>{
+    return this.http.get<number>('${this.apiUrl}/coachid-by-email?email=${email}`')
+  }
+
 }

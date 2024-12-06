@@ -73,7 +73,9 @@ export class PlayerService {
   getCoachForPlayer(playerId: number): Observable<Coach> {
     return this.http.get<Coach>(`${this.apiUrl}/${playerId}/coach`);
   }
-
+  getPlayerId(email: string):Observable<number>{
+    return this.http.get<number>('${this.apiUrl}/playerid-by-email?email=${email}`')
+  }
   //
   //
   //

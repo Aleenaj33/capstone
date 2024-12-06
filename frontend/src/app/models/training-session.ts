@@ -1,8 +1,9 @@
 export interface TrainingSession {
-  sessionId: number;
+  sessionId?: number;
   coachId: number;
+  teamId?: number;
   date: string;
   duration: string;
-  playerIds: string | number[];
-  playernames: string[];
+  playerIds: number[];
+  playernames?: string[];
 }

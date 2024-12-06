@@ -281,10 +281,10 @@
                 <div class="detail-content">
                   <label>Participants</label>
                   <div class="players-chips">
-                    <div *ngFor="let playerName of session?.playernames" class="player-chip">
-                      {{playerName}}
+                    <div *ngFor="let playerName of (session?.playernames || [])" class="player-chip">
+                      {{ playerName }}
                     </div>
-                    <div *ngIf="!session?.playernames?.length" class="no-players">
+                    <div *ngIf="!(session?.playernames || []).length" class="no-players">
                       No players assigned
                     </div>
                   </div>
@@ -654,4 +654,4 @@
       
     </div>
   </div>
-</div>
+

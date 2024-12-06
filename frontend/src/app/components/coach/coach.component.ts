@@ -10,6 +10,7 @@ import { TrainingSession } from 'src/app/models/training-session';
 import { CoachService } from 'src/app/services/coach.service';
 import { forkJoin } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { AuthService } from 'src/app/services/auth.service';
 
 
 
@@ -21,7 +22,7 @@ import { map } from 'rxjs/operators';
 export class CoachComponent implements OnInit {
   coach: Coach | undefined;
   teams: Team[] = [];
-  coachId: number = 1;
+  coachId!: number;
   trainingSessions: TrainingSession[] = [];
  
   teamId: number = 1;
@@ -39,9 +40,7 @@ export class CoachComponent implements OnInit {
   playerReports: PlayerPerformanceReport[] = [];
   teammatesReports: any[] = [];
   
-  showTeamPlayersModal = false;
-  selectedTeam: Team | null = null;
-  selectedTeamPlayers: Player[] = [];
+ 
   
   metricsForm: FormGroup;
   createTeamForm: FormGroup;
@@ -50,16 +49,12 @@ export class CoachComponent implements OnInit {
 
   showCreateSessionModal = false;
   showCreateTeamModal = false;
-  
-  // Add these properties
-  searchTerm: string = '';
-  filterTeam: string = '';
-  filterStatus: string = '';
-  showCreateTrainingModal = false;
+ 
 
-  // Store the selected goal ID
+ // Store the selected goal ID
 
   players: Player[] = [];
+  error!: string;
 
   setSelectedTab(tab: string) {
    
@@ -78,6 +73,7 @@ export class CoachComponent implements OnInit {
   }
 
   constructor(private coachService: CoachService,
+    private authService: AuthService,
     private fb: FormBuilder,
 
   ) {
@@ -115,69 +111,30 @@ export class CoachComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    const email = this.authService.getUserEmail(); 
+
+    if (email) {
+      this.coachService.getCoachId(email).subscribe({
+        next: (id) => {
+          this.playerId = id;
+        },
+        error: (err) => {
+          this.error = 'Unable to fetch user ID';
+        }
+      });}
+
     this.getCoachInfo();
     this.getCoachTeams();
     this.fetchTrainingSessions();
-    this.getGoalsForCoach();
+  this.getGoalsForCoach();
     this.loadPlayerMetrics();
     this.loadPlayerReports();
     this.loadTeammatesReports();
     this.getUnassignedPlayers();
     this.getPlayers();
     this.loadGoals();
-    this.loadTeams();
   }
-
-  loadTeams() {
-    this.coachService.getTeamsByCoachId(this.coachId).subscribe({
-      next: (teams) => {
-        this.teams = teams;
-      },
-      error: (error) => {
-        console.error('Error loading teams:', error);
-      }
-    });
-  }
-
-  viewTeamPlayers(team: Team) {
-    this.selectedTeam = team;
-    if (team.teamId) {
-      this.loadTeamPlayers(team.teamId);
-    }
-    this.showTeamPlayersModal = true;
-  }
-
-  loadTeamPlayers(teamId: number) {
-    this.coachService.getTeamPlayers(teamId).subscribe({
-      next: (players) => {
-        this.selectedTeamPlayers = players;
-      },
-      error: (error) => {
-        console.error('Error loading team players:', error);
-      }
-    });
-  }
-
-  removePlayerFromTeam(playerId: number, teamId: number) {
-    if (confirm('Are you sure you want to remove this player from the team?')) {
-      this.coachService.removePlayerFromTeam(playerId, teamId).subscribe({
-        next: () => {
-          this.selectedTeamPlayers = this.selectedTeamPlayers.filter(
-            player => player.playerId !== playerId
-          );
-        },
-        error: (error) => {
-          console.error('Error removing player from team:', error);
-        }
-      });
-    }
-  }
-
-  closeTeamPlayersModal() {
-    this.showTeamPlayersModal = false;
-    this.selectedTeam = null;
-    this.selectedTeamPlayers = [];
-  }
+  
 
   getCoachInfo(): void {
     this.coachService.getCoachDetails(this.coachId).subscribe((data: Coach) => {
@@ -295,9 +252,7 @@ createSession(): void {
   if (this.createSessionForm.valid) {
     const newSession: TrainingSession = { ...this.createSessionForm.value };
 
-    if (typeof newSession.playerIds === 'string') {
-      newSession.playerIds = newSession.playerIds.split(',').map(id => parseInt(id.trim(), 10));
-    }
+    
 
    
 
@@ -398,7 +353,12 @@ cancelCreateSession(): void {
 
 
 
-deleteSession(sessionId: number): void {
+deleteSession(sessionId: number | undefined): void {
+  if (!sessionId) {
+    console.error('Session ID is undefined');
+    return;
+  }
+
   if (confirm('Are you sure you want to delete this session?')) {
     this.coachService.deleteTrainingSession(sessionId).subscribe({
       next: () => {
@@ -454,7 +414,7 @@ getPlayers(): void {
 
 // Add these properties
 selectedDateRange: string = '7';
-
+selectedTeam: string = '';
 
 // Add these methods
 getAverageHRV(): number {
@@ -561,42 +521,45 @@ loadGoals(): void {
   });
 }
 
-viewSessionDetails(session: TrainingSession): void {
-  console.log('Viewing session details:', session);
-  // Implement session details view logic
-}
-
-
-
-getSessionType(session: TrainingSession): string {
-  return 'Regular Training'; // Default type or implement your logic
-}
-
-getSessionLocation(): string {
-  return 'Training Ground'; // Default location or implement your logic
-}
-
-getSessionDescription(): string {
-  return 'Regular training session'; // Default description or implement your logic
-}
-
-getPresentCount(session: TrainingSession): number {
-  if (typeof session.playerIds === 'string') {
-    return session.playerIds.split(',').length;
+getSessionStatus(session: TrainingSession): string {
+  const now = new Date().getTime();
+  const sessionTime = new Date(session.date).getTime();
+  
+  if (sessionTime > now) {
+    return 'upcoming';
+  } else if (sessionTime + this.getDurationInMs(session.duration) > now) {
+    return 'in-progress';
   }
-  return session.playerIds.length;
+  return 'completed';
 }
 
-getAbsentCount(): number {
-  return 0; // Implement your attendance tracking logic
+getTeamName(teamId?: number): string {
+  if (!teamId) return 'No Team';
+  const team = this.teams.find(t => t.teamId === teamId);
+  return team ? team.name : 'No Team';
 }
 
-markAttendance(session: TrainingSession): void {
-  console.log('Marking attendance for session:', session);
-  // Implement attendance marking logic
+getPlayerCount(playerIds: string | number[]): number {
+  if (Array.isArray(playerIds)) {
+    return playerIds.length;
+  }
+  // If it's a comma-separated string
+  return playerIds ? playerIds.split(',').length : 0;
 }
 
+viewSession(session: TrainingSession): void {
+  // Implement view session details logic
+  console.log('Viewing session:', session);
+}
 
+private getDurationInMs(duration: string): number {
+  const matches = duration.match(/(\d+)/);
+  if (matches) {
+    const hours = parseInt(matches[1]);
+    return hours * 60 * 60 * 1000;
+  }
+  return 0;
+}
 
 deleteGoal(goalId: number): void {
   if (confirm('Are you sure you want to delete this goal?')) {
@@ -611,24 +574,6 @@ deleteGoal(goalId: number): void {
         this.errorMessage = 'Failed to delete goal. Please try again.';
       }
     });
-  }
-}
-
-isPlayerSelected(playerId: number): boolean {  // Changed to number type since that's what your Player model likely uses
-  const selectedPlayers = this.createTeamForm.get('playerIds')?.value || [];
-  return selectedPlayers.includes(playerId);
-}
-
-togglePlayerSelection(playerId: number): void {  // Changed to number type
-  const playerIds = this.createTeamForm.get('playerIds');
-  const currentSelection = playerIds?.value || [];
-  
-  if (this.isPlayerSelected(playerId)) {
-    // Remove player
-    playerIds?.setValue(currentSelection.filter((id: number) => id !== playerId));
-  } else {
-    // Add player
-    playerIds?.setValue([...currentSelection, playerId]);
   }
 }
 }  

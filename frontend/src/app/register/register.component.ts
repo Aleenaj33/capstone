@@ -20,6 +20,7 @@ export class RegisterComponent {
   roles: string = '';
   showRoleForm: boolean = false;
   selectedRole: string = '';
+  FormValid: boolean= false;
 
   // Player and Coach objects initialized
   player: Player = { playerId: 0, name: '', email: '', sport: '', teamId: 0, age: 0, height: 0, weight: 0 };
@@ -44,10 +45,27 @@ export class RegisterComponent {
   }
 
   onRegisterSubmit(form: NgForm): void {
-    if (this.isFormValid) {
-      this.showRoleForm = true;
+    // Check if the form is valid
+    if (form.valid) {
+      this.authService.register(form.value).subscribe({
+        next: (response) => {
+          // If registration is successful, show the role form
+          console.log('Registration successful:', response);
+          this.showRoleForm = true; // Display role selection form
+        },
+        error: (error) => {
+          // Handle any errors from registration
+          console.log('Registration failed:', error);
+          this.FormValid = false;
+          this.showRoleForm = true; // Indicate the form submission failed
+        }
+      });
+    } else {
+      this.FormValid = false; // Indicate the form is invalid
+      this.showRoleForm = false; // Hide role selection form
     }
   }
+  
 
   // Handle player creation
   createPlayerForm(playerForm: NgForm): void {

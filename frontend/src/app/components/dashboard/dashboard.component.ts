@@ -7,6 +7,7 @@ import { PlayerPerformance } from 'src/app/models/playerperformance';
 import { PlayerPerformanceReport } from 'src/app/models/playerperformancereport';
 import { Coach } from 'src/app/models/coach';
 import { Router } from '@angular/router';
+import { AuthService } from 'src/app/services/auth.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -14,7 +15,7 @@ import { Router } from '@angular/router';
   styleUrls: ['./dashboard.component.css']
 })
 export class DashboardComponent implements OnInit {
-  playerId: number = 1;
+  playerId!: number ;
   player: any = {};
   teamMembers: Player[] = [];
   trainingSessions: TrainingSession[] = [];
@@ -25,13 +26,27 @@ export class DashboardComponent implements OnInit {
   coach: Coach | null = null;
   selectedTab: string = 'player';
   selectedReportOption: string = 'individualMetrics';
+  error!: string;
 
   constructor(
     private playerService: PlayerService,
+    private authService: AuthService,
     private router: Router
   ) { }
 
   ngOnInit(): void {
+    const email = this.authService.getUserEmail(); 
+
+    if (email) {
+      this.playerService.getPlayerId(email).subscribe({
+        next: (id) => {
+          this.playerId = id;
+        },
+        error: (err) => {
+          this.error = 'Unable to fetch user ID';
+        }
+      });}
+
     this.loadPlayerDetails();
     this.loadTeamMembers();
     this.loadTrainingSessions();
@@ -41,6 +56,8 @@ export class DashboardComponent implements OnInit {
     this.loadTeammatesReports();
     this.loadCoachDetails();
   }
+
+  
 
   setSelectedTab(tab: string): void {
     this.selectedTab = tab;

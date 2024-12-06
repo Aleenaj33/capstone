@@ -55,6 +55,15 @@ export class AuthService {
     return roles ? JSON.parse(roles)[0] : null; // Assuming only one role per user
   }
 
+  getUserEmail(): string | null {
+    const token = sessionStorage.getItem('token');
+    if (token) {
+      const decodedToken = JSON.parse(atob(token.split('.')[1])); // Decode JWT token
+      return decodedToken?.sub; // Assuming the email is stored in the 'sub' field
+    }
+    return null;
+  }
+
   // Check if user is logged in
   isLoggedIn(): boolean {
     return !!sessionStorage.getItem('token');

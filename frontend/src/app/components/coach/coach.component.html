@@ -159,9 +159,6 @@
               <button class="team-btn delete-btn" (click)="deleteTeam(team.teamId!)">
                 <i class="fas fa-trash"></i> Delete
               </button>
-              <button class="team-btn view-players-btn" (click)="viewTeamPlayers(team)">
-                <i class="fas fa-users"></i> View Players
-              </button>
             </div>
           </div>
         </div>
@@ -171,292 +168,123 @@
       <div class="modal-overlay" *ngIf="showCreateTeamModal">
         <div class="create-team-modal">
           <div class="modal-header">
-            <h2><i class="fas fa-users"></i> Create New Team</h2>
+            <h2>Create New Team</h2>
             <button class="close-btn" (click)="cancelCreateTeam()">
               <i class="fas fa-times"></i>
             </button>
           </div>
 
-          <form [formGroup]="createTeamForm" (ngSubmit)="createTeam()" class="create-team-form">
-            <div class="form-section">
-              <h3>Basic Information</h3>
-              <div class="form-group">
-                <label for="teamName">Team Name</label>
-                <div class="input-wrapper">
-                  <i class="fas fa-users"></i>
-                  <input 
-                    type="text" 
-                    id="teamName" 
-                    formControlName="teamName" 
-                    placeholder="Enter team name"
-                  >
-                </div>
-                <div class="error-message" *ngIf="createTeamForm.get('teamName')?.touched && createTeamForm.get('teamName')?.invalid">
-                  <i class="fas fa-exclamation-circle"></i>
-                  <span *ngIf="createTeamForm.get('teamName')?.errors?.['required']">Team name is required</span>
-                  <span *ngIf="createTeamForm.get('teamName')?.errors?.['minlength']">Team name must be at least 3 characters</span>
-                </div>
+          <form [formGroup]="createTeamForm" (ngSubmit)="createTeam()">
+            <div class="form-group">
+              <label for="teamName">Team Name</label>
+              <div class="input-wrapper">
+                <i class="fas fa-users"></i>
+                <input 
+                  type="text" 
+                  id="teamName" 
+                  formControlName="teamName" 
+                  placeholder="Enter team name"
+                >
               </div>
-
-              <div class="form-group">
-                <label for="sportCategory">Sport Category</label>
-                <div class="input-wrapper">
-                  <i class="fas fa-basketball-ball"></i>
-                  <select id="sportCategory" formControlName="sportCategory">
-                    <option value="">Select sport category</option>
-                    <option value="Football">Football</option>
-                    <option value="Basketball">Basketball</option>
-                    <option value="Tennis">Tennis</option>
-                    <option value="Cricket">Cricket</option>
-                    <option value="Hockey">Hockey</option>
-                  </select>
-                </div>
-                <div class="error-message" *ngIf="createTeamForm.get('sportCategory')?.touched && createTeamForm.get('sportCategory')?.invalid">
-                  <i class="fas fa-exclamation-circle"></i>
-                  Sport category is required
-                </div>
-              </div>
+              <span class="error-message" *ngIf="createTeamForm.get('teamName')?.touched && createTeamForm.get('teamName')?.invalid">
+                Team name is required
+              </span>
             </div>
 
-            <div class="form-section">
-              <h3>Team Members</h3>
-              <div class="form-group">
-                <label for="players">Select Players</label>
-                <div class="players-select-container">
-                  <div class="select-info">
-                    <i class="fas fa-user-plus"></i>
-                    <span>{{ createTeamForm.get('playerIds')?.value?.length || 0 }} players selected</span>
-                  </div>
-                  <div class="players-list">
-                    <div class="player-select-item" 
-                         *ngFor="let player of unassignedPlayers"
-                         [class.selected]="isPlayerSelected(player.playerId)"
-                         (click)="togglePlayerSelection(player.playerId)">
-                      <i class="fas fa-user"></i>
-                      <span>{{ player.name }}</span>
-                      <i class="fas fa-check" *ngIf="isPlayerSelected(player.playerId)"></i>
-                    </div>
-                  </div>
-                </div>
-                <div class="helper-text">
-                  <i class="fas fa-info-circle"></i>
-                  Click on players to select/deselect them
-                </div>
+            <div class="form-group">
+              <label for="sportCategory">Sport Category</label>
+              <div class="input-wrapper">
+                <i class="fas fa-basketball-ball"></i>
+                <select id="sportCategory" formControlName="sportCategory">
+                  <option value="">Select sport category</option>
+                  <option value="Football">Football</option>
+                  <option value="Basketball">Basketball</option>
+                  <option value="Tennis">Tennis</option>
+                  <option value="Cricket">Cricket</option>
+                  <option value="Hockey">Hockey</option>
+                </select>
               </div>
+              <span class="error-message" *ngIf="createTeamForm.get('sportCategory')?.touched && createTeamForm.get('sportCategory')?.invalid">
+                Sport category is required
+              </span>
+            </div>
+
+            <div class="form-group">
+              <label for="players">Select Players</label>
+              <div class="players-select-wrapper">
+                <div class="select-info">
+                  <i class="fas fa-user-plus"></i>
+                  <span>{{ createTeamForm.get('playerIds')?.value?.length || 0 }} players selected</span>
+                </div>
+                <select 
+                  multiple 
+                  id="players" 
+                  formControlName="playerIds"
+                  class="players-select"
+                >
+                  <option *ngFor="let player of unassignedPlayers" [value]="player.playerId">
+                    {{ player.name }}
+                  </option>
+                </select>
+              </div>
+              <span class="helper-text">Hold Ctrl/Cmd to select multiple players</span>
             </div>
 
             <div class="form-actions">
               <button type="button" class="btn-secondary" (click)="cancelCreateTeam()">
-                <i class="fas fa-times"></i>
-                Cancel
+                <i class="fas fa-times"></i> Cancel
               </button>
               <button type="submit" class="btn-primary" [disabled]="!createTeamForm.valid">
-                <i class="fas fa-check"></i>
-                Create Team
+                <i class="fas fa-check"></i> Create Team
               </button>
             </div>
           </form>
         </div>
       </div>
-
-      <!-- Team Players Modal -->
-      <div class="modal-overlay" *ngIf="showTeamPlayersModal">
-        <div class="team-players-modal">
-          <div class="modal-header">
-            <h2>
-              <i class="fas fa-users"></i> 
-              {{ selectedTeam ? selectedTeam.name : '' }} - Players
-            </h2>
-            <button class="close-btn" (click)="closeTeamPlayersModal()">
-              <i class="fas fa-times"></i>
-            </button>
-          </div>
-
-          <div class="modal-content">
-            <div class="team-stats">
-              <div class="stat-item">
-                <i class="fas fa-user-friends"></i>
-                <span>Total Players: {{ selectedTeamPlayers.length }}</span>
-              </div>
-              <div class="stat-item">
-                <i class="fas fa-basketball-ball"></i>
-                <span>Sport: {{ selectedTeam ? selectedTeam.sportCategory : '' }}</span>
-              </div>
-            </div>
-
-            <div class="players-list-container">
-              <div *ngIf="selectedTeamPlayers.length; else noPlayers">
-                <div class="player-card" *ngFor="let player of selectedTeamPlayers">
-                  <div class="player-info">
-                    <div class="player-avatar">
-                      <i class="fas fa-user"></i>
-                    </div>
-                    <div class="player-details">
-                      <h4>{{ player.name }}</h4>
-                      <p class="player-email">{{ player.email }}</p>
-                    </div>
-                  </div>
-                  <div class="player-stats">
-                    <div class="stat">
-                      <span class="label">Age</span>
-                      <span class="value">{{ player.age }}</span>
-                    </div>
-                    <div class="stat">
-                      <span class="label">Height</span>
-                      <span class="value">{{ player.height }} cm</span>
-                    </div>
-                    <div class="stat">
-                      <span class="label">Weight</span>
-                      <span class="value">{{ player.weight }} kg</span>
-                    </div>
-                    <div class="stat">
-                      <span class="label">Sport</span>
-                      <span class="value">{{ player.sport }}</span>
-                    </div>
-                  </div>
-                  <button class="remove-player-btn" 
-                          (click)="removePlayerFromTeam(player.playerId, player.teamId)"
-                          *ngIf="selectedTeam?.teamId">
-                    <i class="fas fa-user-minus"></i>
-                    Remove
-                  </button>
-                </div>
-              </div>
-              
-              <ng-template #noPlayers>
-                <div class="no-players">
-                  <i class="fas fa-users-slash"></i>
-                  <p>No players in this team yet</p>
-                </div>
-              </ng-template>
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
 
-    <!-- Training Session Section -->
+    <!-- Training Sessions Section -->
     <div class="training-section" *ngIf="selectedTab === 'training'">
       <div class="section-header">
-        <h2><i class="fas fa-running"></i> Training Sessions</h2>
-        <button class="add-btn" (click)="showCreateTrainingModal = true">
+        <h2>Training Sessions</h2>
+        <button class="create-btn" (click)="openCreateSessionModal()">
           <i class="fas fa-plus"></i> New Session
         </button>
       </div>
 
-      <div class="training-filters">
-        <div class="search-box">
-          <i class="fas fa-search"></i>
-          <input 
-            type="text" 
-            [(ngModel)]="searchTerm" 
-            placeholder="Search training sessions..."
-          >
-        </div>
-        
-        <div class="filter-group">
-          <select [(ngModel)]="filterTeam">
-            <option value="">All Teams</option>
-            <option *ngFor="let team of teams" [value]="team.teamId">
-              {{ team.name }}
-            </option>
-          </select>
-        </div>
-
-        <div class="filter-group">
-          <select [(ngModel)]="filterStatus">
-            <option value="">All Status</option>
-            <option value="SCHEDULED">Scheduled</option>
-            <option value="IN_PROGRESS">In Progress</option>
-            <option value="COMPLETED">Completed</option>
-            <option value="CANCELLED">Cancelled</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="training-grid">
-        <div class="training-card" *ngFor="let session of trainingSessions">
-          <div class="session-header" [ngClass]="getSessionStatus(session).toLowerCase()">
-            <div class="session-type">
-              <i class="fas fa-bookmark"></i>
-              {{ getSessionType(session) }}
+      <!-- Sessions List -->
+      <div class="sessions-container">
+        <div class="session-card" *ngFor="let session of trainingSessions">
+          <div class="session-header">
+            <div class="session-date">
+              <i class="far fa-calendar"></i>
+              {{ session.date | date:'mediumDate' }}
             </div>
-            <div class="session-status">
-              {{ getSessionStatus(session) }}
+            <div class="session-duration">
+              <i class="far fa-clock"></i>
+              {{ session.duration }}
             </div>
           </div>
-
           <div class="session-body">
-            <div class="session-team">
+            <div class="players-info">
               <i class="fas fa-users"></i>
-              {{ getTeamName(session) }}
+              <span>{{ getPlayerCount(session.playerIds) }} Players</span>
             </div>
-
-            <div class="session-details">
-              <div class="detail-item">
-                <i class="far fa-calendar"></i>
-                {{ session.date | date:'mediumDate' }}
-              </div>
-              <div class="detail-item">
-                <i class="far fa-clock"></i>
-                {{ session.duration }}
-              </div>
-              <div class="detail-item">
-                <i class="fas fa-map-marker-alt"></i>
-                {{ getSessionLocation() }}
-              </div>
+            <div class="session-actions">
+              <button class="action-btn edit-btn" (click)="editSession(session)">
+                <i class="fas fa-edit"></i>
+              </button>
+              <button 
+                class="action-btn delete-btn" 
+                (click)="deleteSession(session.sessionId)"
+                [disabled]="!session.sessionId"
+              >
+                <i class="fas fa-trash"></i>
+                <span>Delete</span>
+              </button>
             </div>
-
-            <div class="session-description">
-              {{ getSessionDescription() }}
-            </div>
-
-            <div class="attendance-summary" *ngIf="getSessionStatus(session) !== 'SCHEDULED'">
-              <div class="attendance-stat">
-                <span class="label">Present</span>
-                <span class="value present">{{ getPresentCount(session) }}</span>
-              </div>
-              <div class="attendance-stat">
-                <span class="label">Absent</span>
-                <span class="value absent">{{ getAbsentCount() }}</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="session-actions">
-            <button class="action-btn view" (click)="viewSessionDetails(session)">
-              <i class="fas fa-eye"></i>
-              Details
-            </button>
-            <button class="action-btn edit" (click)="editSession(session)" 
-                    *ngIf="getSessionStatus(session) === 'SCHEDULED'">
-              <i class="fas fa-edit"></i>
-              Edit
-            </button>
-            <button class="action-btn attendance" 
-                    (click)="markAttendance(session)"
-                    *ngIf="getSessionStatus(session) === 'SCHEDULED'">
-              <i class="fas fa-clipboard-check"></i>
-              Attendance
-            </button>
-            <button class="action-btn cancel" 
-                    (click)="cancelSession(session.sessionId)"
-                    *ngIf="getSessionStatus(session) === 'SCHEDULED'">
-              <i class="fas fa-times"></i>
-              Cancel
-            </button>
           </div>
         </div>
-      </div>
-
-      <!-- Empty State -->
-      <div class="empty-state" *ngIf="trainingSessions.length === 0">
-        <i class="fas fa-calendar-alt fa-3x"></i>
-        <h3>No Training Sessions Found</h3>
-        <p>Get started by creating your first training session</p>
-        <button class="add-btn" (click)="showCreateTrainingModal = true">
-          <i class="fas fa-plus"></i> Create Session
-        </button>
       </div>
     </div>
 
