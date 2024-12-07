@@ -5,6 +5,7 @@ import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { LoginComponent } from './login/login.component';
 import { RegisterComponent } from './register/register.component';
 import { CoachComponent } from './components/coach/coach.component';
+import { HomeComponent } from './components/home/home.component';
 
 
  const routes: Routes = [
@@ -12,6 +13,7 @@ import { CoachComponent } from './components/coach/coach.component';
   { path: 'register', component: RegisterComponent },
   { path: 'player-dashboard', component: DashboardComponent }, // Protected route
   { path: 'coach-dashboard', component: CoachComponent}, // Protected route
+  { path: 'home',component: HomeComponent},
   { path: '', redirectTo: '/login', pathMatch: 'full' } // Default route
 ];
 

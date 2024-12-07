@@ -1,91 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AthleteEdge - Empowering Athletes with Tech Insights</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Montserrat:wght@700&display=swap" rel="stylesheet">
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/ScrollTrigger.min.js"></script>
+</head>
+<body>
+  <header>
+    <div class="logo">
+      <img src="assets\images\logo3.png" alt="AthleteEdge Logo" class="logo-img">
+      AthleteEdge
+    </div>
+    <nav>
+      <a href="#hero">Home</a>
+      <a href="#features">Features</a>
+      <a href="#about">About Us</a>
+      <a href="#contact">Contact Us</a>
+      <button class="btn login" [routerLink]="'/login'">Login</button>
+      <button class="btn register" [routerLink]="'/register'">Sign Up</button>
+    </nav>
+    
+  </header>
+  
+
+  <main>
+    <section id="hero">
+      <h1>Empowering Athletes with Tech Insights</h1>
+      <p>Unlock your full potential with data-driven performance enhancement</p>
+      <a href="#" class="cta-button"a routerLink="/register" >Get Started</a>
+    </section>
+
+    <section id="features">
+      <h2>Core Features</h2>
+      <div class="feature-grid">
+        <div class="feature-card">
+          <i class="icon-team"></i>
+          <h3>Team and Coach Management</h3>
+          <p>Create and manage teams, assign athletes, and associate coaches with multiple teams</p>
+        </div>
+        <div class="feature-card">
+          <i class="icon-training"></i>
+          <h3>Training Sessions</h3>
+          <p>Create, schedule, and manage training sessions with ease</p>
+        </div>
+        <div class="feature-card">
+          <i class="icon-analysis"></i>
+          <h3>Performance Analysis</h3>
+          <p>Submit and analyze key metrics against sport-specific standards and historical trends</p>
+        </div>
+        <div class="feature-card">
+          <i class="icon-report"></i>
+          <h3>Performance Reporting</h3>
+          <p>Generate comprehensive reports with detailed metrics analysis and trend visualization</p>
+        </div>
+        <div class="feature-card">
+          <i class="icon-goals"></i>
+          <h3>Goals and Feedback</h3>
+          <p>Set goals, monitor progress, and provide actionable feedback</p>
+        </div>
+        <div class="feature-card">
+          <i class="icon-standards"></i>
+          <h3>Sport Standards Management</h3>
+          <p>Define and update acceptable performance standards for various sports</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="why-choose-us">
+      <h2>Why Choose Us?</h2>
+      <div class="benefits-grid">
+        <div class="benefit-card">
+          <h3>Data-Driven Insights</h3>
+          <p>Make informed decisions based on comprehensive performance data</p>
+        </div>
+        <div class="benefit-card">
+          <h3>Seamless Integration</h3>
+          <p>Easily integrate with existing training routines and equipment</p>
+        </div>
+        <div class="benefit-card">
+          <h3>Personalized Coaching</h3>
+          <p>Tailor your approach to each athlete's unique needs and goals</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="about">
+      <h2>About Us</h2>
+      <p>AthleteEdge is a cutting-edge platform dedicated to revolutionizing athletic performance through technology. Our team of sports scientists, data analysts, and software engineers work tirelessly to provide coaches and athletes with the tools they need to achieve peak performance.</p>
+      <p>Founded in 2024, we've quickly become a trusted partner for sports teams and individual athletes across the globe. Our mission is to democratize access to advanced sports science and analytics, enabling athletes at all levels to train smarter and reach their full potential.</p>
+    </section>
+
+    
+
+    <section id="contact">
+      <h2>Contact Us</h2>
+      <form id="contact-form">
+        <input type="text" name="name" placeholder="Your Name" required>
+        <input type="email" name="email" placeholder="Your Email" required>
+        <textarea name="message" placeholder="Your Message" required></textarea>
+        <button type="submit" class="btn">Send Message</button>
+      </form>
+    </section>
+  </main>
+
+  <footer>
+    <div class="footer-content">
+      <div class="footer-links">
+        <a href="#">Terms of Service</a>
+        <a href="#">Privacy Policy</a>
+      </div>
+      <div class="social-media">
+        <a href="#" class="social-icon"><i class="icon-facebook"></i></a>
+        <a href="#" class="social-icon"><i class="icon-twitter"></i></a>
+        <a href="#" class="social-icon"><i class="icon-instagram"></i></a>
+      </div>
+    </div>
+    <p>&copy; 2024 AthleteEdge. Empowering athletes worldwide.</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+<!-- 
 <div class="home-container">
-  <!-- Add this auth buttons section at the top -->
-  <div class="auth-buttons">
+   Add this auth buttons section at the top -->
+  <!-- <div class="auth-buttons">
     <a routerLink="/login" class="auth-btn login-btn">Login</a>
     <a routerLink="/register" class="auth-btn register-btn">Register</a>
   </div>
 
-  <!-- Hero Section -->
-  <section class="hero-section">
-    <div class="hero-content">
-      <h1>AthleteEdge</h1>
-      <p class="tagline">Empowering Athletes, Enhancing Performance</p>
-      <div class="hero-buttons">
-        <a routerLink="/register" class="btn btn-primary">Get Started</a>
-        <a routerLink="/login" class="btn btn-secondary">Sign In</a>
-      </div>
-    </div>
-  </section>
-  
-  <!-- About Section -->
-  <section class="about-section">
-    <div class="section-title">
-      <h2>About AthleteEdge</h2>
-      <p>A comprehensive platform designed for athletes and coaches to track, analyze, and improve performance.</p>
-    </div>
-  </section>
-  
-  <!-- Features Section -->
-  <section class="features-section">
-    <div class="cards-container">
-      <div class="feature-card">
-        <div class="card-icon">
-          <i class="fas fa-chart-line"></i>
-        </div>
-        <h3>Performance Analytics</h3>
-        <p>Track and analyze your performance metrics with detailed insights and progress monitoring.</p>
-      </div>
-  
-      <div class="feature-card">
-        <div class="card-icon">
-          <i class="fas fa-users"></i>
-        </div>
-        <h3>Team Management</h3>
-        <p>Seamlessly manage team rosters, schedules, and communication between players and coaches.</p>
-      </div>
-  
-      <div class="feature-card">
-        <div class="card-icon">
-          <i class="fas fa-dumbbell"></i>
-        </div>
-        <h3>Training Sessions</h3>
-        <p>Plan and monitor training sessions with detailed tracking of exercises and progress.</p>
-      </div>
-  
-      <div class="feature-card">
-        <div class="card-icon">
-          <i class="fas fa-trophy"></i>
-        </div>
-        <h3>Goal Setting</h3>
-        <p>Set and track personal and team goals with our comprehensive goal management system.</p>
-      </div>
-    </div>
-  </section>
-  
-  <!-- Benefits Section -->
-  <section class="benefits-section">
-    <div class="section-title">
-      <h2>Why Choose AthleteEdge?</h2>
-    </div>
-    <div class="benefits-grid">
-      <div class="benefit-item">
-        <i class="fas fa-mobile-alt"></i>
-        <h4>Easy Access</h4>
-        <p>Access your data anytime, anywhere</p>
-      </div>
-      <div class="benefit-item">
-        <i class="fas fa-shield-alt"></i>
-        <h4>Secure Platform</h4>
-        <p>Your data is protected and secure</p>
-      </div>
-      <div class="benefit-item">
-        <i class="fas fa-sync"></i>
-        <h4>Real-time Updates</h4>
-        <p>Instant synchronization of data</p>
-      </div>
-    </div>
-  </section>
-</div>
-  
-  
-  
+    -->

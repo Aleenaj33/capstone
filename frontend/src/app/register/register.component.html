@@ -3,12 +3,12 @@
   
   <div class="content-wrapper">
     <header class="header">
-      <img src="\assets\images\logo1-removebg-preview.png" alt="AthleteEdge Logo" class="logo">
+      <img src="\assets\images\logo1" alt="AthleteEdge Logo" class="logo">
     </header>
 
     <!-- Initial Registration Form -->
     <div class="register-box" *ngIf="!showRoleForm">
-      <h2>Create Account</h2>
+      <h2>REGISTER</h2>
       <form #registerForm="ngForm" (ngSubmit)="onRegisterSubmit(registerForm)" class="form-group">
         <div class="mb-3">
           <label for="email" class="form-label">Email</label>
@@ -72,9 +72,12 @@
             <input type="number" id="age" class="form-control" [(ngModel)]="player.age" name="age" required>
           </div>
           <div class="col-md-6 mb-3">
-            <label for="teamId" class="form-label">Team ID</label>
-            <input type="number" id="teamId" class="form-control" [(ngModel)]="player.teamId" name="teamId" required>
+            <label for="sport" class="form-label">Sport</label>
+            <input type="text" id="sport" class="form-control" [(ngModel)]="player.sport" name="sport" required>
           </div>
+
+        
+
         </div>
 
         <div class="row">

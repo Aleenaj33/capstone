@@ -1,29 +1,29 @@
+/* General Container */
 .login-container {
   min-height: 100vh;
-  width: 100%;
-  position: relative;
   display: flex;
   justify-content: center;
   align-items: center;
-  background-image: url('https://images.pexels.com/photos/3657154/pexels-photo-3657154.jpeg?auto=compress&cs=tinysrgb&w=1920'); 
+  /* background-color: rgb(68, 52, 133); */
+  background-image: url('https://images.unsplash.com/photo-1531415074968-036ba1b575da?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
+  position: relative;
+  
 }
 
+/* Overlay */
 .background-overlay {
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  /* Lighter gradient with more transparency */
-  background: linear-gradient(135deg, 
-    rgba(0, 123, 255, 0.7),    /* More transparent blue */
-    rgba(0, 0, 0, 0.6)         /* More transparent black */
-  );
+  background: rgba(0, 0, 0, 0.6);
   z-index: 1;
 }
+
 
 
 .content-wrapper {
@@ -31,114 +31,116 @@
   z-index: 2;
   width: 100%;
   max-width: 1200px;
-  padding-top: 20px;
+  padding-top: 80px;
 }
-
+/* Header */
 .header {
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 1000;
-  padding: 15px;
-  background: linear-gradient(
-    to right,
-    rgba(0, 0, 0, 0.5),
-    rgba(0, 0, 0, 0)
-  );
-  width: auto;
-  text-align: left;
+  margin-bottom: 20px;
 }
 
 .logo {
-  max-width: 150px;
+  max-width: 180px;
   height: auto;
-  filter: brightness(1.2);
-  transition: all 0.3s ease;
 }
 
-.logo:hover {
-  filter: brightness(1.3);
-}
-
-.login-box::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(
-    45deg,
-    rgba(255, 255, 255, 0.1),
-    rgba(255, 255, 255, 0.2)
-  );
-}
-
+/* Login Box */
 .login-box {
-  background: rgba(255, 255, 255, 0.95);
-  border-radius: 15px;
-  padding: 40px;
-  width: 100%;
-  max-width: 400px;
-  margin: 0 auto;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-  backdrop-filter: blur(10px);
+  background: #ffffff;
+  border-radius: 8px;
+  padding: 40px 30px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+  max-width: 400px !important;
+  margin: auto;
 }
 
 .login-box h2 {
-  color: #2c3e50;
+  margin-bottom: 10px;
   font-size: 24px;
-  margin-bottom: 30px;
-  text-align: center;
+  color: #333333;
+}
+
+.login-subtext {
+  margin-bottom: 20px;
+  font-size: 14px;
+  color: #666666;
+}
+
+/* Form Styles */
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  font-weight: 600;
+  color: #333333;
+  margin-bottom: 5px;
+  display: block;
 }
 
 .form-control {
-  background-color: rgba(255, 255, 255, 0.9);
-  border: 2px solid #e0e0e0;
-  transition: all 0.3s ease;
+  width: 100%;
+  padding: 10px;
+  border-radius: 4px;
+  border: 1px solid #dddddd;
+  transition: border-color 0.3s ease;
 }
 
+.form-control:focus {
+  border-color: #007bff;
+  outline: none;
+}
+
+/* Button Styles */
 .btn {
+  width: 100%;
+  padding: 10px;
   background: linear-gradient(135deg, #007bff, #0056b3);
-  transition: all 0.3s ease;
-  margin-top: 20px;
+  border: none;
+  border-radius: 4px;
+  color: white;
+  font-weight: bold;
+  transition: background 0.3s ease, transform 0.2s ease;
+  cursor: pointer;
 }
 
-.btn:hover:not(:disabled) {
+.btn:hover {
   background: linear-gradient(135deg, #0056b3, #004494);
   transform: translateY(-2px);
 }
 
-.register-link a {
-  color: #007bff;
-  font-weight: 600;
-  transition: all 0.3s ease;
-  text-decoration: none;  /* Add this line to remove the underline */
+.btn:disabled {
+  background: #cccccc;
+  cursor: not-allowed;
 }
 
-.register-link a:hover {
-  color: #0056b3;  /* Optional: darker color on hover */
+/* Register Link */
+.register-link {
+  margin-top: 20px;
 }
 
 .register-link p {
-  color: #2c3e50;
+  font-size: 14px;
+  color: #666666;
 }
 
 .register-link a {
   color: #007bff;
-  font-weight: 600;
-  transition: all 0.3s ease;
+  text-decoration: none;
+  font-weight: bold;
+  transition: color 0.3s ease;
 }
 
-/* Remove the body styles since they might conflict with your app's global styles */
+.register-link a:hover {
+  color: #0056b3;
+}
 
-/* Add responsive adjustments */
+/* Responsive Design */
 @media (max-width: 768px) {
-  .header {
-    padding: 10px;
+  .login-box {
+    padding: 30px 20px;
   }
-  
-  .logo {
-    max-width: 120px;
+
+  .form-control {
+    padding: 8px;
   }
 }
