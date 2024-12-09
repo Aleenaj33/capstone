@@ -11,6 +11,7 @@ import { CoachService } from 'src/app/services/coach.service';
 import { forkJoin } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { AuthService } from 'src/app/services/auth.service';
+import { WeatherService } from 'src/app/services/weather.service';
 
 
 
@@ -56,6 +57,10 @@ export class CoachComponent implements OnInit {
   players: Player[] = [];
   error!: string;
 
+  showWeatherCheckModal = false;
+  weatherForm: FormGroup;
+  weatherData: any;
+
   setSelectedTab(tab: string) {
    
     this.selectedTab = tab;
@@ -75,7 +80,7 @@ export class CoachComponent implements OnInit {
   constructor(private coachService: CoachService,
     private authService: AuthService,
     private fb: FormBuilder,
-
+    private weatherService: WeatherService
   ) {
     this.metricsForm = this.fb.group({
       playerName: ['', Validators.required],
@@ -105,6 +110,10 @@ export class CoachComponent implements OnInit {
     deadline: ['', Validators.required]
   });
     
+    this.weatherForm = this.fb.group({
+      date: ['', Validators.required],
+      location: ['', Validators.required]
+    });
 
    
    
@@ -133,6 +142,16 @@ export class CoachComponent implements OnInit {
     this.getUnassignedPlayers();
     this.getPlayers();
     this.loadGoals();
+  }
+  private getPlayers(): void {
+    this.coachService.getPlayers().subscribe({
+      next: (players) => {
+        this.players = players;
+      },
+      error: (error) => {
+        console.error('Error fetching players:', error);
+      }
+    });
   }
   
 
@@ -392,26 +411,6 @@ showCreateGoalModal = false;
 
 
 
-getPlayers(): void {
-  this.coachService.getPlayers().subscribe(
-    (players: Player[]) => {
-      this.players = players;
-    },
-    (error) => {
-      console.error('Error fetching players:', error);
-    }
-  );
-}
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -588,6 +587,44 @@ getAverageLoad(): number {
 getAverageDistance(): number {
   if (!this.playerMetrics.length) return 0;
   return this.playerMetrics.reduce((acc, curr) => acc + curr.totalDistanceCovered, 0) / this.playerMetrics.length;
+}
+
+openWeatherCheckModal(date: string): void {
+  if (date) {
+    // Convert the datetime-local value to yyyy-mm-dd format
+    const formattedDate = new Date(date).toISOString().split('T')[0];
+    this.weatherForm.patchValue({
+      date: formattedDate
+    });
+    this.showWeatherCheckModal = true;
+  }
+}
+
+closeWeatherCheckModal(): void {
+  this.showWeatherCheckModal = false;
+  this.weatherForm.reset();
+}
+
+checkWeather(): void {
+  if (this.weatherForm.valid) {
+    const date = this.weatherForm.get('date')?.value;
+    const location = this.weatherForm.get('location')?.value;
+    
+    this.weatherService.getWeather(location, date).subscribe({
+      next: (data) => {
+        console.log('Weather data:', data);
+        this.weatherData = data;
+        this.closeWeatherCheckModal(); // Close the check modal
+      },
+      error: (error) => {
+        console.error('Error fetching weather data:', error);
+      }
+    });
+  }
+}
+
+closeWeatherResults(): void {
+  this.weatherData = null;
 }
 }  
 

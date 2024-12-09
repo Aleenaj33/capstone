@@ -18,8 +18,33 @@
 }
 
 .sidebar-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
   padding: 0 1.5rem;
   margin-bottom: 2rem;
+}
+
+.sidebar-header i {
+  font-size: 28px;
+  color: #ffffff;
+}
+
+.sidebar-header h4 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 600;
+  color: #ffffff;
+  letter-spacing: 0.5px;
+}
+
+/* Optional: Add a subtle animation on hover */
+.sidebar-header i {
+  transition: transform 0.3s ease;
+}
+
+.sidebar-header:hover i {
+  transform: scale(1.1);
 }
 
 .sidebar-nav {

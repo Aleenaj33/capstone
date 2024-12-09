@@ -3,7 +3,7 @@
     <!-- Logo/Brand Section -->
     <div class="brand-section">
       <i class="fas fa-running"></i>
-      <span>SportSync</span>
+      <span>AtheleteEdge</span>
     </div>
 
     <!-- Main Navigation -->
@@ -32,11 +32,7 @@
         <span>Goals</span>
       </div>
 
-      <!-- Schedule Item -->
-      <div class="nav-item" [class.active]="selectedTab === 'schedule'" (click)="setSelectedTab('schedule')">
-        <i class="fas fa-calendar-alt"></i>
-        <span>Schedule</span>
-      </div>
+
 
       <!-- Analytics Item -->
       <div class="nav-item" [class.active]="selectedTab === 'performance'" (click)="setSelectedTab('performance')">
@@ -47,11 +43,7 @@
 
     <!-- Bottom Section -->
     <div class="bottom-section">
-      <!-- Settings Item -->
-      <div class="nav-item" [class.active]="selectedTab === 'settings'" (click)="setSelectedTab('settings')">
-        <i class="fas fa-cog"></i>
-        <span>Settings</span>
-      </div>
+      
 
       <!-- Logout Item -->
       <div class="nav-item" (click)="logout()">
@@ -334,13 +326,22 @@
           <!-- Date Field -->
           <div class="form-group">
             <label for="date">Session Date</label>
-            <div class="input-wrapper">
-              <i class="far fa-calendar"></i>
-              <input 
-                type="datetime-local" 
-                id="date" 
-                formControlName="date"
+            <div class="weather-check-wrapper">
+              <div class="input-wrapper">
+                <i class="far fa-calendar"></i>
+                <input 
+                  type="datetime-local" 
+                  id="date" 
+                  formControlName="date"
+                >
+              </div>
+              <button 
+                type="button" 
+                class="weather-check-trigger" 
+                (click)="openWeatherCheckModal(createSessionForm.get('date')?.value)"
               >
+                <i class="fas fa-cloud"></i> Check Weather
+              </button>
             </div>
             <span class="error-message" *ngIf="createSessionForm.get('date')?.touched && createSessionForm.get('date')?.invalid">
               Date is required
@@ -815,6 +816,60 @@
           </form>
         </div>
       </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" *ngIf="showWeatherCheckModal">
+  <div class="weather-check-modal">
+    <div class="modal-header">
+      <h2>Check Weather</h2>
+      <button class="close-btn" (click)="closeWeatherCheckModal()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    
+    <form [formGroup]="weatherForm" (ngSubmit)="checkWeather()" class="weather-form">
+      <div class="weather-input-group">
+        <label>Date</label>
+        <input type="date" 
+               formControlName="date" 
+               class="weather-input" 
+               readonly>
+      </div>
+      
+      <div class="weather-input-group">
+        <label>Location</label>
+        <input type="text" 
+               formControlName="location" 
+               class="weather-input" 
+               placeholder="Enter location">
+      </div>
+      
+      <button type="submit" 
+              class="check-weather-btn" 
+              [disabled]="!weatherForm.valid">
+        <i class="fas fa-search"></i> Check
+      </button>
+    </form>
+  </div>
+</div>
+
+<!-- Weather Results Modal -->
+<div class="modal-overlay" *ngIf="weatherData">
+  <div class="weather-results-modal">
+    <div class="modal-header">
+      <h2>Weather Forecast</h2>
+      <button class="close-btn" (click)="closeWeatherResults()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    
+    <div class="weather-results">
+      <p><strong>City:</strong> {{ weatherData.city_name }}</p>
+      <p><strong>Date:</strong> {{ weatherData.data[0].datetime }}</p>
+      <p><strong>Temperature:</strong> {{ weatherData.data[0].temp }}°C</p>
+      <p><strong>Description:</strong> {{ weatherData.data[0].weather.description }}</p>
     </div>
   </div>
 </div>

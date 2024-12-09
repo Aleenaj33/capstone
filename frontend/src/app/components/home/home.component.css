@@ -45,13 +45,27 @@ header {
 .logo {
   display: flex;
   align-items: center;
+  gap: 12px;
   font-size: 1.5rem;
   font-weight: 700;
 }
 
+.logo i {
+  font-size: 28px;
+  color: #3498db;
+  transition: transform 0.3s ease;
+}
+
+.logo:hover i {
+  transform: scale(1.1);
+}
+
+.logo span {
+  color: #333;
+}
+
 .logo-img {
-  height: 40px;
-  margin-right: 10px;
+  display: none;
 }
 
 nav {
