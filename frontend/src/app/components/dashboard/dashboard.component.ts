@@ -15,8 +15,7 @@ import { AuthService } from 'src/app/services/auth.service';
   styleUrls: ['./dashboard.component.css']
 })
 export class DashboardComponent implements OnInit {
-  playerId=1
-  //playerId!: number ;
+  playerId!: number;
   player: any = {};
   teamMembers: Player[] = [];
   trainingSessions: TrainingSession[] = [];
@@ -36,26 +35,24 @@ export class DashboardComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    const email = this.authService.getUserEmail(); 
-
-    if (email) {
-      this.playerService.getPlayerId(email).subscribe({
-        next: (id) => {
-          this.playerId = id;
-        },
-        error: (err) => {
-          this.error = 'Unable to fetch user ID';
-        }
-      });}
-
-    this.loadPlayerDetails();
-    this.loadTeamMembers();
-    this.loadTrainingSessions();
-    this.loadPlayerGoals();
-    this.loadPlayerMetrics();
-    this.loadPlayerReports();
-    this.loadTeammatesReports();
-    this.loadCoachDetails();
+    // Get playerId from session storage
+    const storedPlayerId = sessionStorage.getItem('playerId');
+    if (storedPlayerId) {
+      this.playerId = parseInt(storedPlayerId, 10);
+      
+      // Load all data with the retrieved playerId
+      this.loadPlayerDetails();
+      this.loadTeamMembers();
+      this.loadTrainingSessions();
+      this.loadPlayerGoals();
+      this.loadPlayerMetrics();
+      this.loadPlayerReports();
+      this.loadTeammatesReports();
+      this.loadCoachDetails();
+    } else {
+      console.error('No player ID found in session');
+      this.router.navigate(['/login']);
+    }
   }
 
   

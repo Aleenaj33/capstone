@@ -6,6 +6,7 @@ import { CoachService } from '../services/coach.service'; // Correct import for 
 import { Player } from '../models/player';
 import { Coach } from '../models/coach';
 import { AuthService } from '../services/auth.service'; // Assuming an AuthService for handling registration
+import { RegisterDto } from '../models/register-dto.model';
 
 @Component({
   selector: 'app-register',
@@ -41,20 +42,28 @@ export class RegisterComponent {
     );
   }
 
-  onRegisterSubmit(form: NgForm): void {
-    if (form.valid) {
-      this.authService.register(form.value).subscribe({
-        next: (response) => {
-          console.log('Registration successful:', response);
-          this.showRoleForm = true; // Display role selection form
-        },
-        error: (error) => {
-          console.log('Registration failed:', error);
-          this.showRoleForm = true; // Show role selection even on failure for retry
-        }
-      });
-    }
+  
+ onRegisterSubmit(form: NgForm): void {
+  if (form.valid) {
+    const registerDto = new RegisterDto(
+      this.email,
+      this.password,
+      this.selectedRole.toUpperCase() // Convert 'player' or 'coach' to 'PLAYER' or 'COACH'
+    );
+
+    this.authService.register(registerDto).subscribe({
+      next: (response) => {
+        console.log('Registration successful:', response);
+        this.showRoleForm = true;
+      },
+      error: (error) => {
+        console.log('Registration failed:', error);
+        // Handle error appropriately
+        this.showRoleForm = true;
+      }
+    });
   }
+}
   
   // Handle player creation
   createPlayerForm(playerForm: NgForm): void {

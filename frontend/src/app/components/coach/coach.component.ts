@@ -12,6 +12,7 @@ import { forkJoin } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { AuthService } from 'src/app/services/auth.service';
 import { WeatherService } from 'src/app/services/weather.service';
+import { Router } from '@angular/router';
 
 
 
@@ -25,8 +26,8 @@ export class CoachComponent implements OnInit {
   teams: Team[] = [];
   coachId: number = 1;
   trainingSessions: TrainingSession[] = [];
- 
-  teamId: number = 1;
+//  teamId: number = 1;
+//
   performanceReports: PlayerPerformanceReport[] = [];
   unassignedPlayers: Player[] = [];
   teamName: string = '';
@@ -80,7 +81,8 @@ export class CoachComponent implements OnInit {
   constructor(private coachService: CoachService,
     private authService: AuthService,
     private fb: FormBuilder,
-    private weatherService: WeatherService
+    private weatherService: WeatherService,
+    private router: Router
   ) {
     this.metricsForm = this.fb.group({
       playerName: ['', Validators.required],
@@ -120,28 +122,26 @@ export class CoachComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    const email = this.authService.getUserEmail(); 
-
-    if (email) {
-      this.coachService.getCoachId(email).subscribe({
-        next: (id) => {
-          this.playerId = id;
-        },
-        error: (err) => {
-          this.error = 'Unable to fetch user ID';
-        }
-      });}
-
-    this.getCoachInfo();
-    this.getCoachTeams();
-    this.fetchTrainingSessions();
-  this.getGoalsForCoach();
-    this.loadPlayerMetrics();
-    this.loadPlayerReports();
-    this.loadTeammatesReports();
-    this.getUnassignedPlayers();
-    this.getPlayers();
-    this.loadGoals();
+    // Get coachId from session storage
+    const storedCoachId = sessionStorage.getItem('coachId');
+    if (storedCoachId) {
+      this.coachId = parseInt(storedCoachId, 10);
+      
+      // Load all data with the retrieved coachId
+      this.getCoachInfo();
+      this.getCoachTeams();
+      this.fetchTrainingSessions();
+      this.getGoalsForCoach();
+      this.loadPlayerMetrics();
+      this.loadPlayerReports();
+      this.loadTeammatesReports();
+      this.getUnassignedPlayers();
+      this.getPlayers();
+      this.loadGoals();
+    } else {
+      console.error('No coach ID found in session');
+      this.router.navigate(['/login']);
+    }
   }
   private getPlayers(): void {
     this.coachService.getPlayers().subscribe({
@@ -607,24 +607,17 @@ closeWeatherCheckModal(): void {
 
 checkWeather(): void {
   if (this.weatherForm.valid) {
-    const date = this.weatherForm.get('date')?.value;
-    const location = this.weatherForm.get('location')?.value;
-    
-    this.weatherService.getWeather(location, date).subscribe({
-      next: (data) => {
-        console.log('Weather data:', data);
-        this.weatherData = data;
-        this.closeWeatherCheckModal(); // Close the check modal
-      },
-      error: (error) => {
-        console.error('Error fetching weather data:', error);
-      }
-    });
+    // Here you would typically make an API call to a weather service
+    console.log('Checking weather for:', this.weatherForm.value);
+    // Add your weather API integration here
+    this.closeWeatherCheckModal();
   }
 }
 
 closeWeatherResults(): void {
-  this.weatherData = null;
+  // Implement the logic to close the weather results modal or section
+  console.log('Closing weather results');
+  // Example: this.showWeatherResults = false; // Assuming you have a boolean to control visibility
 }
 }  
 

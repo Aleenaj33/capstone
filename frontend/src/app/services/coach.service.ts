@@ -115,8 +115,9 @@ export class CoachService {
     return this.http.get<Player[]>(`${this.apiUrl}/teams/${teamId}/players`);
   }
 
-  getCoachId(email: string):Observable<number>{
-    return this.http.get<number>('${this.apiUrl}/coachid-by-email?email=${email}`')
+  getCoachId(email: string): Observable<number> {
+    return this.http.get<number>(`${this.apiUrl}/coachid-by-email?email=${email}`);
   }
+  
 
 }
