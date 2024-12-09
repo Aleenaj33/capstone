@@ -16,12 +16,11 @@
       AthleteEdge
     </div>
     <nav>
-      <a href="#hero">Home</a>
-      <a href="#features">Features</a>
-      <a href="#about">About Us</a>
-      <a href="#contact">Contact Us</a>
-      <button class="btn login" [routerLink]="'/login'">Login</button>
-      <button class="btn register" [routerLink]="'/register'">Sign Up</button>
+      <a href="#hero" (click)="scrollToSection($event, 'hero')">Home</a>
+      <a href="#features" (click)="scrollToSection($event, 'features')">Features</a>
+      <a href="#about" (click)="scrollToSection($event, 'about')">About Us</a>
+      <button class="btn login" routerLink="/login">Login</button>
+      <button class="btn register" routerLink="/register">Register</button>
     </nav>
     
   </header>
@@ -96,15 +95,6 @@
 
     
 
-    <section id="contact">
-      <h2>Contact Us</h2>
-      <form id="contact-form">
-        <input type="text" name="name" placeholder="Your Name" required>
-        <input type="email" name="email" placeholder="Your Email" required>
-        <textarea name="message" placeholder="Your Message" required></textarea>
-        <button type="submit" class="btn">Send Message</button>
-      </form>
-    </section>
   </main>
 
   <footer>
@@ -132,15 +122,3 @@
 
 
 
-
-
-
-<!-- 
-<div class="home-container">
-   Add this auth buttons section at the top -->
-  <!-- <div class="auth-buttons">
-    <a routerLink="/login" class="auth-btn login-btn">Login</a>
-    <a routerLink="/register" class="auth-btn register-btn">Register</a>
-  </div>
-
-    -->
