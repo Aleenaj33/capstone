@@ -76,9 +76,7 @@ export class PlayerService {
   getPlayerId(email: string):Observable<number>{
     return this.http.get<number>('${this.apiUrl}/playerid-by-email?email=${email}`')
   }
-  //
-  //
-  //
+  
   
   }
   

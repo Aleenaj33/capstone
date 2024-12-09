@@ -15,7 +15,8 @@ import { AuthService } from 'src/app/services/auth.service';
   styleUrls: ['./dashboard.component.css']
 })
 export class DashboardComponent implements OnInit {
-  playerId!: number ;
+  playerId=1
+  //playerId!: number ;
   player: any = {};
   teamMembers: Player[] = [];
   trainingSessions: TrainingSession[] = [];
