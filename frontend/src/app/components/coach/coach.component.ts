@@ -92,10 +92,10 @@ export class CoachComponent implements OnInit {
       playerIds: [[], Validators.required],  // New field for player IDs
     });
     this.createSessionForm = this.fb.group({
-      coachId: [null, Validators.required],
       date: ['', Validators.required],
       duration: ['', Validators.required],
-      playerIds: [[], Validators.required]
+      playerIds: [[], Validators.required],
+      coachId: [this.coachId, Validators.required]
     });
      this.goalForm = this.fb.group({
     playerId: ['', Validators.required],
@@ -247,25 +247,25 @@ export class CoachComponent implements OnInit {
   
 
 createSession(): void {
-  
-
   if (this.createSessionForm.valid) {
-    const newSession: TrainingSession = { ...this.createSessionForm.value };
-
+    const formValue = this.createSessionForm.value;
     
-
-   
+    const newSession: TrainingSession = {
+      coachId: this.coachId,
+      date: formValue.date,
+      duration: formValue.duration,
+      playerIds: formValue.playerIds
+    };
 
     this.coachService.createTrainingSession(newSession).subscribe({
       next: (response) => {
         console.log('Training session created successfully', response);
+        this.trainingSessions = [...this.trainingSessions, response];
+        this.showCreateSessionModal = false;
         this.createSessionForm.reset();
       },
       error: (error) => {
         console.error('Error creating training session:', error);
-      },
-      complete: () => {
-        console.log('Training session creation completed');
       }
     });
   }
@@ -343,6 +343,9 @@ deleteTeam(teamId: number | undefined): void {
 
 
 openCreateSessionModal(): void {
+  this.createSessionForm.patchValue({
+    coachId: this.coachId
+  });
   this.showCreateSessionModal = true;
 }
 
@@ -465,7 +468,7 @@ isPoorPerformance(metric: PlayerPerformance): boolean {
 getPerformanceStatus(metric: PlayerPerformance): string {
   if (this.isGoodPerformance(metric)) return 'Good';
   if (this.isWarningPerformance(metric)) return 'Warning';
-  return 'Poor';
+  return 'Need Attention';
 }
 
 // Add this property
@@ -575,6 +578,16 @@ deleteGoal(goalId: number): void {
       }
     });
   }
+}
+
+getAverageLoad(): number {
+  if (!this.playerMetrics.length) return 0;
+  return this.playerMetrics.reduce((acc, curr) => acc + curr.playerLoad, 0) / this.playerMetrics.length;
+}
+
+getAverageDistance(): number {
+  if (!this.playerMetrics.length) return 0;
+  return this.playerMetrics.reduce((acc, curr) => acc + curr.totalDistanceCovered, 0) / this.playerMetrics.length;
 }
 }  
 

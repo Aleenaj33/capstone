@@ -351,7 +351,7 @@
           <div class="form-group">
             <label for="duration">Duration</label>
             <div class="input-wrapper">
-              <i class="far fa-clock"></i>
+              <i class="fas fa-clock"></i>
               <select id="duration" formControlName="duration">
                 <option value="">Select duration</option>
                 <option value="30 minutes">30 minutes</option>
@@ -379,12 +379,15 @@
                 formControlName="playerIds"
                 class="players-select"
               >
-                <option *ngFor="let player of unassignedPlayers" [value]="player.playerId">
+                <option *ngFor="let player of players" [value]="player.playerId">
                   {{ player.name }}
                 </option>
               </select>
             </div>
             <span class="helper-text">Hold Ctrl/Cmd to select multiple players</span>
+            <span class="error-message" *ngIf="createSessionForm.get('playerIds')?.touched && createSessionForm.get('playerIds')?.invalid">
+              Please select at least one player
+            </span>
           </div>
 
           <!-- Form Actions -->
@@ -608,6 +611,36 @@
           </div>
         </div>
 
+        <!-- Load Metric Card -->
+        <div class="metric-card">
+          <div class="metric-icon">
+            <i class="fas fa-weight"></i>
+          </div>
+          <div class="metric-content">
+            <h3>Avg Player Load</h3>
+            <div class="metric-value">{{ getAverageLoad() | number:'1.0-0' }}</div>
+            <div class="metric-trend" [class.positive]="isPositiveTrend('load')" [class.negative]="!isPositiveTrend('load')">
+              <i class="fas" [class.fa-arrow-up]="isPositiveTrend('load')" [class.fa-arrow-down]="!isPositiveTrend('load')"></i>
+              <span>{{ getMetricTrend('load') }}% vs last period</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Distance Metric Card -->
+        <div class="metric-card">
+          <div class="metric-icon">
+            <i class="fas fa-route"></i>
+          </div>
+          <div class="metric-content">
+            <h3>Avg Distance</h3>
+            <div class="metric-value">{{ getAverageDistance() | number:'1.1-1' }} km</div>
+            <div class="metric-trend" [class.positive]="isPositiveTrend('distance')" [class.negative]="!isPositiveTrend('distance')">
+              <i class="fas" [class.fa-arrow-up]="isPositiveTrend('distance')" [class.fa-arrow-down]="!isPositiveTrend('distance')"></i>
+              <span>{{ getMetricTrend('distance') }}% vs last period</span>
+            </div>
+          </div>
+        </div>
+
         <!-- Speed Metric Card -->
         <div class="metric-card">
           <div class="metric-icon">
@@ -643,10 +676,7 @@
         <div class="section-header">
           <h3>Detailed Performance Metrics</h3>
           <div class="header-actions">
-            <button class="export-btn" (click)="exportMetrics()">
-              <i class="fas fa-download"></i>
-              Export Data
-            </button>
+            
           </div>
         </div>
 
@@ -678,7 +708,7 @@
                         [ngClass]="{
                           'status-good': isGoodPerformance(metric),
                           'status-warning': isWarningPerformance(metric),
-                          'status-poor': isPoorPerformance(metric)
+                          'status-need-attention': isPoorPerformance(metric)
                         }">
                     {{ getPerformanceStatus(metric) }}
                   </span>
