@@ -22,7 +22,7 @@ import { AuthService } from 'src/app/services/auth.service';
 export class CoachComponent implements OnInit {
   coach: Coach | undefined;
   teams: Team[] = [];
-  coachId!: number;
+  coachId: number = 1;
   trainingSessions: TrainingSession[] = [];
  
   teamId: number = 1;

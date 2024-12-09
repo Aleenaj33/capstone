@@ -560,6 +560,8 @@
   align-items: center;
   z-index: 1000;
   backdrop-filter: blur(5px);
+  padding: 20px;
+  overflow-y: auto;
 }
 
 /* Create Team Modal */
@@ -569,6 +571,8 @@
   padding: 30px;
   width: 90%;
   max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
   position: relative;
   animation: modalSlideIn 0.3s ease;
@@ -660,6 +664,7 @@
   border: 2px solid #e0e0e0;
   border-radius: 8px;
   overflow: hidden;
+  margin-bottom: 20px;
 }
 
 .select-info {
@@ -677,10 +682,12 @@
 
 .players-select {
   width: 100%;
-  min-height: 150px;
+  min-height: 100px;
+  max-height: 150px;
   padding: 12px;
   border: none;
   outline: none;
+  overflow-y: auto;
 }
 
 .helper-text {
@@ -702,11 +709,15 @@
   display: flex;
   justify-content: flex-end;
   gap: 15px;
-  margin-top: 30px;
+  margin-top: 20px;
+  position: sticky;
+  bottom: 0;
+  background: white;
+  padding-top: 15px;
+  border-top: 1px solid #eee;
 }
 
-.btn-primary,
-.btn-secondary {
+.btn {
   padding: 12px 24px;
   border: none;
   border-radius: 8px;
@@ -716,6 +727,15 @@
   align-items: center;
   gap: 8px;
   transition: all 0.3s ease;
+}
+
+.btn-secondary {
+  background: #f8f9fa;
+  color: #2c3e50;
+}
+
+.btn-secondary:hover {
+  background: #e9ecef;
 }
 
 .btn-primary {
@@ -732,48 +752,63 @@
   cursor: not-allowed;
 }
 
-.btn-secondary {
-  background: #f8f9fa;
-  color: #2c3e50;
-}
-
-.btn-secondary:hover {
-  background: #e9ecef;
-}
-
 /* Responsive Design */
 @media (max-width: 768px) {
   .create-team-modal {
     width: 95%;
     padding: 20px;
+    margin: 10px;
   }
 
   .form-actions {
-    flex-direction: column-reverse;
+    flex-direction: column;
   }
 
-  .btn-primary,
-  .btn-secondary {
+  .btn {
     width: 100%;
     justify-content: center;
   }
+}
+
+/* Scrollbar Styling */
+.create-team-modal::-webkit-scrollbar {
+  width: 8px;
+}
+
+.create-team-modal::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.create-team-modal::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+.create-team-modal::-webkit-scrollbar-thumb:hover {
+  background: #555;
 }
 
 /* Training Section Styles */
 .training-section {
   padding: 24px;
   background: #f8f9fa;
+  min-height: calc(100vh - 64px);
 }
 
 .section-header {
+  background: white;
+  padding: 24px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  margin-bottom: 24px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 30px;
-  background: white;
-  padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.header-content {
+  flex: 1;
 }
 
 .header-content h2 {
@@ -788,161 +823,71 @@
   font-size: 0.9rem;
 }
 
-/* Session Cards */
-.session-card {
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-  margin-bottom: 20px;
-  position: relative;
-  overflow: hidden;
-  transition: transform 0.2s ease;
-}
-
-.session-card:hover {
-  transform: translateY(-3px);
-}
-
-.session-status-indicator {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 4px;
-  height: 100%;
-}
-
-.session-status-indicator.upcoming {
+.create-btn {
   background: #3498db;
-}
-
-.session-status-indicator.in-progress {
-  background: #2ecc71;
-}
-
-.session-status-indicator.completed {
-  background: #95a5a6;
-}
-
-.session-header {
-  padding: 20px;
-  border-bottom: 1px solid #eee;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.session-team {
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
   display: flex;
   align-items: center;
-  gap: 10px;
-  font-weight: 500;
-  color: #2c3e50;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.95rem;
 }
 
-.session-meta {
-  display: flex;
+.create-btn:hover {
+  background: #2980b9;
+  transform: translateY(-1px);
+}
+
+.sessions-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
   gap: 20px;
 }
 
-.session-date, .session-time {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+.no-sessions {
+  text-align: center;
+  padding: 48px;
+  background: white;
+  border-radius: 12px;
   color: #7f8c8d;
-  font-size: 0.9rem;
 }
 
-.session-body {
-  padding: 20px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+.no-sessions i {
+  color: #bdc3c7;
+  margin-bottom: 16px;
 }
 
-.session-details {
-  display: flex;
-  gap: 24px;
+.no-sessions h3 {
+  margin: 0 0 8px 0;
+  color: #2c3e50;
 }
 
-.detail-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  color: #34495e;
+.no-sessions p {
+  margin: 0 0 24px 0;
 }
 
-.detail-item i {
-  color: #3498db;
-}
-
-.session-actions {
-  display: flex;
-  gap: 8px;
-}
-
-.action-btn {
-  width: 36px;
-  height: 36px;
-  border-radius: 8px;
-  border: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.action-btn.view-btn {
-  background: #f8f9fa;
-  color: #3498db;
-}
-
-.action-btn.view-btn:hover {
-  background: #edf2f7;
-}
-
-.action-btn.edit-btn {
-  background: #f8f9fa;
-  color: #f39c12;
-}
-
-.action-btn.edit-btn:hover {
-  background: #fff8e1;
-}
-
-.action-btn.delete-btn {
-  background: #f8f9fa;
-  color: #e74c3c;
-}
-
-.action-btn.delete-btn:hover {
-  background: #fee;
-}
-
-/* Responsive Design */
 @media (max-width: 768px) {
   .training-section {
     padding: 16px;
   }
 
+  .sessions-container {
+    grid-template-columns: 1fr;
+  }
+
   .section-header {
     flex-direction: column;
     gap: 16px;
+    text-align: center;
   }
 
-  .session-header {
-    flex-direction: column;
-    gap: 12px;
-  }
-
-  .session-meta {
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  .session-body {
-    flex-direction: column;
-    gap: 12px;
+  .create-btn {
+    width: 100%;
+    justify-content: center;
   }
 }
 
@@ -1670,5 +1615,582 @@ td {
 @media (max-width: 768px) {
   .create-goal-modal .form-row {
     grid-template-columns: 1fr;
+  }
+}
+
+/* Add these styles for the create session modal */
+.create-session-modal {
+  background: white;
+  border-radius: 15px;
+  padding: 30px;
+  width: 90%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  position: relative;
+  animation: modalSlideIn 0.3s ease;
+}
+
+/* Updated Goals Section Styles */
+.goals-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 24px;
+  padding: 24px;
+}
+
+.goal-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.goal-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.goal-card-header {
+  padding: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #edf2f7;
+}
+
+.goal-type {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #3498db;
+  font-weight: 500;
+}
+
+.goal-type i {
+  font-size: 1.1rem;
+}
+
+.goal-card-body {
+  padding: 20px;
+}
+
+.goal-card-body h3 {
+  margin: 0 0 16px 0;
+  color: #2c3e50;
+  font-size: 1.1rem;
+  line-height: 1.4;
+}
+
+.goal-progress {
+  margin: 20px 0;
+}
+
+.progress-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.progress-label {
+  color: #64748b;
+  font-size: 0.9rem;
+}
+
+.progress-value {
+  color: #2c3e50;
+  font-weight: 600;
+}
+
+.progress-bar {
+  height: 8px;
+  background: #edf2f7;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #3498db, #2980b9);
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.progress-metrics {
+  text-align: right;
+  color: #64748b;
+  font-size: 0.9rem;
+  margin-top: 4px;
+}
+
+.goal-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid #edf2f7;
+}
+
+.deadline {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #64748b;
+  font-size: 0.9rem;
+}
+
+.goal-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.action-btn {
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.action-btn.edit {
+  background: #e6f3ff;
+  color: #3498db;
+}
+
+.action-btn.delete {
+  background: #fee2e2;
+  color: #ef4444;
+}
+
+.action-btn:hover {
+  transform: translateY(-2px);
+}
+
+/* Status badge updates */
+.status-badge {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.status-badge.completed {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.status-badge.inprogress {
+  background: #fff7ed;
+  color: #ea580c;
+}
+
+.status-badge.pending {
+  background: #f1f5f9;
+  color: #64748b;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .goals-grid {
+    grid-template-columns: 1fr;
+    padding: 16px;
+  }
+  
+  .goals-header {
+    padding: 16px;
+  }
+}
+
+/* Training Session Cards Styles */
+.sessions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 24px;
+  padding: 24px;
+}
+
+.session-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.session-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.session-card-header {
+  padding: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #edf2f7;
+  background: #f8f9fa;
+}
+
+.session-team {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #3498db;
+  font-weight: 500;
+}
+
+.session-team i {
+  font-size: 1.1rem;
+}
+
+.session-status {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.session-status.upcoming {
+  background: #bee3f8;
+  color: #2b6cb0;
+}
+
+.session-status.in-progress {
+  background: #fefcbf;
+  color: #975a16;
+}
+
+.session-status.completed {
+  background: #c6f6d5;
+  color: #2f855a;
+}
+
+.session-card-body {
+  padding: 20px;
+}
+
+.session-meta {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.meta-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #4a5568;
+  font-size: 0.9rem;
+}
+
+.session-details {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.detail-item {
+  background: #f8f9fa;
+  padding: 12px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.detail-item i {
+  color: #3498db;
+}
+
+.session-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.action-btn {
+  padding: 8px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.action-btn.view-btn {
+  background: #ebf8ff;
+  color: #3498db;
+}
+
+.action-btn.edit-btn {
+  background: #faf5ff;
+  color: #805ad5;
+}
+
+.action-btn.delete-btn {
+  background: #fff5f5;
+  color: #e53e3e;
+}
+
+.action-btn:hover {
+  transform: translateY(-2px);
+}
+
+/* Style the new session button */
+.add-session-btn {
+  background: #3498db;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.95rem;
+}
+
+.add-session-btn:hover {
+  background: #2980b9;
+  transform: translateY(-1px);
+}
+
+.add-session-btn i {
+  font-size: 1rem;
+}
+
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 24px;
+  margin: 24px 0;
+}
+
+.metric-card {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.metric-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.metric-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: #ebf8ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.metric-icon i {
+  font-size: 24px;
+  color: #3498db;
+}
+
+.metric-content {
+  flex: 1;
+}
+
+.metric-content h3 {
+  margin: 0 0 8px 0;
+  color: #64748b;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.metric-value {
+  font-size: 1.8rem;
+  font-weight: 600;
+  color: #2c3e50;
+  margin-bottom: 8px;
+}
+
+.metric-trend {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.9rem;
+}
+
+.metric-trend.positive {
+  color: #2f855a;
+}
+
+.metric-trend.negative {
+  color: #c53030;
+}
+
+@media (max-width: 768px) {
+  .metrics-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.detailed-metrics {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  margin-top: 24px;
+  overflow: hidden;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid #edf2f7;
+}
+
+.section-header h3 {
+  margin: 0;
+  color: #2d3748;
+  font-size: 1.2rem;
+}
+
+.header-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.export-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: #ebf8ff;
+  color: #3498db;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.export-btn:hover {
+  background: #bee3f8;
+  transform: translateY(-1px);
+}
+
+.table-container {
+  overflow-x: auto;
+  padding: 16px;
+}
+
+.metrics-table {
+  width: 100%;
+  border-collapse: collapse;
+  white-space: nowrap;
+}
+
+.metrics-table th,
+.metrics-table td {
+  padding: 12px 16px;
+  text-align: left;
+  border-bottom: 1px solid #edf2f7;
+}
+
+.metrics-table th {
+  background: #f8fafc;
+  color: #64748b;
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.metrics-table td {
+  color: #2d3748;
+  font-size: 0.95rem;
+}
+
+.metrics-table tbody tr:hover {
+  background: #f8fafc;
+}
+
+.status-badge {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.status-badge.status-good {
+  background: #c6f6d5;
+  color: #2f855a;
+}
+
+.status-badge.status-warning {
+  background: #fefcbf;
+  color: #975a16;
+}
+
+.status-badge.status-poor {
+  background: #fed7d7;
+  color: #c53030;
+}
+
+.no-data-message {
+  text-align: center;
+  padding: 48px 24px;
+  color: #718096;
+}
+
+.no-data-message i {
+  font-size: 48px;
+  margin-bottom: 16px;
+  color: #cbd5e0;
+}
+
+.no-data-message p {
+  margin: 0 0 16px 0;
+  font-size: 1.1rem;
+}
+
+.add-metrics-btn {
+  background: #3498db;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.add-metrics-btn:hover {
+  background: #2980b9;
+  transform: translateY(-1px);
+}
+
+@media (max-width: 768px) {
+  .section-header {
+    flex-direction: column;
+    gap: 12px;
+    align-items: flex-start;
+  }
+
+  .metrics-table {
+    font-size: 0.9rem;
+  }
+
+  .metrics-table th,
+  .metrics-table td {
+    padding: 8px 12px;
   }
 }
