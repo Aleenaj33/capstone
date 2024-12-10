@@ -57,7 +57,6 @@ export class CoachComponent implements OnInit {
 
   players: Player[] = [];
   error!: string;
-
   showWeatherCheckModal = false;
   weatherForm: FormGroup;
   weatherData: any;
@@ -112,10 +111,10 @@ export class CoachComponent implements OnInit {
     deadline: ['', Validators.required]
   });
     
-    this.weatherForm = this.fb.group({
-      date: ['', Validators.required],
-      location: ['', Validators.required]
-    });
+  this.weatherForm = this.fb.group({
+    date: ['', Validators.required],
+    location: ['', Validators.required]
+  });
 
    
    
@@ -600,6 +599,7 @@ openWeatherCheckModal(date: string): void {
   }
 }
 
+
 closeWeatherCheckModal(): void {
   this.showWeatherCheckModal = false;
   this.weatherForm.reset();
@@ -607,17 +607,24 @@ closeWeatherCheckModal(): void {
 
 checkWeather(): void {
   if (this.weatherForm.valid) {
-    // Here you would typically make an API call to a weather service
-    console.log('Checking weather for:', this.weatherForm.value);
-    // Add your weather API integration here
-    this.closeWeatherCheckModal();
+    const date = this.weatherForm.get('date')?.value;
+    const location = this.weatherForm.get('location')?.value;
+    
+    this.weatherService.getWeather(location, date).subscribe({
+      next: (data) => {
+        console.log('Weather data:', data);
+        this.weatherData = data;
+        this.closeWeatherCheckModal(); // Close the check modal
+      },
+      error: (error) => {
+        console.error('Error fetching weather data:', error);
+      }
+    });
   }
 }
 
 closeWeatherResults(): void {
-  // Implement the logic to close the weather results modal or section
-  console.log('Closing weather results');
-  // Example: this.showWeatherResults = false; // Assuming you have a boolean to control visibility
+  this.weatherData = null;
 }
 }  
 
