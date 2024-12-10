@@ -15,7 +15,8 @@ import { AuthService } from 'src/app/services/auth.service';
   styleUrls: ['./dashboard.component.css']
 })
 export class DashboardComponent implements OnInit {
-  playerId!: number;
+  //playerId!: number;
+  playerId: number = 1;
   player: any = {};
   teamMembers: Player[] = [];
   trainingSessions: TrainingSession[] = [];
@@ -27,6 +28,7 @@ export class DashboardComponent implements OnInit {
   selectedTab: string = 'player';
   selectedReportOption: string = 'individualMetrics';
   error!: string;
+  loading: boolean = false;
 
   constructor(
     private playerService: PlayerService,
@@ -152,14 +154,18 @@ export class DashboardComponent implements OnInit {
   }
 
   loadCoachDetails(): void {
-    this.playerService.getCoachForPlayer(this.playerId).subscribe(
-      (data) => {
+    this.loading = true;
+    this.playerService.getCoachForPlayer(this.playerId).subscribe({
+      next: (data) => {
         this.coach = data;
+        this.loading = false;
       },
-      (error) => {
+      error: (error) => {
         console.error('Error loading coach data:', error);
+        this.coach = null;
+        this.loading = false;
       }
-    );
+    });
   }
 
   isString(value: any): boolean {

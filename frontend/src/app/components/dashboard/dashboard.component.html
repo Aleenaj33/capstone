@@ -103,87 +103,40 @@
         </div>
       </div>
     </div>
-    <div *ngIf="selectedTab === 'coach' && coach" class="coach-section">
-      <div class="coach-header">
-        <div class="coach-cover"></div>
-        <div class="coach-info">
-          <div class="coach-avatar">
-            <i class="fas fa-chalkboard-teacher"></i>
+    <section id="coach" *ngIf="selectedTab === 'coach'" class="dashboard-section">
+      <div class="section-content">
+        <div class="card">
+          <div class="card-header">
+            <h2>Coach Information</h2>
           </div>
-          <h2 class="coach-name">{{ coach.name }}</h2>
-          <p class="coach-title">{{ coach.sport }} Coach</p>
-        </div>
-      </div>
+          <div class="card-body">
+            <!-- Show loading spinner or message while data is being fetched -->
+            <div *ngIf="loading" class="loading-spinner">
+              Loading coach information...
+            </div>
 
-      <div class="coach-content">
-        <div class="coach-card">
-          <h3 class="card-title">Coach Information</h3>
-          <div class="info-grid">
-            <div class="info-item">
-              <i class="fas fa-envelope"></i>
-              <div class="info-details">
-                <label>Email</label>
-                <p>{{ coach.email }}</p>
+            <!-- Show coach information if available -->
+            <div *ngIf="!loading && coach" class="coach-details">
+              <div class="info-row">
+                <span class="label">Name:</span>
+                <span class="value">{{coach.name}}</span>
               </div>
-            </div>
-            <div class="info-item">
-              <i class="fas fa-calendar-alt"></i>
-              <div class="info-details">
-                <label>Age</label>
-                <p>{{ coach.age }} years</p>
+              <div class="info-row">
+                <span class="label">Email:</span>
+                <span class="value">{{coach.email}}</span>
               </div>
+              <!-- Add other coach details as needed -->
             </div>
-            <div class="info-item">
-              <i class="fas fa-running"></i>
-              <div class="info-details">
-                <label>Sport</label>
-                <p>{{ coach.sport }}</p>
-              </div>
-            </div>
-            <div class="info-item">
-              <i class="fas fa-users"></i>
-              <div class="info-details">
-                <label>Teams Coached</label>
-                <p>{{ coach.teamIds.length }} teams</p>
-              </div>
-            </div>
-          </div>
-        </div>
 
-        <!-- Additional Coach Stats Section -->
-        <div class="coach-stats mt-4">
-          <div class="stats-grid">
-            <div class="stat-card">
-              <div class="stat-icon">
-                <i class="fas fa-trophy"></i>
-              </div>
-              <div class="stat-info">
-                <h4>Experience</h4>
-                <p>10+ Years</p>
-              </div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-icon">
-                <i class="fas fa-users"></i>
-              </div>
-              <div class="stat-info">
-                <h4>Active Athletes</h4>
-                <p>25+</p>
-              </div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-icon">
-                <i class="fas fa-medal"></i>
-              </div>
-              <div class="stat-info">
-                <h4>Achievements</h4>
-                <p>15+</p>
-              </div>
+            <!-- Show message when no coach is assigned -->
+            <div *ngIf="!loading && !coach" class="no-coach-message">
+              <i class="fas fa-user-slash"></i>
+              <p>No coach has been assigned yet.</p>
             </div>
           </div>
         </div>
       </div>
-    </div>
+    </section>
 
     <!-- Team Details Section -->
     <div *ngIf="selectedTab === 'team'" class="team-section">
