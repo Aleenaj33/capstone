@@ -40,7 +40,7 @@ export class CoachComponent implements OnInit {
   selectedReportOption: string = 'individualMetrics'; // Default option
   playerMetrics: PlayerPerformance[] = [];
   playerReports: PlayerPerformanceReport[] = [];
-  teammatesReports: any[] = [];
+ 
   
  
   
@@ -61,6 +61,15 @@ export class CoachComponent implements OnInit {
   showWeatherCheckModal = false;
   weatherForm: FormGroup;
   weatherData: any;
+
+
+  selectedGoal: PlayerGoal | null = null;
+  showEditGoalModal = false;
+
+  selectedReportType: 'team' | 'player' = 'team';
+  selectedTeamForReport: number | null = null;
+  selectedPlayerForReport: number | null = null;
+  teamReports: PlayerPerformanceReport[] = [];
 
   setSelectedTab(tab: string) {
    
@@ -105,36 +114,38 @@ export class CoachComponent implements OnInit {
       coachId: [this.coachId, Validators.required]
     });
      this.goalForm = this.fb.group({
-    playerId: ['', Validators.required],
-    goalType: ['', Validators.required],
-    goalDescription: ['', Validators.required],
-    targetValue: ['', [Validators.required, Validators.min(0)]],
-    deadline: ['', Validators.required]
-  });
+      playerId: ['', Validators.required],
+      goalType: ['', Validators.required],
+      goalDescription: ['', Validators.required],
+      targetValue: ['', [Validators.required, Validators.min(0)]],
+      deadline: ['', Validators.required],
+      achievedValue: [0],
+      status: ['In Progress'],
+      feedbackRemarks: ['']
+    });
     
     this.weatherForm = this.fb.group({
       date: ['', Validators.required],
       location: ['', Validators.required]
     });
+  
 
    
    
   }
 
   ngOnInit(): void {
-    // Get coachId from session storage
     const storedCoachId = sessionStorage.getItem('coachId');
     if (storedCoachId) {
       this.coachId = parseInt(storedCoachId, 10);
       
-      // Load all data with the retrieved coachId
       this.getCoachInfo();
-      this.getCoachTeams();
+      this.loadTeams();
       this.fetchTrainingSessions();
       this.getGoalsForCoach();
       this.loadPlayerMetrics();
-      this.loadPlayerReports();
-      this.loadTeammatesReports();
+      this.loadPlayerReports(this.playerId);
+      
       this.getUnassignedPlayers();
       this.getPlayers();
       this.loadGoals();
@@ -161,11 +172,7 @@ export class CoachComponent implements OnInit {
     });
   }
 
-  getCoachTeams(): void {
-    this.coachService.getTeamsByCoachId(this.coachId).subscribe((teams: Team[]) => {
-      this.teams = teams;
-    });
-  }
+ 
 
   fetchTrainingSessions(): void {
     this.coachService.getTrainingSessionsByCoachId(this.coachId).subscribe( (
@@ -188,38 +195,22 @@ export class CoachComponent implements OnInit {
   }
   
   loadPlayerMetrics(): void {
-    this.coachService.getPlayerMetrics(this.playerId).subscribe(
-      (data) => {
-        this.playerMetrics = data;
-      },
-      (error) => {
-        console.error('Error loading performance metrics:', error);
-      }
-    );
+    if (this.coachId) {
+      this.coachService.getPlayerMetrics(this.coachId).subscribe({
+        next: (metrics) => {
+          this.playerMetrics = metrics;
+        },
+        error: (error) => {
+          console.error('Error loading player metrics:', error);
+          this.errorMessage = 'Failed to load player metrics.';
+        }
+      });
+    }
   }
 
-  loadPlayerReports(): void {
-    this.coachService.getPlayerReports(this.playerId).subscribe(
-      (data) => {
-        this.playerReports = data;
-      },
-      (error) => {
-        console.error('Error loading player reports:', error);
-      }
-    );
-  }
 
   // Fetch teammates' performance reports
-  loadTeammatesReports(): void {
-    this.coachService.getTeammatesReports(this.playerId).subscribe(
-      (data) => {
-        this.teammatesReports = data; // Store teammates' performance reports
-      },
-      (error) => {
-        console.error('Error loading teammates reports:', error);
-      }
-    );
-  }
+  
 
 
   
@@ -248,20 +239,53 @@ export class CoachComponent implements OnInit {
       playerIds: this.createTeamForm.get('playerIds')?.value,  // Get selected player IDs
     };
   
-    this.coachService.createTeam(newTeam).subscribe(
-      (response) => {
+    this.coachService.createTeam(newTeam).subscribe({
+      next: (response) => {
         console.log('Team created successfully', response);
   
-        // Assume the response includes the newly generated teamId from the backend
-        const createdTeam: Team = response;
-        console.log('Generated teamId:', createdTeam.teamId);
-  
-        this.createTeamForm.reset(); // Reset the form after successful submission
+        // Add the new team to the teams array
+        this.teams = [...this.teams, response];
+        
+        // Close the modal
+        this.showCreateTeamModal = false;
+        
+        // Reset the form
+        this.createTeamForm.reset();
+        
+        // Show success message
+        this.successMessage = 'Team created successfully!';
+        
+        // Clear success message after 3 seconds
+        setTimeout(() => {
+          this.successMessage = null;
+        }, 3000);
+        
+        // Refresh the teams list
+        this.loadTeams();
       },
-      (error) => {
+      error: (error) => {
         console.error('Error creating team:', error);
+        this.errorMessage = 'Failed to create team. Please try again.';
+        
+        // Clear error message after 3 seconds
+        setTimeout(() => {
+          this.errorMessage = null;
+        }, 3000);
       }
-    );
+    });
+  }
+  
+  // Add this method if it doesn't exist
+  private loadTeams(): void {
+    this.coachService.getTeamsByCoachId(this.coachId).subscribe({
+      next: (teams) => {
+        this.teams = teams;
+      },
+      error: (error) => {
+        console.error('Error loading teams:', error);
+        this.errorMessage = 'Failed to load teams.';
+      }
+    });
   }
   
 
@@ -293,28 +317,49 @@ createSession(): void {
 
 submitMetricsForm(): void {
   if (this.metricsForm.valid) {
-    const metricsData = {
-      playerId: this.playerId, // Set dynamically based on selected player
-      playerName: this.metricsForm.get('playerName')?.value,
-      recordDateTime: this.metricsForm.get('recordDateTime')?.value,
-      hrv: this.metricsForm.get('hrv')?.value,
-      topSpeed: this.metricsForm.get('topSpeed')?.value,
-      playerLoad: this.metricsForm.get('playerLoad')?.value,
-      totalDistanceCovered: this.metricsForm.get('totalDistanceCovered')?.value,
-      caloriesBurned: this.metricsForm.get('caloriesBurned')?.value,
+    const player = this.players.find(p => p.name === this.metricsForm.get('playerName')?.value);
+    
+    if (!player) {
+      this.errorMessage = 'Player not found';
+      return;
+    }
+
+    // Create a date string in ISO format
+    const dateTime = new Date(this.metricsForm.get('recordDateTime')?.value).toISOString();
+
+    const metricsData: PlayerPerformance = {
+      playerId: player.playerId,
+      playerName: player.name,
+      recordDateTime: (this.metricsForm.get('recordDateTime')?.value),
+      hrv: Number(this.metricsForm.get('hrv')?.value),
+      topSpeed: Number(this.metricsForm.get('topSpeed')?.value),
+      playerLoad: Number(this.metricsForm.get('playerLoad')?.value),
+      totalDistanceCovered: Number(this.metricsForm.get('totalDistanceCovered')?.value),
+      caloriesBurned: Number(this.metricsForm.get('caloriesBurned')?.value)
     };
 
-    this.coachService.uploadMetrics(this.playerId, metricsData).subscribe({
+    console.log('Submitting metrics:', metricsData); // Debug log
+
+    this.coachService.uploadMetrics(player.playerId, metricsData).subscribe({
       next: (response) => {
-        this.successMessage = 'Metrics uploaded successfully!';
-        this.errorMessage = null;
+        console.log('Upload successful:', response);
+        this.successMessage = 'Metrics uploaded successfully';
+        this.showUploadMetricsModal = false;
         this.metricsForm.reset();
+        this.loadPlayerMetrics();
       },
       error: (error) => {
-        this.errorMessage = 'Failed to upload metrics. Please try again.';
-        this.successMessage = null;
-        console.error('Error uploading metrics:', error);
+        console.error('Error details:', error);
+        this.errorMessage = error.message || 'Failed to upload metrics. Please try again.';
+      },
+      complete: () => {
+        console.log('Upload request completed');
       }
+    });
+  } else {
+    Object.keys(this.metricsForm.controls).forEach(key => {
+      const control = this.metricsForm.get(key);
+      control?.markAsTouched();
     });
   }
 }
@@ -336,11 +381,6 @@ cancelCreateTeam(): void {
 
 
 
-editTeam(team: Team): void {
-  // Implement edit team logic
-  console.log('Editing team:', team);
-}
-
 deleteTeam(teamId: number | undefined): void {
   if (!teamId) {
     console.error('Team ID is undefined');
@@ -351,9 +391,11 @@ deleteTeam(teamId: number | undefined): void {
     this.coachService.deleteTeam(teamId).subscribe({
       next: () => {
         this.teams = this.teams.filter(team => team.teamId !== teamId);
+        this.successMessage = 'Team deleted successfully';
       },
       error: (error) => {
         console.error('Error deleting team:', error);
+        this.errorMessage = 'Failed to delete team. Please try again.';
       }
     });
   }
@@ -395,11 +437,6 @@ deleteSession(sessionId: number | undefined): void {
   }
 }
 
-editSession(session: TrainingSession): void {
-  // Implement edit functionality
-  console.log('Editing session:', session);
-}
-
 showCreateGoalModal = false;
 
 
@@ -416,7 +453,7 @@ showCreateGoalModal = false;
 
 // Add these properties
 selectedDateRange: string = '7';
-selectedTeam: string = '';
+selectedTeam: string = 'All Teams';
 
 // Add these methods
 getAverageHRV(): number {
@@ -480,33 +517,9 @@ goalForm: FormGroup;
 
 
 // Add these methods to your component class
-createGoal(): void {
-  if (this.goalForm.valid) {
-    const newGoal: PlayerGoal = {
-      ...this.goalForm.value,
-      coachId: this.coachId,
-      achievedValue: 0,
-      status: 'In Progress',
-      feedbackRemarks: ''
-    };
 
-    this.coachService.createGoal(newGoal).subscribe({
-      next: (response) => {
-        this.loadGoals();
-        this.showCreateGoalModal = false;
-        this.goalForm.reset();
-      },
-      error: (error) => {
-        console.error('Error creating goal:', error);
-      }
-    });
-  }
-}
 
-editGoal(goal: PlayerGoal): void {
-  // Implement edit functionality
-  console.log('Editing goal:', goal);
-}
+
 
 
 
@@ -550,8 +563,9 @@ getPlayerCount(playerIds: string | number[]): number {
 }
 
 viewSession(session: TrainingSession): void {
-  // Implement view session details logic
-  console.log('Viewing session:', session);
+  this.selectedSession = session;
+  this.showSessionDetailsModal = true;
+  this.loadSessionPlayers(session);
 }
 
 private getDurationInMs(duration: string): number {
@@ -566,10 +580,12 @@ private getDurationInMs(duration: string): number {
 deleteGoal(goalId: number): void {
   if (confirm('Are you sure you want to delete this goal?')) {
     this.coachService.deleteGoal(goalId).subscribe({
-      next: () => {
+      next: (response) => {
         // Remove the deleted goal from the local array
         this.goals = this.goals.filter(goal => goal.goalId !== goalId);
         this.successMessage = 'Goal deleted successfully';
+        // Refresh the goals list
+        this.loadGoals();
       },
       error: (error) => {
         console.error('Error deleting goal:', error);
@@ -594,9 +610,33 @@ openWeatherCheckModal(date: string): void {
     // Convert the datetime-local value to yyyy-mm-dd format
     const formattedDate = new Date(date).toISOString().split('T')[0];
     this.weatherForm.patchValue({
-      date: formattedDate
+      date: formattedDate,
+      location: '' // Reset location when opening modal
     });
     this.showWeatherCheckModal = true;
+  }
+}
+
+checkWeather(): void {
+  if (this.weatherForm.valid) {
+    const date = this.weatherForm.get('date')?.value;
+    const location = this.weatherForm.get('location')?.value;
+    
+    console.log('Checking weather for:', { date, location }); // Debug log
+    
+    this.weatherService.getWeather(location, date).subscribe({
+      next: (data) => {
+        console.log('Weather data received:', data); // Debug log
+        this.weatherData = data;
+        this.closeWeatherCheckModal(); // Close the check modal
+      },
+      error: (error) => {
+        console.error('Error fetching weather data:', error);
+        this.errorMessage = 'Failed to fetch weather data. Please try again.';
+      }
+    });
+  } else {
+    console.log('Form is invalid:', this.weatherForm.errors); // Debug log
   }
 }
 
@@ -605,19 +645,256 @@ closeWeatherCheckModal(): void {
   this.weatherForm.reset();
 }
 
-checkWeather(): void {
-  if (this.weatherForm.valid) {
-    // Here you would typically make an API call to a weather service
-    console.log('Checking weather for:', this.weatherForm.value);
-    // Add your weather API integration here
-    this.closeWeatherCheckModal();
+closeWeatherResults(): void {
+  this.weatherData = null;
+}
+
+// Add these properties to the component class
+showTeamDetailsModal = false;
+selectedTeam1: Team | null = null;
+teamPlayers: Player[] = [];
+
+// Add these methods
+viewTeamDetails(team: Team): void {
+  this.selectedTeam1 = team;
+  this.showTeamDetailsModal = true;
+  this.loadTeamPlayers(team);
+}
+
+closeTeamDetails(): void {
+  this.showTeamDetailsModal = false;
+  this.selectedTeam1 = null;
+  this.teamPlayers = [];
+}
+
+loadTeamPlayers(team: Team): void {
+  if (team.playerIds && team.playerIds.length > 0) {
+    this.coachService.getPlayersByIds(team.playerIds).subscribe({
+      next: (players) => {
+        this.teamPlayers = players;
+      },
+      error: (error) => {
+        console.error('Error loading team players:', error);
+      }
+    });
   }
 }
 
-closeWeatherResults(): void {
-  // Implement the logic to close the weather results modal or section
-  console.log('Closing weather results');
-  // Example: this.showWeatherResults = false; // Assuming you have a boolean to control visibility
+// Add these properties to the component class
+showSessionDetailsModal = false;
+selectedSession: TrainingSession | null = null;
+sessionPlayers: Player[] = [];
+
+// Add this method to view session details
+
+
+// Add this method to load session players
+loadSessionPlayers(session: TrainingSession): void {
+  if (session.playerIds && session.playerIds.length > 0) {
+    this.coachService.getPlayersByIds(session.playerIds).subscribe({
+      next: (players) => {
+        this.sessionPlayers = players;
+      },
+      error: (error) => {
+        console.error('Error loading session players:', error);
+      }
+    });
+  }
 }
+
+// Add this method to close session details
+closeSessionDetails(): void {
+  this.showSessionDetailsModal = false;
+  this.selectedSession = null;
+  this.sessionPlayers = [];
+}
+
+// Add a map to cache player names
+playerNames: Map<number, string> = new Map();
+
+// Add this method
+getPlayerName(playerId: number): string {
+  // Check cache first
+  if (this.playerNames.has(playerId)) {
+    return this.playerNames.get(playerId) || 'Unknown Player';
+  }
+
+  // If not in cache, fetch from players array
+  const player = this.players.find(p => p.playerId === playerId);
+  if (player) {
+    this.playerNames.set(playerId, player.name);
+    return player.name;
+  }
+  
+  return 'Unknown Player';
+}
+// These properties are already defined above
+showSessionPlayersModal = false;
+// selectedSession: TrainingSession | null = null; 
+// sessionPlayers: Player[] = [];
+
+viewSessionPlayers(session: TrainingSession): void {
+  this.selectedSession = session;
+  this.showSessionPlayersModal = true;
+  this.loadSessionPlayers(session);
+}
+
+closeSessionPlayers(): void {
+  this.showSessionPlayersModal = false;
+  this.selectedSession = null;
+  this.sessionPlayers = [];
+}
+
+openCreateGoalModal(): void {
+  this.showCreateGoalModal = true;
+  this.goalForm.reset();
+}
+
+closeCreateGoalModal(): void {
+  this.showCreateGoalModal = false;
+  this.goalForm.reset();
+}
+createGoal(): void {
+  if (this.goalForm.valid) {
+    const newGoal: PlayerGoal = {
+      ...this.goalForm.value,
+      coachId: this.coachId,
+      achievedValue: 0,
+      status: 'In Progress'
+    };
+
+    console.log('Form values:', this.goalForm.value); // Add this for debugging
+    console.log('Form validation status:', this.goalForm.valid); // Add this for debugging
+
+    this.coachService.createGoal(newGoal).subscribe({
+      next: (response) => {
+        this.loadGoals();
+        this.showCreateGoalModal = false;
+        this.goalForm.reset();
+      },
+      error: (error) => {
+        console.error('Error creating goal:', error);
+      }
+    });
+  } else {
+    // Mark all fields as touched to trigger validation messages
+    Object.keys(this.goalForm.controls).forEach(key => {
+      const control = this.goalForm.get(key);
+      control?.markAsTouched();
+    });
+  }
+}
+
+editGoal(goal: PlayerGoal): void {
+  this.selectedGoal = goal;
+  this.goalForm = this.fb.group({
+    achievedValue: [goal.achievedValue, [Validators.required, Validators.min(0)]],
+    status: [goal.status, Validators.required],
+    feedbackRemarks: [goal.feedbackRemarks]
+  });
+  this.showEditGoalModal = true;
+}
+
+updateGoal(): void {
+  if (this.goalForm.valid && this.selectedGoal) {
+    const updatedGoal: Partial<PlayerGoal> = {
+      ...this.selectedGoal,
+      achievedValue: this.goalForm.get('achievedValue')?.value,
+      status: this.goalForm.get('status')?.value,
+      feedbackRemarks: this.goalForm.get('feedbackRemarks')?.value
+    };
+
+    this.coachService.updateGoal(this.selectedGoal.goalId, updatedGoal).subscribe({
+      next: (response) => {
+        const index = this.goals.findIndex(g => g.goalId === this.selectedGoal?.goalId);
+        if (index !== -1) {
+          this.goals[index] = { ...this.goals[index], ...response };
+        }
+        this.showEditGoalModal = false;
+        this.selectedGoal = null;
+        this.goalForm.reset();
+        this.successMessage = 'Goal updated successfully';
+        this.loadGoals();
+      },
+      error: (error) => {
+        console.error('Error updating goal:', error);
+        this.errorMessage = 'Failed to update goal. Please try again.';
+      }
+    });
+  }
+}
+
+closeEditGoalModal(): void {
+  this.showEditGoalModal = false;
+  this.selectedGoal = null;
+  this.goalForm.reset();
+}
+
+onReportTypeChange(): void {
+  // Reset reports when switching type
+  this.teamReports = [];
+  this.playerReports = [];
+  this.selectedTeamForReport = null;
+  this.selectedPlayerForReport = null;
+}
+
+onTeamSelect(value: string): void {
+  const teamId = parseInt(value, 10);
+  if (!isNaN(teamId)) {
+    this.selectedTeamForReport = teamId;
+    this.loadTeamReports(teamId);
+  }
+}
+
+onPlayerSelect(value: string): void {
+  const playerId = parseInt(value, 10);
+  if (!isNaN(playerId)) {
+    this.selectedPlayerForReport = playerId;
+    this.loadPlayerReports(playerId);
+  }
+}
+
+loadTeamReports(teamId: number): void {
+  this.coachService.getTeamReports(teamId).subscribe({
+    next: (reports) => {
+      console.log('Team reports loaded:', reports); // Add this for debugging
+      this.teamReports = reports;
+    },
+    error: (error) => {
+      console.error('Error loading team reports:', error);
+    }
+  });
+}
+
+loadPlayerReports(playerId: number): void {
+  this.coachService.getPlayerReports(playerId).subscribe({
+    next: (reports) => {
+      console.log('Player reports loaded:', reports); // Add this for debugging
+      this.playerReports = reports;
+    },
+    error: (error) => {
+      console.error('Error loading player reports:', error);
+    }
+  });
+}
+
+// Add these properties to the component class
+
+
+// Add these methods
+openUploadMetricsModal(): void {
+  this.showUploadMetricsModal = true;
+}
+
+closeUploadMetricsModal(): void {
+  this.showUploadMetricsModal = false;
+  this.metricsForm.reset();
+}
+
+
+
+
+
+
 }  
 

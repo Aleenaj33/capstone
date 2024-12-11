@@ -7,5 +7,19 @@ export class PlayerPerformanceReport {
     playerLoadStatus!: string;
     distanceStatus!: string;
     caloriesStatus!: string;
-  }
+    
+    // Add new properties for averages
+    averageHRV?: number;
+    averageSpeed?: number;
+    averageDistance?: number;
+    hrv?: number;
+    topSpeed?: number;
+    distance?: number;
+    
+    // Add new properties
+    averagePlayerLoad?: number;
+    averageCalories?: number;
+    playerLoad?: number;
+    calories?: number;
+}
   

@@ -32,12 +32,16 @@
         <span>Goals</span>
       </div>
 
-
-
       <!-- Analytics Item -->
       <div class="nav-item" [class.active]="selectedTab === 'performance'" (click)="setSelectedTab('performance')">
         <i class="fas fa-chart-line"></i>
         <span>Analytics</span>
+      </div>
+
+      <!-- Reports Item -->
+      <div class="nav-item" [class.active]="selectedTab === 'reports'" (click)="setSelectedTab('reports')">
+        <i class="fas fa-chart-bar"></i>
+        <span>Reports</span>
       </div>
     </div>
 
@@ -53,7 +57,7 @@
     </div>
   </div>
 
-  <div class="main-content">
+  <div class="main-content" [ngSwitch]="selectedTab">
     <!-- Your main content here -->
     <div class="profile-section" *ngIf="selectedTab === 'profile'">
       <div class="profile-header">
@@ -102,7 +106,7 @@
         </div>
       </div>
 
-      <div class="teams-overview">
+      <div class="teams-overview" *ngIf="teams.length > 0; else noTeams">
         <h2>My Teams</h2>
         <div class="teams-grid">
           <div class="team-item" *ngFor="let team of teams">
@@ -117,6 +121,17 @@
           </div>
         </div>
       </div>
+      <ng-template #noTeams>
+        <div class="no-teams">
+          <i class="fas fa-users"></i>
+          <h3>No Teams Available</h3>
+          <p>Get started by creating your first team to manage players and training sessions.</p>
+          <button class="create-team-btn" (click)="openCreateTeamModal()">
+            <i class="fas fa-plus"></i>
+            Create New Team
+          </button>
+        </div>
+      </ng-template>
     </div>
 
     <div class="teams-management" *ngIf="selectedTab === 'teams'">
@@ -128,7 +143,17 @@
         </button>
       </div>
 
-      <div class="teams-container">
+      <div class="no-teams" *ngIf="teams.length === 0">
+        <i class="fas fa-users"></i>
+        <h3>No Teams Available</h3>
+        <p>Create a new team to get started</p>
+        <button class="create-team-btn" (click)="openCreateTeamModal()">
+          <i class="fas fa-plus"></i>
+          Create Team
+        </button>
+      </div>
+
+      <div class="teams-container" *ngIf="teams.length > 0">
         <!-- Team Cards -->
         <div class="team-card" *ngFor="let team of teams">
           <div class="team-card-header">
@@ -145,8 +170,8 @@
             </div>
             
             <div class="team-actions">
-              <button class="team-btn edit-btn" (click)="editTeam(team)">
-                <i class="fas fa-edit"></i> Edit
+              <button class="team-btn view-btn" (click)="viewTeamDetails(team)">
+                <i class="fas fa-users"></i> View Players
               </button>
               <button class="team-btn delete-btn" (click)="deleteTeam(team.teamId!)">
                 <i class="fas fa-trash"></i> Delete
@@ -155,6 +180,8 @@
           </div>
         </div>
       </div>
+
+     
 
       <!-- Create Team Form Modal -->
       <div class="modal-overlay" *ngIf="showCreateTeamModal">
@@ -240,7 +267,7 @@
       <div class="section-header">
         <div class="header-content">
           <h2>Training Sessions</h2>
-          <p class="subtitle">Manage and track your team's training schedule</p>
+          <p class="subtitle">Manage and track your training schedule</p>
         </div>
         <button class="add-session-btn" (click)="openCreateSessionModal()">
           <i class="fas fa-plus"></i> New Session
@@ -250,10 +277,6 @@
       <div class="sessions-grid" *ngIf="trainingSessions.length > 0">
         <div class="session-card" *ngFor="let session of trainingSessions">
           <div class="session-card-header">
-            <div class="session-team">
-              <i class="fas fa-users"></i>
-              <span>{{ getTeamName(session.teamId) }}</span>
-            </div>
             <div class="session-status" [ngClass]="getSessionStatus(session)">
               {{ getSessionStatus(session) | titlecase }}
             </div>
@@ -283,11 +306,8 @@
             </div>
             
             <div class="session-actions">
-              <button class="action-btn view-btn" (click)="viewSession(session)" title="View Details">
-                <i class="fas fa-eye"></i>
-              </button>
-              <button class="action-btn edit-btn" (click)="editSession(session)" title="Edit Session">
-                <i class="fas fa-edit"></i>
+              <button class="action-btn view-btn" (click)="viewSessionPlayers(session)" title="View Players">
+                <i class="fas fa-users"></i>
               </button>
               <button 
                 class="action-btn delete-btn" 
@@ -302,13 +322,38 @@
         </div>
       </div>
 
-      <div class="no-goals" *ngIf="trainingSessions.length === 0">
+      <div class="no-sessions" *ngIf="trainingSessions.length === 0">
         <i class="fas fa-calendar-alt fa-3x"></i>
         <h3>No Training Sessions</h3>
         <p>Schedule your first training session to get started</p>
-        <button class="add-goal-btn" (click)="openCreateSessionModal()">
+        <button class="add-session-btn" (click)="openCreateSessionModal()">
           <i class="fas fa-plus"></i> Schedule Session
         </button>
+      </div>
+    </div>
+
+    <!-- Session Players Modal -->
+    <div class="modal-overlay" *ngIf="showSessionPlayersModal">
+      <div class="session-players-modal">
+        <div class="modal-header">
+          <h2>Session Players</h2>
+          <button class="close-btn" (click)="closeSessionPlayers()">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+
+        <div class="players-list" *ngIf="sessionPlayers.length > 0">
+          <div class="player-item" *ngFor="let player of sessionPlayers">
+            <i class="fas fa-user"></i>
+            <span>{{ player.name }}</span>
+          </div>
+        </div>
+
+        <div class="no-players" *ngIf="sessionPlayers.length === 0">
+          <i class="fas fa-users fa-3x"></i>
+          <h3>No Players Assigned</h3>
+          <p>Add players to this training session</p>
+        </div>
       </div>
     </div>
 
@@ -316,14 +361,13 @@
     <div class="modal-overlay" *ngIf="showCreateSessionModal">
       <div class="create-session-modal">
         <div class="modal-header">
-          <h2>Schedule Training Session</h2>
-          <button class="close-btn" (click)="cancelCreateSession()">
+          <h2>Create New Training Session</h2>
+          <button class="close-btn" (click)="showCreateSessionModal = false">
             <i class="fas fa-times"></i>
           </button>
         </div>
-
+        
         <form [formGroup]="createSessionForm" (ngSubmit)="createSession()">
-          <!-- Date Field -->
           <div class="form-group">
             <label for="date">Session Date</label>
             <div class="weather-check-wrapper">
@@ -348,59 +392,96 @@
             </span>
           </div>
 
-          <!-- Duration Field -->
           <div class="form-group">
-            <label for="duration">Duration</label>
+            <label>Duration (minutes)</label>
             <div class="input-wrapper">
               <i class="fas fa-clock"></i>
-              <select id="duration" formControlName="duration">
-                <option value="">Select duration</option>
-                <option value="30 minutes">30 minutes</option>
-                <option value="1 hour">1 hour</option>
-                <option value="1.5 hours">1.5 hours</option>
-                <option value="2 hours">2 hours</option>
-              </select>
+              <input type="number" formControlName="duration">
             </div>
-            <span class="error-message" *ngIf="createSessionForm.get('duration')?.touched && createSessionForm.get('duration')?.invalid">
-              Duration is required
-            </span>
           </div>
 
-          <!-- Players Select -->
           <div class="form-group">
-            <label for="sessionPlayers">Select Players</label>
+            <label>Select Players</label>
             <div class="players-select-wrapper">
               <div class="select-info">
-                <i class="fas fa-user-plus"></i>
-                <span>{{ createSessionForm.get('playerIds')?.value?.length || 0 }} players selected</span>
+                <i class="fas fa-users"></i>
+                <span>Choose players for this session</span>
               </div>
-              <select 
-                multiple 
-                id="sessionPlayers" 
-                formControlName="playerIds"
-                class="players-select"
-              >
+              <select multiple formControlName="playerIds" class="players-select">
                 <option *ngFor="let player of players" [value]="player.playerId">
-                  {{ player.name }}
+                  {{player.name}}
                 </option>
               </select>
             </div>
             <span class="helper-text">Hold Ctrl/Cmd to select multiple players</span>
-            <span class="error-message" *ngIf="createSessionForm.get('playerIds')?.touched && createSessionForm.get('playerIds')?.invalid">
-              Please select at least one player
-            </span>
           </div>
 
-          <!-- Form Actions -->
           <div class="form-actions">
-            <button type="button" class="btn btn-secondary" (click)="cancelCreateSession()">
-              <i class="fas fa-times"></i> Cancel
-            </button>
-            <button type="submit" class="btn btn-primary" [disabled]="!createSessionForm.valid">
-              <i class="fas fa-check"></i> Schedule Session
-            </button>
+            <button type="button" class="btn btn-secondary" (click)="showCreateSessionModal = false">Cancel</button>
+            <button type="submit" class="btn btn-primary" [disabled]="!createSessionForm.valid">Create Session</button>
           </div>
         </form>
+      </div>
+    </div>
+
+    <!-- Weather Check Modal -->
+    <div class="modal-overlay" *ngIf="showWeatherCheckModal">
+      <div class="weather-check-modal">
+        <div class="modal-header">
+          <h2>Check Weather</h2>
+          <button class="close-btn" (click)="closeWeatherCheckModal()">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        
+        <form [formGroup]="weatherForm" (ngSubmit)="checkWeather()" class="weather-form">
+          <div class="weather-input-group">
+            <label>Date</label>
+            <input type="date" 
+                   formControlName="date" 
+                   class="weather-input" 
+                   readonly>
+          </div>
+          
+          <div class="weather-input-group">
+            <label>Location</label>
+            <input type="text" 
+                   formControlName="location" 
+                   class="weather-input" 
+                   placeholder="Enter location">
+          </div>
+          
+          <button type="submit" 
+                  class="check-weather-btn" 
+                  [disabled]="!weatherForm.valid">
+            <i class="fas fa-search"></i> Check
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Weather Results Modal -->
+    <div class="modal-overlay" *ngIf="weatherData">
+      <div class="weather-results-modal">
+        <div class="modal-header">
+          <h2>Weather Forecast</h2>
+          <button class="close-btn" (click)="closeWeatherResults()">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        
+        <div class="weather-results">
+          <div *ngIf="weatherData.data && weatherData.data.length > 0; else noData">
+           
+            <p><strong>Temperature:</strong> {{ weatherData.data[0].temp }}°C</p>
+            <p><strong>Description:</strong> {{ weatherData.data[0].weather?.description || 'N/A' }}</p>
+            <p><strong>Humidity:</strong> {{ weatherData.data[0].rh }}%</p>
+            <p><strong>Wind Speed:</strong> {{ weatherData.data[0].wind_spd }} m/s</p>
+          </div>
+          <ng-template #noData>
+            <p>No weather data available for the selected date and location.</p>
+          </ng-template>
+        </div>
       </div>
     </div>
 
@@ -411,54 +492,55 @@
           <h2>Goals Management</h2>
           <p class="subtitle">Track and manage player performance goals</p>
         </div>
-        <button class="add-goal-btn" (click)="showCreateGoalModal = true">
-          <i class="fas fa-plus"></i> Add New Goal
+        <button class="add-goal-btn" (click)="openCreateGoalModal()">
+          <i class="fas fa-plus"></i>
+          Create Goal
         </button>
       </div>
 
-      <div class="goals-grid" *ngIf="goals.length > 0">
+      <div class="goals-grid" *ngIf="goals.length > 0; else noGoals">
         <div class="goal-card" *ngFor="let goal of goals">
           <div class="goal-card-header">
             <div class="goal-type">
-              <i class="fas" [ngClass]="{
-                'fa-running': goal.goalType === 'Performance',
-                'fa-dumbbell': goal.goalType === 'Fitness',
-                'fa-graduation-cap': goal.goalType === 'Skill',
-                'fa-users': goal.goalType === 'Team'
-              }"></i>
+              <i class="fas fa-bullseye"></i>
               <span>{{ goal.goalType }}</span>
             </div>
             <div class="status-badge" [ngClass]="goal.status.toLowerCase()">
               {{ goal.status }}
             </div>
           </div>
-          
+
           <div class="goal-card-body">
+            <div class="goal-player">
+              <i class="fas fa-user"></i>
+              <span>{{ getPlayerName(goal.playerId) }}</span>
+            </div>
+
             <h3>{{ goal.goalDescription }}</h3>
-            
+
             <div class="goal-progress">
               <div class="progress-info">
                 <span class="progress-label">Progress</span>
-                <span class="progress-value">{{ (goal.achievedValue / goal.targetValue * 100) | number:'1.0-0' }}%</span>
+                <span class="progress-value">{{ goal.achievedValue }} / {{ goal.targetValue }}</span>
               </div>
               <div class="progress-bar">
-                <div class="progress-fill" [style.width]="(goal.achievedValue / goal.targetValue * 100) + '%'"></div>
+                <div class="progress-fill" [style.width.%]="(goal.achievedValue / goal.targetValue) * 100"></div>
               </div>
               <div class="progress-metrics">
-                {{ goal.achievedValue }} / {{ goal.targetValue }}
+                {{ (goal.achievedValue / goal.targetValue) * 100 | number:'1.0-0' }}% Complete
               </div>
             </div>
 
             <div class="goal-meta">
               <div class="deadline">
                 <i class="far fa-calendar-alt"></i>
-                <span>Due {{ goal.deadline | date:'mediumDate' }}</span>
+                <span>Due {{ goal.deadline | date }}</span>
               </div>
               <div class="goal-actions">
-                <button class="action-btn edit" (click)="editGoal(goal)" title="Edit Goal">
+                <button class="action-btn edit" (click)="editGoal(goal)">
                   <i class="fas fa-edit"></i>
                 </button>
-                <button class="action-btn delete" (click)="deleteGoal(goal.goalId)" title="Delete Goal">
+                <button class="action-btn delete" (click)="deleteGoal(goal.goalId)">
                   <i class="fas fa-trash"></i>
                 </button>
               </div>
@@ -466,103 +548,331 @@
           </div>
         </div>
       </div>
-
-      <div class="no-goals" *ngIf="goals.length === 0">
-        <i class="fas fa-bullseye fa-3x"></i>
-        <h3>No Goals Set</h3>
-        <p>Start by creating performance goals for your players</p>
-        <button class="add-goal-btn" (click)="showCreateGoalModal = true">
-          <i class="fas fa-plus"></i> Create Your First Goal
-        </button>
-      </div>
+      <ng-template #noGoals>
+        <div class="no-goals">
+          <i class="fas fa-bullseye"></i>
+          <h3>No Goals Set</h3>
+          <p>Add new goals to track player performance.</p>
+          <button class="create-goal-btn" (click)="openCreateGoalModal()">
+            <i class="fas fa-plus"></i>
+            Create Goal
+          </button>
+        </div>
+      </ng-template>
 
       <!-- Create Goal Modal -->
       <div class="modal-overlay" *ngIf="showCreateGoalModal">
         <div class="create-goal-modal">
           <div class="modal-header">
             <h2>Create New Goal</h2>
-            <button class="close-btn" (click)="showCreateGoalModal = false">
+            <button class="close-btn" (click)="closeCreateGoalModal()">
               <i class="fas fa-times"></i>
             </button>
           </div>
 
           <form [formGroup]="goalForm" (ngSubmit)="createGoal()">
             <div class="form-group">
-              <label for="playerId">Select Player</label>
-              <div class="input-wrapper">
-                <i class="fas fa-user"></i>
-                <select id="playerId" formControlName="playerId">
-                  <option value="">Select a player</option>
-                  <option *ngFor="let player of players" [value]="player.playerId">
-                    {{ player.name }}
-                  </option>
-                </select>
+              <label for="playerId">Player</label>
+              <select id="playerId" formControlName="playerId" class="form-control">
+                <option value="">Select Player</option>
+                <option *ngFor="let player of players" [value]="player.playerId">
+                  {{player.name}}
+                </option>
+              </select>
+              <div class="error-message" *ngIf="goalForm.get('playerId')?.touched && goalForm.get('playerId')?.invalid">
+                Please select a player
               </div>
             </div>
 
             <div class="form-group">
               <label for="goalType">Goal Type</label>
-              <div class="input-wrapper">
-                <i class="fas fa-tag"></i>
-                <select id="goalType" formControlName="goalType">
-                  <option value="">Select goal type</option>
-                  <option value="Performance">Performance</option>
-                  <option value="Fitness">Fitness</option>
-                  <option value="Skill">Skill Development</option>
-                  <option value="Team">Team Objective</option>
-                </select>
+              <select id="goalType" formControlName="goalType" class="form-control">
+                <option value="">Select Type</option>
+                <option value="Performance">Performance</option>
+                <option value="Fitness">Fitness</option>
+                <option value="Skill">Skill</option>
+              </select>
+              <div class="error-message" *ngIf="goalForm.get('goalType')?.touched && goalForm.get('goalType')?.invalid">
+                Please select a goal type
               </div>
             </div>
 
             <div class="form-group">
               <label for="goalDescription">Description</label>
-              <div class="input-wrapper">
-                <i class="fas fa-align-left"></i>
-                <input 
-                  type="text" 
-                  id="goalDescription" 
-                  formControlName="goalDescription"
-                  placeholder="Enter goal description"
-                >
+              <textarea 
+                id="goalDescription" 
+                formControlName="goalDescription" 
+                class="form-control"
+                placeholder="Enter goal description">
+              </textarea>
+              <div class="error-message" *ngIf="goalForm.get('goalDescription')?.touched && goalForm.get('goalDescription')?.invalid">
+                Please enter a description
               </div>
             </div>
 
-            <div class="form-row">
-              <div class="form-group">
-                <label for="targetValue">Target Value</label>
-                <div class="input-wrapper">
-                  <i class="fas fa-bullseye"></i>
-                  <input 
-                    type="number" 
-                    id="targetValue" 
-                    formControlName="targetValue"
-                    placeholder="Enter target value"
-                  >
-                </div>
+            <div class="form-group">
+              <label for="targetValue">Target Value</label>
+              <input 
+                type="number" 
+                id="targetValue" 
+                formControlName="targetValue" 
+                class="form-control"
+                placeholder="Enter target value">
+              <div class="error-message" *ngIf="goalForm.get('targetValue')?.touched && goalForm.get('targetValue')?.invalid">
+                Please enter a valid target value
               </div>
+            </div>
 
-              <div class="form-group">
-                <label for="deadline">Deadline</label>
-                <div class="input-wrapper">
-                  <i class="far fa-calendar-alt"></i>
-                  <input 
-                    type="date" 
-                    id="deadline" 
-                    formControlName="deadline"
-                  >
-                </div>
+            <div class="form-group">
+              <label for="deadline">Deadline</label>
+              <input 
+                type="date" 
+                id="deadline" 
+                formControlName="deadline" 
+                class="form-control">
+              <div class="error-message" *ngIf="goalForm.get('deadline')?.touched && goalForm.get('deadline')?.invalid">
+                Please select a deadline
               </div>
             </div>
 
             <div class="form-actions">
-              <button type="button" class="btn btn-secondary" (click)="showCreateGoalModal = false">
+              <button type="button" class="btn-secondary" (click)="closeCreateGoalModal()">
                 Cancel
               </button>
-              <button type="submit" class="btn btn-primary" [disabled]="!goalForm.valid">
+              <button type="submit" class="btn-primary" [disabled]="!goalForm.valid">
                 Create Goal
               </button>
             </div>
           </form>
+        </div>
+      </div>
+
+      <!-- Edit Goal Modal -->
+      <div class="modal-overlay" *ngIf="showEditGoalModal">
+        <div class="create-goal-modal">
+          <div class="modal-header">
+            <h2>Update Goal</h2>
+            <button class="close-btn" (click)="closeEditGoalModal()">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+
+          <form [formGroup]="goalForm" (ngSubmit)="updateGoal()">
+            <div class="form-group">
+              <label for="achievedValue">Achieved Value</label>
+              <input 
+                type="number" 
+                id="achievedValue" 
+                formControlName="achievedValue" 
+                class="form-control"
+                placeholder="Enter achieved value">
+              <div class="error-message" *ngIf="goalForm.get('achievedValue')?.touched && goalForm.get('achievedValue')?.invalid">
+                Please enter a valid achieved value
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="status">Status</label>
+              <select id="status" formControlName="status" class="form-control">
+                <option value="In Progress">In Progress</option>
+                <option value="Completed">Completed</option>
+                <option value="Need Attention">Need Attention</option>
+              </select>
+              <div class="error-message" *ngIf="goalForm.get('status')?.touched && goalForm.get('status')?.invalid">
+                Please select a status
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="feedbackRemarks">Feedback/Remarks</label>
+              <textarea 
+                id="feedbackRemarks" 
+                formControlName="feedbackRemarks" 
+                class="form-control"
+                placeholder="Enter feedback or remarks">
+              </textarea>
+            </div>
+
+            <div class="form-actions">
+              <button type="button" class="btn-secondary" (click)="closeEditGoalModal()">
+                Cancel
+              </button>
+              <button type="submit" class="btn-primary" [disabled]="!goalForm.valid">
+                Update Goal
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Reports Section -->
+    <div class="reports-section" *ngIf="selectedTab === 'reports'">
+      <div class="reports-header">
+        <h2>Performance Reports</h2>
+        
+        <div class="reports-controls">
+          <!-- Report Type Selector -->
+          <div class="report-type-selector">
+            <label>Report Type</label>
+            <select [(ngModel)]="selectedReportType" (change)="onReportTypeChange()">
+              <option value="team">Team Reports</option>
+              <option value="player">Individual Player Reports</option>
+            </select>
+          </div>
+
+          <!-- Team Selector -->
+          <div class="team-selector" *ngIf="selectedReportType === 'team'">
+            <label>Select Team</label>
+            <select #teamSelect (change)="onTeamSelect(teamSelect.value)">
+              <option value="">Choose a team</option>
+              <option *ngFor="let team of teams" [value]="team.teamId">
+                {{team.name}}
+              </option>
+            </select>
+          </div>
+
+          <!-- Player Selector -->
+          <div class="player-selector" *ngIf="selectedReportType === 'player'">
+            <label>Select Player</label>
+            <select #playerSelect (change)="onPlayerSelect(playerSelect.value)">
+              <option value="">Choose a player</option>
+              <option *ngFor="let player of players" [value]="player.playerId">
+                {{player.name}}
+              </option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Reports Display Area -->
+      <div class="reports-content">
+        <!-- Team Reports -->
+        <div class="team-reports" *ngIf="selectedReportType === 'team' && teamReports.length > 0">
+          <!-- Add Averages Overview Section -->
+        
+
+          <!-- Existing report cards continue below -->
+          <div class="report-card" *ngFor="let report of teamReports">
+            <div class="report-header">
+              <h3>{{report.playerName}}</h3>
+              <span class="report-status">{{report.reportDate | date}}</span>
+            </div>
+            <div class="report-metrics">
+              <div class="metric">
+                <span>HRV</span>
+                <span [class.below-standard]="report.hrvStatus === 'Below Standard'">{{ report.hrv }}</span>
+                <span class="status-badge" [ngClass]="{
+                  'good': report.hrvStatus === 'GOOD',
+                  'below-standard': report.hrvStatus === 'Below Standard',
+                  
+                }">{{ report.hrvStatus }}</span>
+              </div>
+
+              <div class="metric">
+                <span>Top Speed</span>
+                <span [class.below-standard]="report.topSpeedStatus === 'Below Standard'">{{ report.topSpeed }}</span>
+                <span class="status-badge" [ngClass]="{
+                  'good': report.topSpeedStatus === 'GOOD',
+                  'below-standard': report.topSpeedStatus === 'Below Standard',
+                  
+                }">{{ report.topSpeedStatus }}</span>
+              </div>
+
+              <div class="metric">
+                <span>Player Load</span>
+                <span [class.below-standard]="report.playerLoadStatus === 'Below Standard'">{{ report.playerLoad }}</span>
+                <span class="status-badge" [ngClass]="{
+                  'good': report.playerLoadStatus === 'GOOD',
+                  'below-standard': report.playerLoadStatus === 'Below Standard',
+                  
+                }">{{ report.playerLoadStatus }}</span>
+              </div>
+
+              <!-- Add these two new metrics -->
+              <div class="metric">
+                <span>Distance</span>
+                <span [class.below-standard]="report.distanceStatus === 'Below Standard'">{{ report.distance }}</span>
+                <span class="status-badge" [ngClass]="{
+                  'good': report.distanceStatus === 'GOOD',
+                  'below-standard': report.distanceStatus === 'Below Standard',
+                  
+                }">{{ report.distanceStatus }}</span>
+              </div>
+
+              <div class="metric">
+                <span>Calories</span>
+                <span [class.below-standard]="report.caloriesStatus === 'Below Standard'">{{ report.calories }}</span>
+                <span class="status-badge" [ngClass]="{
+                  'good': report.caloriesStatus === 'GOOD',
+                  'below-standard': report.caloriesStatus === 'Below Standard',
+                  
+                }">{{ report.caloriesStatus }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Player Reports -->
+        <div class="player-reports" *ngIf="selectedReportType === 'player' && playerReports.length > 0">
+          <div class="report-card" *ngFor="let report of playerReports">
+            <div class="report-header">
+              <h3>Performance Report</h3>
+              <span class="report-status">{{report.reportDate | date}}</span>
+            </div>
+            <div class="report-metrics">
+              <div class="metric">
+                <span>HRV</span>
+                <span [class.below-standard]="report.hrvStatus === 'Below Standard'">{{ report.hrv }}</span>
+                <span class="status-badge" [ngClass]="{
+                  'good': report.hrvStatus === 'GOOD',
+                  'below-standard': report.hrvStatus === 'Below Standard',
+                  
+                }">{{ report.hrvStatus }}</span>
+              </div>
+
+              <div class="metric">
+                <span>Top Speed</span>
+                <span [class.below-standard]="report.topSpeedStatus === 'Below Standard'">{{ report.topSpeed }}</span>
+                <span class="status-badge" [ngClass]="{
+                  'good': report.topSpeedStatus === 'GOOD',
+                  'below-standard': report.topSpeedStatus === 'Below Standard',
+                  
+                }">{{ report.topSpeedStatus }}</span>
+              </div>
+
+              <div class="metric">
+                <span>Player Load</span>
+                <span [class.below-standard]="report.playerLoadStatus === 'Below Standard'">{{ report.playerLoad }}</span>
+                <span class="status-badge" [ngClass]="{
+                  'good': report.playerLoadStatus === 'GOOD',
+                  'below-standard': report.playerLoadStatus === 'Below Standard',
+                  
+                }">{{ report.playerLoadStatus }}</span>
+              </div>
+
+              <!-- Add these two new metrics -->
+              <div class="metric">
+                <span>Distance</span>
+                <span [class.below-standard]="report.distanceStatus === 'Below Standard'">{{ report.distance }}</span>
+                <span class="status-badge" [ngClass]="{
+                  'good': report.distanceStatus === 'GOOD',
+                  'below-standard': report.distanceStatus === 'Below Standard',
+                  
+                }">{{ report.distanceStatus }}</span>
+              </div>
+
+              <div class="metric">
+                <span>Calories</span>
+                <span [class.below-standard]="report.caloriesStatus === 'Below Standard'">{{ report.calories }}</span>
+                <span class="status-badge" [ngClass]="{
+                  'good': report.caloriesStatus === 'GOOD',
+                  'below-standard': report.caloriesStatus === 'Below Standard',
+                  
+                }">{{ report.caloriesStatus }}</span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -582,7 +892,7 @@
           <div class="filter-group">
             <label for="teamFilter">Team</label>
             <select id="teamFilter" [(ngModel)]="selectedTeam" class="filter-select">
-              <option value="">All Teams</option>
+              <option value="All Teams" selected>All Teams</option>
               <option *ngFor="let team of teams" [value]="team.teamId">{{team.name}}</option>
             </select>
           </div>
@@ -598,80 +908,57 @@
 
       <div class="metrics-grid">
         <!-- HRV Metric Card -->
-        <div class="metric-card">
-          <div class="metric-icon">
-            <i class="fas fa-heartbeat"></i>
-          </div>
-          <div class="metric-content">
-            <h3>Average HRV</h3>
-            <div class="metric-value">{{ getAverageHRV() | number:'1.0-0' }}</div>
-            <div class="metric-trend" [class.positive]="isPositiveTrend('hrv')" [class.negative]="!isPositiveTrend('hrv')">
-              <i class="fas" [class.fa-arrow-up]="isPositiveTrend('hrv')" [class.fa-arrow-down]="!isPositiveTrend('hrv')"></i>
-              <span>{{ getMetricTrend('hrv') }}% vs last period</span>
+        <div class="metrics-overview">
+          <div class="metric-card">
+            <div class="metric-icon">
+              <i class="fas fa-heartbeat"></i>
+            </div>
+            <div class="metric-content">
+              <h3>Average HRV</h3>
+              <div class="metric-value">{{ getAverageHRV() | number:'1.0-1' }}</div>
             </div>
           </div>
-        </div>
 
-        <!-- Load Metric Card -->
-        <div class="metric-card">
-          <div class="metric-icon">
-            <i class="fas fa-weight"></i>
-          </div>
-          <div class="metric-content">
-            <h3>Avg Player Load</h3>
-            <div class="metric-value">{{ getAverageLoad() | number:'1.0-0' }}</div>
-            <div class="metric-trend" [class.positive]="isPositiveTrend('load')" [class.negative]="!isPositiveTrend('load')">
-              <i class="fas" [class.fa-arrow-up]="isPositiveTrend('load')" [class.fa-arrow-down]="!isPositiveTrend('load')"></i>
-              <span>{{ getMetricTrend('load') }}% vs last period</span>
+          <div class="metric-card">
+            <div class="metric-icon">
+              <i class="fas fa-running"></i>
+            </div>
+            <div class="metric-content">
+              <h3>Average Speed</h3>
+              <div class="metric-value">{{ getAverageTopSpeed() | number:'1.0-1' }} km/h</div>
             </div>
           </div>
-        </div>
 
-        <!-- Distance Metric Card -->
-        <div class="metric-card">
-          <div class="metric-icon">
-            <i class="fas fa-route"></i>
-          </div>
-          <div class="metric-content">
-            <h3>Avg Distance</h3>
-            <div class="metric-value">{{ getAverageDistance() | number:'1.1-1' }} km</div>
-            <div class="metric-trend" [class.positive]="isPositiveTrend('distance')" [class.negative]="!isPositiveTrend('distance')">
-              <i class="fas" [class.fa-arrow-up]="isPositiveTrend('distance')" [class.fa-arrow-down]="!isPositiveTrend('distance')"></i>
-              <span>{{ getMetricTrend('distance') }}% vs last period</span>
+          <div class="metric-card">
+            <div class="metric-icon">
+              <i class="fas fa-weight"></i>
+            </div>
+            <div class="metric-content">
+              <h3>Average Load</h3>
+              <div class="metric-value">{{ getAverageLoad() | number:'1.0-1' }}</div>
             </div>
           </div>
-        </div>
 
-        <!-- Speed Metric Card -->
-        <div class="metric-card">
-          <div class="metric-icon">
-            <i class="fas fa-running"></i>
-          </div>
-          <div class="metric-content">
-            <h3>Avg Top Speed</h3>
-            <div class="metric-value">{{ getAverageTopSpeed() | number:'1.1-1' }} km/h</div>
-            <div class="metric-trend" [class.positive]="isPositiveTrend('speed')" [class.negative]="!isPositiveTrend('speed')">
-              <i class="fas" [class.fa-arrow-up]="isPositiveTrend('speed')" [class.fa-arrow-down]="!isPositiveTrend('speed')"></i>
-              <span>{{ getMetricTrend('speed') }}% vs last period</span>
+          <div class="metric-card">
+            <div class="metric-icon">
+              <i class="fas fa-route"></i>
+            </div>
+            <div class="metric-content">
+              <h3>Average Distance</h3>
+              <div class="metric-value">{{ getAverageDistance() | number:'1.0-1' }} km</div>
             </div>
           </div>
-        </div>
 
-        <!-- Calories Metric Card -->
-        <div class="metric-card">
-          <div class="metric-icon">
-            <i class="fas fa-fire-alt"></i>
-          </div>
-          <div class="metric-content">
-            <h3>Avg Calories</h3>
-            <div class="metric-value">{{ getAverageCalories() | number:'1.0-0' }} kcal</div>
-            <div class="metric-trend" [class.positive]="isPositiveTrend('calories')" [class.negative]="!isPositiveTrend('calories')">
-              <i class="fas" [class.fa-arrow-up]="isPositiveTrend('calories')" [class.fa-arrow-down]="!isPositiveTrend('calories')"></i>
-              <span>{{ getMetricTrend('calories') }}% vs last period</span>
+          <div class="metric-card">
+            <div class="metric-icon">
+              <i class="fas fa-fire"></i>
+            </div>
+            <div class="metric-content">
+              <h3>Average Calories</h3>
+              <div class="metric-value">{{ getAverageCalories() | number:'1.0-1' }}</div>
             </div>
           </div>
         </div>
-      </div>
 
       <div class="detailed-metrics">
         <div class="section-header">
@@ -699,11 +986,11 @@
               <tr *ngFor="let metric of playerMetrics">
                 <td>{{ metric.recordDateTime | date:'short' }}</td>
                 <td>{{ metric.playerName }}</td>
-                <td>{{ metric.hrv }}</td>
-                <td>{{ metric.topSpeed }} km/h</td>
-                <td>{{ metric.totalDistanceCovered }} km</td>
-                <td>{{ metric.playerLoad }}</td>
-                <td>{{ metric.caloriesBurned }}</td>
+                <td>{{ metric.hrv | number:'1.0-1' }}</td>
+                <td>{{ metric.topSpeed | number:'1.0-1' }} km/h</td>
+                <td>{{ metric.totalDistanceCovered | number:'1.0-1' }} km</td>
+                <td>{{ metric.playerLoad | number:'1.0-1' }}</td>
+                <td>{{ metric.caloriesBurned | number:'1.0-1' }}</td>
                 <td>
                   <span class="status-badge" 
                         [ngClass]="{
@@ -743,10 +1030,15 @@
               <label for="playerName">Player Name</label>
               <div class="input-wrapper">
                 <i class="fas fa-user"></i>
-                <input id="playerName" type="text" formControlName="playerName" placeholder="Enter player name">
+                <select id="playerName" formControlName="playerName" class="form-control">
+                  <option value="">Select Player</option>
+                  <option *ngFor="let player of players" [value]="player.name">
+                    {{player.name}}
+                  </option>
+                </select>
               </div>
               <div class="error-message" *ngIf="metricsForm.get('playerName')?.touched && metricsForm.get('playerName')?.invalid">
-                Player name is required
+                Please select a player
               </div>
             </div>
 
@@ -816,10 +1108,83 @@
           </form>
         </div>
       </div>
+
+     
+
+            <!-- Team selector -->
+          
+
+          <!-- No Reports Message -->
+          
+        </div>
+      </div>
+    </div>
+  
+
+
+
+
+
+
+<!-- Team Details Modal -->
+<div class="modal-overlay" *ngIf="showTeamDetailsModal">
+  <div class="team-details-modal">
+    <div class="modal-header">
+      <h2>{{ selectedTeam1?.name }} Players</h2>
+      <button class="close-btn" (click)="closeTeamDetails()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    
+    <div class="modal-body">
+      <div class="players-list" *ngIf="teamPlayers.length > 0; else noTeamPlayers">
+        <div class="player-item" *ngFor="let player of teamPlayers">
+          <div class="player-info">
+            <i class="fas fa-user"></i>
+            <div class="player-details">
+              <h3>{{ player.name }}</h3>
+              
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <ng-template #noTeamPlayers>
+        <div class="no-players">
+          <i class="fas fa-users fa-3x"></i>
+          <h3>No Players</h3>
+          <p>This team currently has no players assigned.</p>
+        </div>
+      </ng-template>
     </div>
   </div>
 </div>
 
+<!-- Session Players Modal -->
+<div class="modal-overlay" *ngIf="showSessionPlayersModal">
+  <div class="session-players-modal">
+    <div class="modal-header">
+      <h2>Session Players</h2>
+      <button class="close-btn" (click)="closeSessionPlayers()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <div class="players-list" *ngIf="sessionPlayers.length > 0">
+      <div class="player-item" *ngFor="let player of sessionPlayers">
+        <i class="fas fa-user"></i>
+        <span>{{ player.name }}</span>
+      </div>
+    </div>
+
+    <div class="no-players" *ngIf="sessionPlayers.length === 0">
+      <i class="fas fa-users fa-3x"></i>
+      <h3>No Players Assigned</h3>
+      <p>Add players to this training session</p>
+    </div>
+  </div>
+  
+  
 <div class="modal-overlay" *ngIf="showWeatherCheckModal">
   <div class="weather-check-modal">
     <div class="modal-header">
@@ -866,10 +1231,17 @@
     </div>
     
     <div class="weather-results">
-      <p><strong>City:</strong> {{ weatherData.city_name }}</p>
-      <p><strong>Date:</strong> {{ weatherData.data[0].datetime }}</p>
-      <p><strong>Temperature:</strong> {{ weatherData.data[0].temp }}°C</p>
-      <p><strong>Description:</strong> {{ weatherData.data[0].weather.description }}</p>
+      <div *ngIf="weatherData.data && weatherData.data.length > 0; else noData">
+        <p><strong>City:</strong> {{ weatherData.city_name }}</p>
+        <p><strong>Date:</strong> {{ weatherData.data[0].datetime }}</p>
+        <p><strong>Temperature:</strong> {{ weatherData.data[0].temp }}°C</p>
+        <p><strong>Description:</strong> {{ weatherData.data[0].weather?.description || 'N/A' }}</p>
+        <p><strong>Humidity:</strong> {{ weatherData.data[0].rh }}%</p>
+        <p><strong>Wind Speed:</strong> {{ weatherData.data[0].wind_spd }} m/s</p>
+      </div>
+      <ng-template #noData>
+        <p>No weather data available for the selected date and location.</p>
+      </ng-template>
     </div>
   </div>
 </div>

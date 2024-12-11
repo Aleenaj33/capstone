@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs/internal/Observable';
+import { Observable, forkJoin } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { Team } from '../models/team';
 import { Coach } from '../models/coach';
@@ -9,6 +9,7 @@ import { PlayerGoal } from '../models/playergoal';
 import { PlayerPerformanceReport } from '../models/playerperformancereport';
 import { Player } from '../models/player';
 import { PlayerPerformance } from '../models/playerperformance';
+import { map } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -53,8 +54,16 @@ export class CoachService {
     return this.http.get<PlayerPerformanceReport[]>(`${this.apiUrl}/player/${playerId}/teammates-reports`);
   }
 
-  uploadMetrics(playerId: number, metrics: PlayerPerformance): Observable<any> {
-    return this.http.post(`${this.apiUrl}/coach/player/${playerId}/metrics`, metrics, { responseType: 'text' });
+  uploadMetrics(playerId: number, metrics: PlayerPerformance): Observable<PlayerPerformance> {
+    const url = `${environment.apiBaseUrl}/api/athletes/coach/player/${playerId}/metrics`;
+    console.log('Sending metrics:', metrics); // Debug log
+    
+    return this.http.post<PlayerPerformance>(url, metrics).pipe(
+      map(response => {
+        console.log('Response received:', response); // Debug log
+        return response;
+      })
+    );
   }
   
   getUnassignedPlayers(): Observable<Player[]> {
@@ -73,8 +82,8 @@ export class CoachService {
   createGoal(goal: PlayerGoal): Observable<PlayerGoal> {
     return this.http.post<PlayerGoal>(`${this.apiUrl}/creategoal`, goal);
   }
-  updateGoal(goalId:number,goal: Partial<PlayerGoal>): Observable<PlayerGoal> {
-    return this.http.put<PlayerGoal>(`${this.apiUrl}/goal/{goalId}`, goal);
+  updateGoal(goalId: number, updatedGoal: Partial<PlayerGoal>): Observable<PlayerGoal> {
+    return this.http.put<PlayerGoal>(`http://localhost:8089/api/goals/${goalId}`, updatedGoal);
   }
 
   getTeamPlayers(teamId: number): Observable<Player[]> {
@@ -85,20 +94,20 @@ export class CoachService {
     return this.http.get<Player>(`${this.apiUrl}/players/${playerId}`);
   }
 
-  deleteTeam(teamId: number): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/teams/${teamId}`);
+  deleteTeam(teamId: number): Observable<void> {
+    return this.http.delete<void>(`http://localhost:8089/api/teams/${teamId}`);
   }
 
   deleteTrainingSession(sessionId: number): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/training-sessions/${sessionId}`);
+    return this.http.delete(`http://localhost:8089/api/training-sessions/${sessionId}`);
   }
 
   getPlayers(): Observable<Player[]> {
     return this.http.get<Player[]>(`${this.apiUrl}/players`);
   }
 
-  deleteGoal(goalId: number): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/goals/${goalId}`);
+  deleteGoal(goalId: number): Observable<string> {
+    return this.http.delete<string>(`http://localhost:8089/api/goals/${goalId}`);
   }
 
   // Add this method to get player name by ID
@@ -119,5 +128,21 @@ export class CoachService {
     return this.http.get<number>(`${this.apiUrl}/coachid-by-email?email=${email}`);
   }
   
+  getPlayersByIds(playerIds: number[]): Observable<Player[]> {
+    // Create an array to store all the player observables
+    const playerObservables: Observable<Player>[] = playerIds.map(id => 
+      this.http.get<Player>(`${this.apiUrl}/players/${id}`)
+    );
+    
+    // Use forkJoin to wait for all requests to complete
+    return forkJoin(playerObservables);
+  }
 
+  // Get team performance reports
+  getTeamReports(teamId: number): Observable<PlayerPerformanceReport[]> {
+    return this.http.get<PlayerPerformanceReport[]>(`${this.apiUrl}/coach/team/${teamId}/reports`);
+  }
+
+  // Get individual player reports
+  
 }
