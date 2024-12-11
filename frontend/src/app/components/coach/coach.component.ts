@@ -57,7 +57,6 @@ export class CoachComponent implements OnInit {
 
   players: Player[] = [];
   error!: string;
-
   showWeatherCheckModal = false;
   weatherForm: FormGroup;
   weatherData: any;
@@ -124,11 +123,12 @@ export class CoachComponent implements OnInit {
       feedbackRemarks: ['']
     });
     
-    this.weatherForm = this.fb.group({
-      date: ['', Validators.required],
-      location: ['', Validators.required]
-    });
-  
+
+  this.weatherForm = this.fb.group({
+    date: ['', Validators.required],
+    location: ['', Validators.required]
+  });
+
 
    
    
