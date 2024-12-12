@@ -13,8 +13,9 @@ import { AuthService } from 'src/app/services/auth.service';
   styleUrls: ['./dashboard.component.css']
 })
 export class DashboardComponent implements OnInit {
-  //playerId!: number;
-  playerId: number = 1;
+  playerId!: number;
+  //playerId: number = 1;
+  playerName: string = '';
   player: any = {};
   teamMembers: Player[] = [];
   trainingSessions: TrainingSession[] = [];
@@ -24,6 +25,8 @@ export class DashboardComponent implements OnInit {
   selectedReportOption: string = 'individualMetrics';
   error!: string;
   loading: boolean = false;
+  performanceReports: any[] = []; // Array to store reports with remarks
+  errorMessage: string = '';
 
   constructor(
     private playerService: PlayerService,
@@ -32,13 +35,12 @@ export class DashboardComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    // Get playerId from session storage
     const storedPlayerId = sessionStorage.getItem('playerId');
     if (storedPlayerId) {
       this.playerId = parseInt(storedPlayerId, 10);
       
       // Load all data with the retrieved playerId
-      this.loadPlayerDetails();
+      this.loadPlayerDetails(); // This will now trigger loadReportsWithRemarks after getting player data
       this.loadTeamMembers();
       this.loadTrainingSessions();
       this.loadPlayerGoals();
@@ -64,8 +66,15 @@ export class DashboardComponent implements OnInit {
   }
 
   loadPlayerDetails(): void {
-    this.playerService.getPlayerById(this.playerId).subscribe((data) => {
-      this.player = data;
+    this.playerService.getPlayerById(this.playerId).subscribe({
+      next: (data) => {
+        this.player = data;
+        // Load performance reports after we have the player data
+        this.loadReportsWithRemarks();
+      },
+      error: (error) => {
+        console.error('Error loading player details:', error);
+      }
     });
   }
 
@@ -112,6 +121,8 @@ export class DashboardComponent implements OnInit {
     );
   }
 
+
+
  
 
 
@@ -154,23 +165,38 @@ export class DashboardComponent implements OnInit {
     }
     return playerIds;
   }
-
-  getStatusIcon(report: any): string {
-    const hasWarning = this.hasWarningStatus(report);
-    return hasWarning ? 'fa-exclamation-triangle' : 'fa-check-circle';
+  loadReportsWithRemarks(): void {
+    if (this.player?.name) {
+      console.log('Loading reports for player:', this.player.name); // Debug log
+      this.playerService.getReportsWithRemarksByPlayerName(this.player.name).subscribe({
+        next: (data: any[]) => {
+          this.performanceReports = data;
+          console.log('Loaded performance reports:', this.performanceReports);
+        },
+        error: (error) => {
+          this.errorMessage = 'Error fetching reports: ' + error.message;
+          console.error('Error fetching reports:', error);
+        }
+      });
+    } else {
+      console.warn('Cannot load reports: Player name is not available');
+    }
   }
 
-  hasWarningStatus(report: any): boolean {
-    return (
-      report.hrvStatus === 'Below Standard' ||
-      report.topSpeedStatus === 'Below Standard' ||
-      report.playerLoadStatus === 'Below Standard' ||
-      report.distanceStatus === 'Below Standard' ||
-      report.caloriesStatus === 'Below Standard'
-    );
+  extractRemark(remarks: string, metricName: string): string {
+    if (!remarks) return '';
+    
+    const regex = new RegExp(`${metricName}: ([^;]+);`);
+    const match = remarks.match(regex);
+    return match ? match[1] : '';
   }
 
-  getOverallStatus(report: any): string {
-    return this.hasWarningStatus(report) ? 'Needs Attention' : 'Good Standing';
+  // Add this getter to sort reports by date
+  get sortedReports() {
+    return [...this.performanceReports].sort((a, b) => {
+      const dateA = new Date(a.performanceReport.recordDate);
+      const dateB = new Date(b.performanceReport.recordDate);
+      return dateB.getTime() - dateA.getTime(); // Sort in descending order (latest first)
+    });
   }
 }

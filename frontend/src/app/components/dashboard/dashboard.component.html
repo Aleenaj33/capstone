@@ -319,15 +319,106 @@
     </div>
 
     <!-- Performance Reports Section -->
-    <div *ngIf="selectedTab === 'performance'" class="mt-4">
+    <div *ngIf="selectedTab === 'performance'" class="performance-section">
       <div class="section-header">
-        <div class="header-content">
-          <h2><i class="fas fa-chart-line"></i> Performance Reports</h2>
+        <h2><i class="fas fa-chart-line"></i> Performance Reports</h2>
+        <p class="section-subtitle">View your detailed performance metrics and feedback</p>
+      </div>
+
+      <!-- Reports Container -->
+      <div class="reports-container">
+        <div *ngIf="performanceReports.length > 0">
+          <!-- Loop through reports, sorted by date -->
+          <div *ngFor="let report of sortedReports" class="report-table-container">
+            <!-- Basic Details Section -->
+            <div class="report-header">
+              <div class="report-title">
+                <h3>{{report.performanceReport.playerName}}'s Report</h3>
+                <span class="report-date">{{report.performanceReport.recordDate | date:'mediumDate'}}</span>
+              </div>
+              <div class="basic-details">
+                <div class="detail-item">
+                  <i class="fas fa-user"></i>
+                  <span>Age: {{player.age}} years</span>
+                </div>
+                <div class="detail-item">
+                  <i class="fas fa-ruler-vertical"></i>
+                  <span>Height: {{player.height}} cm</span>
+                </div>
+                <div class="detail-item">
+                  <i class="fas fa-weight"></i>
+                  <span>Weight: {{report.performanceReport.weight}} kg</span>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Performance Metrics Table -->
+            <div class="metrics-section">
+              <h4 class="metrics-title">Performance Metrics</h4>
+              <table class="metrics-table">
+                <thead>
+                  <tr>
+                    <th>Metric</th>
+                    <th>Value</th>
+                    <th>Remarks</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Heart Rate Variability</td>
+                    <td>{{report.performanceReport.hrv}}</td>
+                    <td>{{extractRemark(report.remarks, 'HRV')}}</td>
+                  </tr>
+                  <tr>
+                    <td>Top Speed</td>
+                    <td>{{report.performanceReport.topSpeed}} km/h</td>
+                    <td>{{extractRemark(report.remarks, 'Top Speed')}}</td>
+                  </tr>
+                  <tr>
+                    <td>Calories Burned</td>
+                    <td>{{report.performanceReport.caloriesBurned}} kcal</td>
+                    <td>{{extractRemark(report.remarks, 'Calories Burned')}}</td>
+                  </tr>
+                  <tr>
+                    <td>Passing Accuracy</td>
+                    <td>{{report.performanceReport.passingAccuracy}}%</td>
+                    <td>{{extractRemark(report.remarks, 'Passing Accuracy')}}</td>
+                  </tr>
+                  <tr>
+                    <td>Dribbling Success Rate</td>
+                    <td>{{report.performanceReport.dribblingSuccessRate}}%</td>
+                    <td>{{extractRemark(report.remarks, 'Dribbling Success Rate')}}</td>
+                  </tr>
+                  <tr>
+                    <td>Shooting Accuracy</td>
+                    <td>{{report.performanceReport.shootingAccuracy}}%</td>
+                    <td>{{extractRemark(report.remarks, 'Shooting Accuracy')}}</td>
+                  </tr>
+                  <tr>
+                    <td>Tackling Success Rate</td>
+                    <td>{{report.performanceReport.tacklingSuccessRate}}%</td>
+                    <td>{{extractRemark(report.remarks, 'Tackling Success Rate')}}</td>
+                  </tr>
+                  <tr>
+                    <td>Crossing Accuracy</td>
+                    <td>{{report.performanceReport.crossingAccuracy}}%</td>
+                    <td>{{extractRemark(report.remarks, 'Crossing Accuracy')}}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Empty State -->
+        <div *ngIf="performanceReports.length === 0" class="empty-state">
+          <div class="empty-state-content">
+            <i class="fas fa-chart-area"></i>
+            <h3>No Performance Reports</h3>
+            <p>There are no performance reports available at this time.</p>
+          </div>
         </div>
       </div>
-     
-      
-      
     </div>
   </div>
 

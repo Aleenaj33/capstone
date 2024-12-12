@@ -72,6 +72,12 @@ export class PlayerService {
   updatePlayerWeight(playerId: number, weight: number): Observable<void> {
     return this.http.patch<void>(`${this.apiUrl}/players/${playerId}/weight`, { weight });
   }
+
+
+
+  getReportsWithRemarksByPlayerName(playerName: string): Observable<any[]> {
+    return this.http.get<any[]>(`${this.baseUrl}/performance-reports/player/name/${playerName}/with-remarks`);
+  }
   
   }
   
