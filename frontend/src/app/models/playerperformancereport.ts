@@ -1,7 +1,7 @@
 export class PerformanceReport {
   id?: string; // Optional field for MongoDB ID
   playerId!: number;
-  age!: number;
+  height!: number;
   weight!: number;
   playerName!: string;
   recordDate!: string; // ISO 8601 Date (e.g., "2024-12-12")

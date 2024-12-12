@@ -65,6 +65,13 @@ export class PlayerService {
     return this.http.post<PerformanceReport>(url, report);
   }
   
+  getAllPlayers(): Observable<Player[]> {
+    return this.http.get<Player[]>(`${this.apiUrl}/players`);
+  }
+  
+  updatePlayerWeight(playerId: number, weight: number): Observable<void> {
+    return this.http.patch<void>(`${this.apiUrl}/players/${playerId}/weight`, { weight });
+  }
   
   }
   

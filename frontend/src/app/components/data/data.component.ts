@@ -1,22 +1,23 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { PlayerService } from 'src/app/services/player.service';
+import { Player } from 'src/app/models/player';
 
 @Component({
   selector: 'app-data',
   templateUrl: './data.component.html',
   styleUrls: ['./data.component.css']
 })
-export class DataComponent {
+export class DataComponent implements OnInit {
   performanceForm: FormGroup;
+  players: Player[] = [];
 
-  constructor(private fb: FormBuilder,private playerservice:PlayerService) {
-    // Initialize the form
+  constructor(private fb: FormBuilder, private playerService: PlayerService) {
     this.performanceForm = this.fb.group({
-      playerId: [0, Validators.required],
+      playerId: [{ value: 0, disabled: true }, Validators.required],
       playerName: ['', Validators.required],
-      age: [0, Validators.required],
-      weight: [0, Validators.required],
+      height: [{ value: 0, disabled: true }, Validators.required],
+      weight: [{ value: 0, disabled: false }, Validators.required],
       recordDate: ['', Validators.required],
       hrv: [0, Validators.required],
       topSpeed: [0, Validators.required],
@@ -29,14 +30,75 @@ export class DataComponent {
     });
   }
 
+  ngOnInit() {
+    this.loadPlayers();
+
+    this.performanceForm.get('playerName')?.valueChanges.subscribe(selectedName => {
+      if (selectedName) {
+        const selectedPlayer = this.players.find(p => p.name === selectedName);
+        if (selectedPlayer) {
+          this.performanceForm.patchValue({
+            playerId: selectedPlayer.playerId,
+            height: selectedPlayer.height,
+            weight: selectedPlayer.weight
+          });
+        }
+      }
+    });
+  }
+
+  loadPlayers() {
+    this.playerService.getAllPlayers().subscribe(
+      (players) => {
+        this.players = players;
+      },
+      (error) => {
+        console.error('Error loading players:', error);
+      }
+    );
+  }
+
   onSubmit() {
     if (this.performanceForm.valid) {
       const reportData = this.performanceForm.value;
+      const selectedPlayer = this.players.find(p => p.name === reportData.playerName);
+      
+      // First update the player's weight
+      if (selectedPlayer && selectedPlayer.weight !== reportData.weight) {
+        this.playerService.updatePlayerWeight(selectedPlayer.playerId, reportData.weight).subscribe(
+          () => {
+            console.log('Player weight updated successfully');
+            // Update the local player data
+            selectedPlayer.weight = reportData.weight;
+          },
+          error => {
+            console.error('Error updating player weight:', error);
+          }
+        );
+      }
 
-      this.playerservice.savePerformanceReport(reportData).subscribe(
+      // Then save the performance report
+      this.playerService.savePerformanceReport(reportData).subscribe(
         (response) => {
           console.log('Report saved successfully:', response);
           alert('Performance Report Saved Successfully!');
+          // Reset form after successful submission
+          this.performanceForm.reset();
+          // Re-initialize the form with default values
+          this.performanceForm.patchValue({
+            playerId: 0,
+            playerName: '',
+            height: 0,
+            weight: 0,
+            hrv: 0,
+            topSpeed: 0,
+            caloriesBurned: 0,
+            passingAccuracy: 0,
+            dribblingSuccessRate: 0,
+            shootingAccuracy: 0,
+            tacklingSuccessRate: 0,
+            crossingAccuracy: 0
+          });
         },
         (error) => {
           console.error('Error saving report:', error);

@@ -2,20 +2,15 @@
   <h2 class="text-center my-4">Player Performance Data</h2>
   <form [formGroup]="performanceForm" (ngSubmit)="onSubmit()">
       <div class="form-group">
-        <label for="playerId">Player ID</label>
-        <input id="playerId" type="number" class="form-control" formControlName="playerId" />
-      </div>
-  
-      <div class="form-group">
         <label for="playerName">Player Name</label>
-        <input id="playerName" type="text" class="form-control" formControlName="playerName" />
+        <select id="playerName" class="form-control" formControlName="playerName">
+          <option value="">Select a player</option>
+          <option *ngFor="let player of players" [value]="player.name">
+            {{player.name}}
+          </option>
+        </select>
       </div>
-  
-      <div class="form-group">
-        <label for="age">Age</label>
-        <input id="age" type="number" class="form-control" formControlName="age" />
-      </div>
-  
+
       <div class="form-group">
         <label for="weight">Weight</label>
         <input id="weight" type="number" class="form-control" formControlName="weight" />
