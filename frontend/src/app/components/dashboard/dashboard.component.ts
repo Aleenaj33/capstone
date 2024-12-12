@@ -3,8 +3,6 @@ import { PlayerService } from 'src/app/services/player.service';
 import { Player } from 'src/app/models/player';
 import { TrainingSession } from 'src/app/models/training-session';
 import { PlayerGoal } from 'src/app/models/playergoal';
-import { PlayerPerformance } from 'src/app/models/playerperformance';
-import { PlayerPerformanceReport } from 'src/app/models/playerperformancereport';
 import { Coach } from 'src/app/models/coach';
 import { Router } from '@angular/router';
 import { AuthService } from 'src/app/services/auth.service';
@@ -21,9 +19,6 @@ export class DashboardComponent implements OnInit {
   teamMembers: Player[] = [];
   trainingSessions: TrainingSession[] = [];
   playerGoals: PlayerGoal[] = [];
-  playerMetrics: PlayerPerformance[] = [];
-  playerReports: PlayerPerformanceReport[] = [];
-  teammatesReports: PlayerPerformanceReport[] = [];
   coach: Coach | null = null;
   selectedTab: string = 'player';
   selectedReportOption: string = 'individualMetrics';
@@ -47,9 +42,6 @@ export class DashboardComponent implements OnInit {
       this.loadTeamMembers();
       this.loadTrainingSessions();
       this.loadPlayerGoals();
-      this.loadPlayerMetrics();
-      this.loadPlayerReports();
-      this.loadTeammatesReports();
       this.loadCoachDetails();
     } else {
       console.error('No player ID found in session');
@@ -120,38 +112,10 @@ export class DashboardComponent implements OnInit {
     );
   }
 
-  loadPlayerMetrics(): void {
-    this.playerService.getPlayerMetrics(this.playerId).subscribe(
-      (data) => {
-        this.playerMetrics = data;
-      },
-      (error) => {
-        console.error('Error loading performance metrics:', error);
-      }
-    );
-  }
+ 
 
-  loadPlayerReports(): void {
-    this.playerService.getPlayerReports(this.playerId).subscribe(
-      (data) => {
-        this.playerReports = data;
-      },
-      (error) => {
-        console.error('Error loading player reports:', error);
-      }
-    );
-  }
 
-  loadTeammatesReports(): void {
-    this.playerService.getTeammatesReports(this.playerId).subscribe(
-      (data) => {
-        this.teammatesReports = data;
-      },
-      (error) => {
-        console.error('Error loading teammates reports:', error);
-      }
-    );
-  }
+ 
 
   loadCoachDetails(): void {
     this.loading = true;

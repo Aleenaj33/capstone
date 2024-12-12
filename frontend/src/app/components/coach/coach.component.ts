@@ -3,8 +3,6 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Coach } from 'src/app/models/coach';
 import { Player } from 'src/app/models/player';
 import { PlayerGoal } from 'src/app/models/playergoal';
-import { PlayerPerformance } from 'src/app/models/playerperformance';
-import { PlayerPerformanceReport } from 'src/app/models/playerperformancereport';
 import { Team } from 'src/app/models/team';
 import { TrainingSession } from 'src/app/models/training-session';
 import { CoachService } from 'src/app/services/coach.service';
@@ -28,7 +26,7 @@ export class CoachComponent implements OnInit {
   trainingSessions: TrainingSession[] = [];
 //  teamId: number = 1;
 //
-  performanceReports: PlayerPerformanceReport[] = [];
+ 
   unassignedPlayers: Player[] = [];
   teamName: string = '';
   sportCategory: string = '';
@@ -37,14 +35,12 @@ export class CoachComponent implements OnInit {
   
  
   selectedTab: string = 'profile'; 
-  selectedReportOption: string = 'individualMetrics'; // Default option
-  playerMetrics: PlayerPerformance[] = [];
-  playerReports: PlayerPerformanceReport[] = [];
- 
   
  
   
-  metricsForm: FormGroup;
+ 
+  
+
   createTeamForm: FormGroup;
   successMessage: string | null = null;
   errorMessage: string | null = null;
@@ -65,18 +61,13 @@ export class CoachComponent implements OnInit {
   selectedGoal: PlayerGoal | null = null;
   showEditGoalModal = false;
 
-  selectedReportType: 'team' | 'player' = 'team';
-  selectedTeamForReport: number | null = null;
-  selectedPlayerForReport: number | null = null;
-  teamReports: PlayerPerformanceReport[] = [];
+ 
 
   setSelectedTab(tab: string) {
    
     this.selectedTab = tab;
   }
-  setSelectedReportOption(option: string) {
-    this.selectedReportOption = option;
-  }
+  
 
 
   playerId: number = 1;
@@ -92,15 +83,7 @@ export class CoachComponent implements OnInit {
     private weatherService: WeatherService,
     private router: Router
   ) {
-    this.metricsForm = this.fb.group({
-      playerName: ['', Validators.required],
-      recordDateTime: ['', Validators.required],
-      hrv: [null, Validators.required],
-      topSpeed: [null, Validators.required],
-      playerLoad: [null, Validators.required],
-      totalDistanceCovered: [null, Validators.required],
-      caloriesBurned: [null, Validators.required],
-    });
+    
     this.createTeamForm = this.fb.group({
       teamName: ['', Validators.required],
       sportCategory: ['', Validators.required],
@@ -143,8 +126,8 @@ export class CoachComponent implements OnInit {
       this.loadTeams();
       this.fetchTrainingSessions();
       this.getGoalsForCoach();
-      this.loadPlayerMetrics();
-      this.loadPlayerReports(this.playerId);
+   
+      
       
       this.getUnassignedPlayers();
       this.getPlayers();
@@ -194,19 +177,7 @@ export class CoachComponent implements OnInit {
     });
   }
   
-  loadPlayerMetrics(): void {
-    if (this.coachId) {
-      this.coachService.getPlayerMetrics(this.coachId).subscribe({
-        next: (metrics) => {
-          this.playerMetrics = metrics;
-        },
-        error: (error) => {
-          console.error('Error loading player metrics:', error);
-          this.errorMessage = 'Failed to load player metrics.';
-        }
-      });
-    }
-  }
+  
 
 
   // Fetch teammates' performance reports
@@ -315,54 +286,6 @@ createSession(): void {
 }
 
 
-submitMetricsForm(): void {
-  if (this.metricsForm.valid) {
-    const player = this.players.find(p => p.name === this.metricsForm.get('playerName')?.value);
-    
-    if (!player) {
-      this.errorMessage = 'Player not found';
-      return;
-    }
-
-    // Create a date string in ISO format
-    const dateTime = new Date(this.metricsForm.get('recordDateTime')?.value).toISOString();
-
-    const metricsData: PlayerPerformance = {
-      playerId: player.playerId,
-      playerName: player.name,
-      recordDateTime: (this.metricsForm.get('recordDateTime')?.value),
-      hrv: Number(this.metricsForm.get('hrv')?.value),
-      topSpeed: Number(this.metricsForm.get('topSpeed')?.value),
-      playerLoad: Number(this.metricsForm.get('playerLoad')?.value),
-      totalDistanceCovered: Number(this.metricsForm.get('totalDistanceCovered')?.value),
-      caloriesBurned: Number(this.metricsForm.get('caloriesBurned')?.value)
-    };
-
-    console.log('Submitting metrics:', metricsData); // Debug log
-
-    this.coachService.uploadMetrics(player.playerId, metricsData).subscribe({
-      next: (response) => {
-        console.log('Upload successful:', response);
-        this.successMessage = 'Metrics uploaded successfully';
-        this.showUploadMetricsModal = false;
-        this.metricsForm.reset();
-        this.loadPlayerMetrics();
-      },
-      error: (error) => {
-        console.error('Error details:', error);
-        this.errorMessage = error.message || 'Failed to upload metrics. Please try again.';
-      },
-      complete: () => {
-        console.log('Upload request completed');
-      }
-    });
-  } else {
-    Object.keys(this.metricsForm.controls).forEach(key => {
-      const control = this.metricsForm.get(key);
-      control?.markAsTouched();
-    });
-  }
-}
 
 
 
@@ -452,63 +375,9 @@ showCreateGoalModal = false;
 
 
 // Add these properties
-selectedDateRange: string = '7';
-selectedTeam: string = 'All Teams';
 
-// Add these methods
-getAverageHRV(): number {
-  if (!this.playerMetrics.length) return 0;
-  return this.playerMetrics.reduce((acc, curr) => acc + curr.hrv, 0) / this.playerMetrics.length;
-}
 
-getAverageTopSpeed(): number {
-  if (!this.playerMetrics.length) return 0;
-  return this.playerMetrics.reduce((acc, curr) => acc + curr.topSpeed, 0) / this.playerMetrics.length;
-}
 
-getAverageCalories(): number {
-  if (!this.playerMetrics.length) return 0;
-  return this.playerMetrics.reduce((acc, curr) => acc + curr.caloriesBurned, 0) / this.playerMetrics.length;
-}
-
-isPositiveTrend(metric: string): boolean {
-  // Implement your trend logic here
-  return Math.random() > 0.5; // Placeholder implementation
-}
-
-getMetricTrend(metric: string): number {
-  // Implement your trend calculation logic here
-  return Math.floor(Math.random() * 20); // Placeholder implementation
-}
-
-exportMetrics(): void {
-  // Implement your export logic here
-  console.log('Exporting metrics...');
-}
-
-isGoodPerformance(metric: PlayerPerformance): boolean {
-  // Implement your performance evaluation logic
-  return metric.hrv > 70 && metric.topSpeed > 25;
-}
-
-isWarningPerformance(metric: PlayerPerformance): boolean {
-  // Implement your warning evaluation logic
-  return metric.hrv > 50 && metric.hrv <= 70;
-}
-
-isPoorPerformance(metric: PlayerPerformance): boolean {
-  // Implement your poor performance evaluation logic
-  return metric.hrv <= 50;
-}
-
-getPerformanceStatus(metric: PlayerPerformance): string {
-  if (this.isGoodPerformance(metric)) return 'Good';
-  if (this.isWarningPerformance(metric)) return 'Warning';
-  return 'Need Attention';
-}
-
-// Add this property
-showUploadMetricsModal = false;
 
 // Add these properties at the top of your component class
 goals: PlayerGoal[] = [];
@@ -595,15 +464,7 @@ deleteGoal(goalId: number): void {
   }
 }
 
-getAverageLoad(): number {
-  if (!this.playerMetrics.length) return 0;
-  return this.playerMetrics.reduce((acc, curr) => acc + curr.playerLoad, 0) / this.playerMetrics.length;
-}
 
-getAverageDistance(): number {
-  if (!this.playerMetrics.length) return 0;
-  return this.playerMetrics.reduce((acc, curr) => acc + curr.totalDistanceCovered, 0) / this.playerMetrics.length;
-}
 
 openWeatherCheckModal(date: string): void {
   if (date) {
@@ -830,66 +691,14 @@ closeEditGoalModal(): void {
   this.goalForm.reset();
 }
 
-onReportTypeChange(): void {
-  // Reset reports when switching type
-  this.teamReports = [];
-  this.playerReports = [];
-  this.selectedTeamForReport = null;
-  this.selectedPlayerForReport = null;
-}
-
-onTeamSelect(value: string): void {
-  const teamId = parseInt(value, 10);
-  if (!isNaN(teamId)) {
-    this.selectedTeamForReport = teamId;
-    this.loadTeamReports(teamId);
-  }
-}
-
-onPlayerSelect(value: string): void {
-  const playerId = parseInt(value, 10);
-  if (!isNaN(playerId)) {
-    this.selectedPlayerForReport = playerId;
-    this.loadPlayerReports(playerId);
-  }
-}
-
-loadTeamReports(teamId: number): void {
-  this.coachService.getTeamReports(teamId).subscribe({
-    next: (reports) => {
-      console.log('Team reports loaded:', reports); // Add this for debugging
-      this.teamReports = reports;
-    },
-    error: (error) => {
-      console.error('Error loading team reports:', error);
-    }
-  });
-}
-
-loadPlayerReports(playerId: number): void {
-  this.coachService.getPlayerReports(playerId).subscribe({
-    next: (reports) => {
-      console.log('Player reports loaded:', reports); // Add this for debugging
-      this.playerReports = reports;
-    },
-    error: (error) => {
-      console.error('Error loading player reports:', error);
-    }
-  });
-}
-
-// Add these properties to the component class
 
 
-// Add these methods
-openUploadMetricsModal(): void {
-  this.showUploadMetricsModal = true;
-}
 
-closeUploadMetricsModal(): void {
-  this.showUploadMetricsModal = false;
-  this.metricsForm.reset();
-}
+
+
+
+
+
 
 
 

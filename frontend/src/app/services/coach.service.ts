@@ -6,9 +6,9 @@ import { Team } from '../models/team';
 import { Coach } from '../models/coach';
 import { TrainingSession } from '../models/training-session';
 import { PlayerGoal } from '../models/playergoal';
-import { PlayerPerformanceReport } from '../models/playerperformancereport';
+
 import { Player } from '../models/player';
-import { PlayerPerformance } from '../models/playerperformance';
+
 import { map } from 'rxjs/operators';
 
 @Injectable({
@@ -40,31 +40,9 @@ export class CoachService {
     const url = `${this.apiUrl}/coach/${coachId}/goals`;  // Backend endpoint URL
     return this.http.get<PlayerGoal[]>(url);
   }
-  getPlayerMetrics(playerId: number): Observable<PlayerPerformance[]> {
-    return this.http.get<PlayerPerformance[]>(`${this.apiUrl}/player/${playerId}/metrics`);
-  }
+ 
 
-  // Get Player Performance Reports by Player ID
-  getPlayerReports(playerId: number): Observable<PlayerPerformanceReport[]> {
-    return this.http.get<PlayerPerformanceReport[]>(`${this.apiUrl}/player/${playerId}/reports`);
-  }
 
-  // Get Teammates' Performance Reports by Player ID
-  getTeammatesReports(playerId: number): Observable<PlayerPerformanceReport[]> {
-    return this.http.get<PlayerPerformanceReport[]>(`${this.apiUrl}/player/${playerId}/teammates-reports`);
-  }
-
-  uploadMetrics(playerId: number, metrics: PlayerPerformance): Observable<PlayerPerformance> {
-    const url = `${environment.apiBaseUrl}/api/athletes/coach/player/${playerId}/metrics`;
-    console.log('Sending metrics:', metrics); // Debug log
-    
-    return this.http.post<PlayerPerformance>(url, metrics).pipe(
-      map(response => {
-        console.log('Response received:', response); // Debug log
-        return response;
-      })
-    );
-  }
   
   getUnassignedPlayers(): Observable<Player[]> {
     return this.http.get<Player[]>(`${this.apiUrl}/players/unassigned`);
@@ -138,11 +116,6 @@ export class CoachService {
     return forkJoin(playerObservables);
   }
 
-  // Get team performance reports
-  getTeamReports(teamId: number): Observable<PlayerPerformanceReport[]> {
-    return this.http.get<PlayerPerformanceReport[]>(`${this.apiUrl}/coach/team/${teamId}/reports`);
-  }
-
-  // Get individual player reports
+ 
   
 }
