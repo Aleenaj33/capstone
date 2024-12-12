@@ -10,6 +10,7 @@ import { TrainingSession } from "../models/training-session";
 import { PlayerGoal } from "../models/playergoal";
 import { Coach } from "../models/coach";
 import { tap, catchError } from "rxjs/operators";
+import { PerformanceReport } from "../models/playerperformancereport";
 
 @Injectable({
   providedIn: 'root'
@@ -57,7 +58,12 @@ export class PlayerService {
   getPlayerId(email: string): Observable<number> {
     return this.http.get<number>(`${this.apiUrl}/playerid-by-email?email=${email}`);
   }
+
   
+  savePerformanceReport(report: PerformanceReport): Observable<PerformanceReport> {
+    const url = `${this.baseUrl}/performance-reports`;  // Full URL path
+    return this.http.post<PerformanceReport>(url, report);
+  }
   
   
   }

@@ -18,6 +18,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { CoachComponent } from './components/coach/coach.component';
 import { HomeComponent } from './components/home/home.component';
+import { DataComponent } from './components/data/data.component';
 
   // Import AppRoutingModule
 
@@ -32,7 +33,8 @@ import { HomeComponent } from './components/home/home.component';
     RegisterComponent,
     // PlayerFormComponent,
     CoachComponent,
-    HomeComponent
+    HomeComponent,
+    DataComponent
 
   ],
   imports: [

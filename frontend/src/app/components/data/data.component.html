@@ -1,0 +1,72 @@
+<div class="container">
+  <h2 class="text-center my-4">Player Performance Data</h2>
+  <form [formGroup]="performanceForm" (ngSubmit)="onSubmit()">
+      <div class="form-group">
+        <label for="playerId">Player ID</label>
+        <input id="playerId" type="number" class="form-control" formControlName="playerId" />
+      </div>
+  
+      <div class="form-group">
+        <label for="playerName">Player Name</label>
+        <input id="playerName" type="text" class="form-control" formControlName="playerName" />
+      </div>
+  
+      <div class="form-group">
+        <label for="age">Age</label>
+        <input id="age" type="number" class="form-control" formControlName="age" />
+      </div>
+  
+      <div class="form-group">
+        <label for="weight">Weight</label>
+        <input id="weight" type="number" class="form-control" formControlName="weight" />
+      </div>
+  
+      <div class="form-group">
+        <label for="recordDate">Record Date</label>
+        <input id="recordDate" type="date" class="form-control" formControlName="recordDate" />
+      </div>
+  
+      <div class="form-group">
+        <label for="hrv">HRV</label>
+        <input id="hrv" type="number" class="form-control" formControlName="hrv" />
+      </div>
+  
+      <div class="form-group">
+        <label for="topSpeed">Top Speed</label>
+        <input id="topSpeed" type="number" class="form-control" formControlName="topSpeed" />
+      </div>
+  
+      <div class="form-group">
+        <label for="caloriesBurned">Calories Burned</label>
+        <input id="caloriesBurned" type="number" class="form-control" formControlName="caloriesBurned" />
+      </div>
+  
+      <div class="form-group">
+        <label for="passingAccuracy">Passing Accuracy</label>
+        <input id="passingAccuracy" type="number" class="form-control" formControlName="passingAccuracy" />
+      </div>
+  
+      <div class="form-group">
+        <label for="dribblingSuccessRate">Dribbling Success Rate</label>
+        <input id="dribblingSuccessRate" type="number" class="form-control" formControlName="dribblingSuccessRate" />
+      </div>
+  
+      <div class="form-group">
+        <label for="shootingAccuracy">Shooting Accuracy</label>
+        <input id="shootingAccuracy" type="number" class="form-control" formControlName="shootingAccuracy" />
+      </div>
+  
+      <div class="form-group">
+        <label for="tacklingSuccessRate">Tackling Success Rate</label>
+        <input id="tacklingSuccessRate" type="number" class="form-control" formControlName="tacklingSuccessRate" />
+      </div>
+  
+      <div class="form-group">
+        <label for="crossingAccuracy">Crossing Accuracy</label>
+        <input id="crossingAccuracy" type="number" class="form-control" formControlName="crossingAccuracy" />
+      </div>
+  
+      <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+  </div>
+  
