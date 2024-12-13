@@ -225,6 +225,10 @@ export class DashboardComponent implements OnInit {
     return 'amateur';
   }
 
+
+
+  //GEMINI AI START
+
   model = this.genAi.getGenerativeModel({
     model: 'gemini-1.5-flash',
     generationConfig: {
@@ -286,7 +290,13 @@ export class DashboardComponent implements OnInit {
   }
 
 
+//GEMINI AI END
 
-
+notifyEvent() {
+  // Implement notification functionality
+  console.log('Notification requested for upcoming event');
+  // You could show a toast message or implement actual notification logic
+  alert('You will be notified when the event registration opens!');
+}
 
 }

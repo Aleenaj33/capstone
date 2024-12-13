@@ -31,6 +31,10 @@
         <i class="fas fa-trophy"></i>
         <span>Player Goals</span>
       </li>
+      <li class="sidebar-nav-item" [class.active]="selectedTab === 'events'" (click)="setSelectedTab('events')">
+        <i class="fas fa-calendar-alt"></i>
+        <span>Upcoming Events</span>
+      </li>
       <li class="sidebar-nav-item logout-item" (click)="logout()">
         <i class="fas fa-sign-out-alt"></i>
         <span>Logout</span>
@@ -523,6 +527,68 @@
             <i class="fas fa-chart-area"></i>
             <h3>No Performance Reports</h3>
             <p>There are no performance reports available at this time.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Events Section -->
+    <div *ngIf="selectedTab === 'events'" class="events-section">
+      <div class="section-header">
+        <h2><i class="fas fa-calendar-alt"></i> Upcoming Events</h2>
+        <p class="section-subtitle">Stay tuned for exciting upcoming events and tournaments</p>
+      </div>
+
+      <div class="events-container">
+        <!-- Featured Event -->
+        <div class="featured-event">
+          <div class="event-banner">
+            <span class="event-status">Coming Soon</span>
+            <h3>Summer Soccer Championship 2024</h3>
+            <p class="event-date">Starting July 2024</p>
+          </div>
+          <div class="event-details">
+            <p>Get ready for the biggest soccer event of the summer! Train hard and showcase your skills.</p>
+            <button class="btn-notify">Get Notified</button>
+          </div>
+        </div>
+
+        <!-- Event Cards Grid -->
+        <div class="events-grid">
+          <div class="event-card">
+            <div class="event-card-header">
+              <i class="fas fa-trophy"></i>
+              <span class="event-status">Upcoming</span>
+            </div>
+            <div class="event-card-content">
+              <h4>Regional Tournament</h4>
+              <p class="event-timing">August 2024</p>
+              <p class="event-description">Regional level competition featuring top teams from the area.</p>
+            </div>
+          </div>
+
+          <div class="event-card">
+            <div class="event-card-header">
+              <i class="fas fa-running"></i>
+              <span class="event-status">Training Camp</span>
+            </div>
+            <div class="event-card-content">
+              <h4>Elite Training Camp</h4>
+              <p class="event-timing">September 2024</p>
+              <p class="event-description">Intensive training camp with professional coaches.</p>
+            </div>
+          </div>
+
+          <div class="event-card">
+            <div class="event-card-header">
+              <i class="fas fa-star"></i>
+              <span class="event-status">Special Event</span>
+            </div>
+            <div class="event-card-content">
+              <h4>Youth Soccer Festival</h4>
+              <p class="event-timing">October 2024</p>
+              <p class="event-description">Celebration of young talent with matches and activities.</p>
+            </div>
           </div>
         </div>
       </div>
