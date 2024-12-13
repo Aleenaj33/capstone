@@ -1803,8 +1803,8 @@
   display: none;
 }
 
-/* Modal Styles */
-.suggestions-modal {
+/* Common Modal Styles */
+.modal-base {
   position: fixed;
   top: 0;
   left: 0;
@@ -1814,7 +1814,17 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000;
+  z-index: 2000;
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .modal-content {
@@ -1825,6 +1835,18 @@
   max-height: 90vh;
   overflow: hidden;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
 
 .modal-header {
@@ -1858,13 +1880,26 @@
 .modal-body {
   padding: 2rem;
   overflow-y: auto;
-  max-height: calc(90vh - 100px);
+  max-height: calc(90vh - 80px);
+}
+
+/* Specific Modal Styles */
+.suggestions-modal {
+  composes: modal-base;
 }
 
 .suggestions-content {
   white-space: pre-line;
   line-height: 1.6;
   color: #1e293b;
+}
+
+.standards-modal {
+  composes: modal-base;
+}
+
+.standards-modal .modal-content {
+  max-width: 1000px;
 }
 
 /* Events Section Styles */
@@ -2000,4 +2035,165 @@
   .event-banner h3 {
     font-size: 1.5rem;
   }
+}
+
+.footer-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.btn-standards {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  background: #2c5282;
+  color: white;
+  font-size: 1rem;
+}
+
+.btn-standards:hover {
+  background: #2b6cb0;
+  transform: translateY(-2px);
+}
+
+.standards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  padding: 1rem;
+}
+
+.standard-category {
+  background: #f8fafc;
+  border-radius: 8px;
+  padding: 1.5rem;
+}
+
+.standard-category h4 {
+  color: #1a237e;
+  margin: 0 0 1rem 0;
+  font-size: 1.1rem;
+}
+
+.standard-levels {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.level {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  border-radius: 6px;
+  font-weight: 500;
+}
+
+.level.elite {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.level.professional {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.level.amateur {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.level-name {
+  font-weight: 600;
+}
+
+.level-value {
+  font-family: monospace;
+  font-size: 0.9rem;
+}
+
+/* Add these styles for the inline standards section */
+.standards-section {
+  padding: 1.5rem;
+  background: #f8fafc;
+  border-top: 1px solid #e2e8f0;
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.standards-title {
+  color: #1a237e;
+  font-size: 1.25rem;
+  margin-bottom: 1.5rem;
+  font-weight: 600;
+}
+
+/* Update the standards grid for inline display */
+.standards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+}
+
+/* Add styles for suggestions section */
+.suggestions-section {
+  padding: 1.5rem;
+  background: #f8fafc;
+  border-top: 1px solid #e2e8f0;
+  animation: slideDown 0.3s ease-out;
+}
+
+.suggestions-title {
+  color: #1a237e;
+  font-size: 1.25rem;
+  margin-bottom: 1.5rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.suggestions-title i {
+  color: #3949ab;
+}
+
+.suggestions-content {
+  white-space: pre-line;
+  line-height: 1.6;
+  color: #1e293b;
+  padding: 1rem;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.loading-spinner {
+  text-align: center;
+  padding: 2rem;
+  color: #3949ab;
+  font-size: 1.1rem;
+}
+
+.loading-spinner i {
+  margin-right: 0.5rem;
+  font-size: 1.25rem;
 }

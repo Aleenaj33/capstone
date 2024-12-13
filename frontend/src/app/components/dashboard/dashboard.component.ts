@@ -34,6 +34,56 @@ export class DashboardComponent implements OnInit {
   genAi = new GoogleGenerativeAI(apiKey);
   response: string | null = null;
   selectedReport: any = null;
+  performanceStandards = [
+    {
+      name: 'Heart Rate Variability (HRV)',
+      elite: '80',
+      professional: '40-80',
+      amateur: '40'
+    },
+    {
+      name: 'Top Speed (km/h)',
+      elite: '40',
+      professional: '20-40',
+      amateur: '20'
+    },
+    {
+      name: 'Calories Burned',
+      elite: '1500',
+      professional: '800-1500',
+      amateur: '800'
+    },
+    {
+      name: 'Passing Accuracy (%)',
+      elite: '85',
+      professional: '75-85',
+      amateur: '75'
+    },
+    {
+      name: 'Dribbling Success Rate (%)',
+      elite: '60',
+      professional: '50-60',
+      amateur: '50'
+    },
+    {
+      name: 'Shooting Accuracy (%)',
+      elite: '55',
+      professional: '45-55',
+      amateur: '45'
+    },
+    {
+      name: 'Tackling Success Rate (%)',
+      elite: '70',
+      professional: '60-70',
+      amateur: '60'
+    },
+    {
+      name: 'Crossing Accuracy (%)',
+      elite: '25',
+      professional: '15-25',
+      amateur: '15'
+    }
+  ];
 
   constructor(
     private playerService: PlayerService,
@@ -233,12 +283,12 @@ export class DashboardComponent implements OnInit {
     model: 'gemini-1.5-flash',
     generationConfig: {
       candidateCount: 1,
-      maxOutputTokens: 150,
+      maxOutputTokens: 225,
       temperature: 0.7,
     },
   });
 
-  async getSuggestions(report: any) {
+  async getSuggestions(report: any): Promise<string> {
     const prompt = `
   Analyze the following performance metrics and remarks of a soccer player. Provide detailed suggestions in clear bullet points on how the player can:
   - Improve their health and soccer skills if their performance is not at the elite level.
@@ -263,40 +313,45 @@ export class DashboardComponent implements OnInit {
 
     try {
       const result = await this.model.generateContent(prompt);
-      this.response = result.response.text();
+      return result.response.text();
     } catch (error) {
       console.error('Error generating suggestions:', error);
-      this.response = 'Unable to fetch suggestions. Please try again later.';
+      throw error;
     }
   }
 
-
-  
-
-  async viewDetailedReport(report: any): Promise<void> {
-    this.selectedReport = report;
-    console.log('Getting suggestions for report:', report);
-    try {
-      await this.getSuggestions(report.performanceReport);
-    } catch (error) {
-      console.error('Error getting suggestions:', error);
-      this.response = 'Error getting suggestions. Please try again later.';
+  async toggleSuggestions(report: any): Promise<void> {
+    if (report.showSuggestions === undefined) {
+      report.showSuggestions = false;
+    }
+    
+    report.showSuggestions = !report.showSuggestions;
+    
+    if (report.showSuggestions && !report.suggestions) {
+      try {
+        report.suggestions = await this.getSuggestions(report.performanceReport);
+      } catch (error) {
+        console.error('Error getting suggestions:', error);
+        report.suggestions = 'Error getting suggestions. Please try again later.';
+      }
     }
   }
 
-  closeModal(): void {
-    this.response = null;
-    this.selectedReport = null;
-  }
-
-
-//GEMINI AI END
+  //GEMINI AI END
 
 notifyEvent() {
   // Implement notification functionality
   console.log('Notification requested for upcoming event');
   // You could show a toast message or implement actual notification logic
   alert('You will be notified when the event registration opens!');
+}
+
+toggleStandards(report: any): void {
+  // Initialize showStandards if it doesn't exist
+  if (report.showStandards === undefined) {
+    report.showStandards = false;
+  }
+  report.showStandards = !report.showStandards;
 }
 
 }

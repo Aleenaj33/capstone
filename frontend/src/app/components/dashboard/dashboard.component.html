@@ -498,24 +498,52 @@
             </div>
 
             <div class="report-footer">
-              <button class="btn-suggestions" (click)="viewDetailedReport(report)">
-                <i class="fas fa-lightbulb"></i> Get Suggestions
-              </button>
+              <div class="footer-buttons">
+                <button class="btn-suggestions" (click)="toggleSuggestions(report)">
+                  <i class="fas fa-lightbulb"></i> 
+                  {{ report.showSuggestions ? 'Hide Suggestions' : 'Get Suggestions' }}
+                </button>
+                <button class="btn-standards" (click)="toggleStandards(report)">
+                  <i class="fas fa-chart-bar"></i> 
+                  {{ report.showStandards ? 'Hide Standards' : 'View Standards' }}
+                </button>
+              </div>
             </div>
 
-            <div class="suggestions-modal" *ngIf="response && selectedReport === report">
-              <div class="modal-content">
-                <div class="modal-header">
-                  <h3>Performance Improvement Suggestions</h3>
-                  <button class="close-btn" (click)="closeModal()">
-                    <i class="fas fa-times"></i>
-                  </button>
-                </div>
-                <div class="modal-body">
-                  <div class="suggestions-content">
-                    {{ response }}
+            <!-- Standards Section (Inline) -->
+            <div class="standards-section" *ngIf="report.showStandards">
+              <h4 class="standards-title">Performance Standards</h4>
+              <div class="standards-grid">
+                <div class="standard-category" *ngFor="let metric of performanceStandards">
+                  <h4>{{metric.name}}</h4>
+                  <div class="standard-levels">
+                    <div class="level elite">
+                      <span class="level-name">Elite</span>
+                      <span class="level-value">> {{metric.elite}}</span>
+                    </div>
+                    <div class="level professional">
+                      <span class="level-name">Professional</span>
+                      <span class="level-value">{{metric.professional}}</span>
+                    </div>
+                    <div class="level amateur">
+                      <span class="level-name">Amateur</span>
+                      <span class="level-value">< {{metric.amateur}}</span>
+                    </div>
                   </div>
                 </div>
+              </div>
+            </div>
+
+            <!-- Suggestions Section (Inline) -->
+            <div class="suggestions-section" *ngIf="report.showSuggestions">
+              <h4 class="suggestions-title">
+                <i class="fas fa-lightbulb"></i> Performance Improvement Suggestions
+              </h4>
+              <div class="suggestions-content" *ngIf="report.suggestions">
+                {{ report.suggestions }}
+              </div>
+              <div class="loading-spinner" *ngIf="!report.suggestions">
+                <i class="fas fa-circle-notch fa-spin"></i> Generating suggestions...
               </div>
             </div>
           </div>
