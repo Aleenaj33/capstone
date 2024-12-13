@@ -333,79 +333,186 @@
             <!-- Basic Details Section -->
             <div class="report-header">
               <div class="report-title">
-                <h3>{{report.performanceReport.playerName}}'s Report</h3>
-                <span class="report-date">{{report.performanceReport.recordDate | date:'mediumDate'}}</span>
+                <h3>Report - {{report.performanceReport.recordDate | date:'mediumDate'}}</h3>
+                <span class="player-name">{{report.performanceReport.playerName}}</span>
               </div>
-              <div class="basic-details">
-                <div class="detail-item">
-                  <i class="fas fa-user"></i>
-                  <span>Age: {{player.age}} years</span>
+            </div>
+
+            <div class="player-stats">
+              <div class="stat-item">
+                <i class="fas fa-user"></i>
+                <div class="stat-info">
+                  <label>Age</label>
+                  <span>{{player.age}} years</span>
                 </div>
-                <div class="detail-item">
-                  <i class="fas fa-ruler-vertical"></i>
-                  <span>Height: {{player.height}} cm</span>
+              </div>
+              <div class="stat-item">
+                <i class="fas fa-ruler-vertical"></i>
+                <div class="stat-info">
+                  <label>Height</label>
+                  <span>{{player.height}} cm</span>
                 </div>
-                <div class="detail-item">
-                  <i class="fas fa-weight"></i>
-                  <span>Weight: {{report.performanceReport.weight}} kg</span>
+              </div>
+              <div class="stat-item">
+                <i class="fas fa-weight"></i>
+                <div class="stat-info">
+                  <label>Weight</label>
+                  <span>{{report.performanceReport.weight}} kg</span>
                 </div>
               </div>
             </div>
             
             <!-- Performance Metrics Table -->
             <div class="metrics-section">
-              <h4 class="metrics-title">Performance Metrics</h4>
+              <h4 class="metrics-title">Performance Analysis</h4>
               <table class="metrics-table">
                 <thead>
                   <tr>
                     <th>Metric</th>
                     <th>Value</th>
-                    <th>Remarks</th>
+                    <th>Performance Level</th>
                   </tr>
                 </thead>
                 <tbody>
+                  <!-- Physical Metrics -->
                   <tr>
-                    <td>Heart Rate Variability</td>
+                    <td>
+                      <div class="metric-name">
+                        <i class="fas fa-heartbeat"></i>
+                        Heart Rate Variability
+                      </div>
+                    </td>
                     <td>{{report.performanceReport.hrv}}</td>
-                    <td>{{extractRemark(report.remarks, 'HRV')}}</td>
+                    <td>
+                      <span class="performance-badge" [ngClass]="getPerformanceClass(extractRemark(report.remarks, 'HRV'))">
+                        {{extractRemark(report.remarks, 'HRV')}}
+                      </span>
+                    </td>
                   </tr>
                   <tr>
-                    <td>Top Speed</td>
+                    <td>
+                      <div class="metric-name">
+                        <i class="fas fa-running"></i>
+                        Top Speed
+                      </div>
+                    </td>
                     <td>{{report.performanceReport.topSpeed}} km/h</td>
-                    <td>{{extractRemark(report.remarks, 'Top Speed')}}</td>
+                    <td>
+                      <span class="performance-badge" [ngClass]="getPerformanceClass(extractRemark(report.remarks, 'Top Speed'))">
+                        {{extractRemark(report.remarks, 'Top Speed')}}
+                      </span>
+                    </td>
                   </tr>
                   <tr>
-                    <td>Calories Burned</td>
+                    <td>
+                      <div class="metric-name">
+                        <i class="fas fa-fire"></i>
+                        Calories Burned
+                      </div>
+                    </td>
                     <td>{{report.performanceReport.caloriesBurned}} kcal</td>
-                    <td>{{extractRemark(report.remarks, 'Calories Burned')}}</td>
+                    <td>
+                      <span class="performance-badge" [ngClass]="getPerformanceClass(extractRemark(report.remarks, 'Calories Burned'))">
+                        {{extractRemark(report.remarks, 'Calories Burned')}}
+                      </span>
+                    </td>
                   </tr>
+
+                  <!-- Soccer Skills -->
                   <tr>
-                    <td>Passing Accuracy</td>
+                    <td>
+                      <div class="metric-name">
+                        <i class="fas fa-futbol"></i>
+                        Passing Accuracy
+                      </div>
+                    </td>
                     <td>{{report.performanceReport.passingAccuracy}}%</td>
-                    <td>{{extractRemark(report.remarks, 'Passing Accuracy')}}</td>
+                    <td>
+                      <span class="performance-badge" [ngClass]="getPerformanceClass(extractRemark(report.remarks, 'Passing Accuracy'))">
+                        {{extractRemark(report.remarks, 'Passing Accuracy')}}
+                      </span>
+                    </td>
                   </tr>
                   <tr>
-                    <td>Dribbling Success Rate</td>
+                    <td>
+                      <div class="metric-name">
+                        <i class="fas fa-running"></i>
+                        Dribbling Success Rate
+                      </div>
+                    </td>
                     <td>{{report.performanceReport.dribblingSuccessRate}}%</td>
-                    <td>{{extractRemark(report.remarks, 'Dribbling Success Rate')}}</td>
+                    <td>
+                      <span class="performance-badge" [ngClass]="getPerformanceClass(extractRemark(report.remarks, 'Dribbling Success Rate'))">
+                        {{extractRemark(report.remarks, 'Dribbling Success Rate')}}
+                      </span>
+                    </td>
                   </tr>
                   <tr>
-                    <td>Shooting Accuracy</td>
+                    <td>
+                      <div class="metric-name">
+                        <i class="fas fa-bullseye"></i>
+                        Shooting Accuracy
+                      </div>
+                    </td>
                     <td>{{report.performanceReport.shootingAccuracy}}%</td>
-                    <td>{{extractRemark(report.remarks, 'Shooting Accuracy')}}</td>
+                    <td>
+                      <span class="performance-badge" [ngClass]="getPerformanceClass(extractRemark(report.remarks, 'Shooting Accuracy'))">
+                        {{extractRemark(report.remarks, 'Shooting Accuracy')}}
+                      </span>
+                    </td>
                   </tr>
                   <tr>
-                    <td>Tackling Success Rate</td>
+                    <td>
+                      <div class="metric-name">
+                        <i class="fas fa-shield-alt"></i>
+                        Tackling Success Rate
+                      </div>
+                    </td>
                     <td>{{report.performanceReport.tacklingSuccessRate}}%</td>
-                    <td>{{extractRemark(report.remarks, 'Tackling Success Rate')}}</td>
+                    <td>
+                      <span class="performance-badge" [ngClass]="getPerformanceClass(extractRemark(report.remarks, 'Tackling Success Rate'))">
+                        {{extractRemark(report.remarks, 'Tackling Success Rate')}}
+                      </span>
+                    </td>
                   </tr>
                   <tr>
-                    <td>Crossing Accuracy</td>
+                    <td>
+                      <div class="metric-name">
+                        <i class="fas fa-crosshairs"></i>
+                        Crossing Accuracy
+                      </div>
+                    </td>
                     <td>{{report.performanceReport.crossingAccuracy}}%</td>
-                    <td>{{extractRemark(report.remarks, 'Crossing Accuracy')}}</td>
+                    <td>
+                      <span class="performance-badge" [ngClass]="getPerformanceClass(extractRemark(report.remarks, 'Crossing Accuracy'))">
+                        {{extractRemark(report.remarks, 'Crossing Accuracy')}}
+                      </span>
+                    </td>
                   </tr>
                 </tbody>
               </table>
+            </div>
+
+            <div class="report-footer">
+              <button class="btn-suggestions" (click)="viewDetailedReport(report)">
+                <i class="fas fa-lightbulb"></i> Get Suggestions
+              </button>
+            </div>
+
+            <div class="suggestions-modal" *ngIf="response && selectedReport === report">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h3>Performance Improvement Suggestions</h3>
+                  <button class="close-btn" (click)="closeModal()">
+                    <i class="fas fa-times"></i>
+                  </button>
+                </div>
+                <div class="modal-body">
+                  <div class="suggestions-content">
+                    {{ response }}
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>

@@ -6,6 +6,10 @@ import { PlayerGoal } from 'src/app/models/playergoal';
 import { Coach } from 'src/app/models/coach';
 import { Router } from '@angular/router';
 import { AuthService } from 'src/app/services/auth.service';
+import { keys } from 'src/environments/keys';
+import { GoogleGenerativeAI } from '@google/generative-ai';
+
+const apiKey = keys.apikey;
 
 @Component({
   selector: 'app-dashboard',
@@ -27,6 +31,9 @@ export class DashboardComponent implements OnInit {
   loading: boolean = false;
   performanceReports: any[] = []; // Array to store reports with remarks
   errorMessage: string = '';
+  genAi = new GoogleGenerativeAI(apiKey);
+  response: string | null = null;
+  selectedReport: any = null;
 
   constructor(
     private playerService: PlayerService,
@@ -199,4 +206,87 @@ export class DashboardComponent implements OnInit {
       return dateB.getTime() - dateA.getTime(); // Sort in descending order (latest first)
     });
   }
+
+  downloadReport(report: any): void {
+    // Implement download functionality
+    console.log('Downloading report:', report);
+  }
+
+  shareReport(report: any): void {
+    // Implement share functionality
+    console.log('Sharing report:', report);
+  }
+
+  getPerformanceClass(level: string): string {
+    level = level.toLowerCase();
+    if (level.includes('amateur')) return 'amateur';
+    if (level.includes('intermediate')) return 'intermediate';
+    if (level.includes('professional')) return 'professional';
+    return 'amateur';
+  }
+
+  model = this.genAi.getGenerativeModel({
+    model: 'gemini-1.5-flash',
+    generationConfig: {
+      candidateCount: 1,
+      maxOutputTokens: 150,
+      temperature: 0.7,
+    },
+  });
+
+  async getSuggestions(report: any) {
+    const prompt = `
+  Analyze the following performance metrics and remarks of a soccer player. Provide detailed suggestions in clear bullet points on how the player can:
+  - Improve their health and soccer skills if their performance is not at the elite level.
+  - Achieve elite-level performance if they're close but not there yet.
+  - Maintain and excel if they are already performing at an elite level.
+
+  Performance Metrics:
+  - HRV: ${report.hrv}
+  - Top Speed: ${report.topSpeed} km/h
+  - Calories Burned: ${report.caloriesBurned} kcal
+  - Passing Accuracy: ${report.passingAccuracy}%
+  - Dribbling Success Rate: ${report.dribblingSuccessRate}%
+  - Shooting Accuracy: ${report.shootingAccuracy}%
+  - Tackling Success Rate: ${report.tacklingSuccessRate}%
+  - Crossing Accuracy: ${report.crossingAccuracy}%
+
+  Remarks:
+  ${report.remarks}
+
+  Format your response strictly in bullet points with concise suggestions.
+  `;
+
+    try {
+      const result = await this.model.generateContent(prompt);
+      this.response = result.response.text();
+    } catch (error) {
+      console.error('Error generating suggestions:', error);
+      this.response = 'Unable to fetch suggestions. Please try again later.';
+    }
+  }
+
+
+  
+
+  async viewDetailedReport(report: any): Promise<void> {
+    this.selectedReport = report;
+    console.log('Getting suggestions for report:', report);
+    try {
+      await this.getSuggestions(report.performanceReport);
+    } catch (error) {
+      console.error('Error getting suggestions:', error);
+      this.response = 'Error getting suggestions. Please try again later.';
+    }
+  }
+
+  closeModal(): void {
+    this.response = null;
+    this.selectedReport = null;
+  }
+
+
+
+
+
 }
