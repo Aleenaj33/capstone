@@ -257,15 +257,6 @@ export class DashboardComponent implements OnInit {
     });
   }
 
-  downloadReport(report: any): void {
-    // Implement download functionality
-    console.log('Downloading report:', report);
-  }
-
-  shareReport(report: any): void {
-    // Implement share functionality
-    console.log('Sharing report:', report);
-  }
 
   getPerformanceClass(level: string): string {
     level = level.toLowerCase();
@@ -283,33 +274,67 @@ export class DashboardComponent implements OnInit {
     model: 'gemini-1.5-flash',
     generationConfig: {
       candidateCount: 1,
-      maxOutputTokens: 225,
+      maxOutputTokens: 250,
       temperature: 0.7,
     },
   });
 
   async getSuggestions(report: any): Promise<string> {
-    const prompt = `
-  Analyze the following performance metrics and remarks of a soccer player. Provide detailed suggestions in clear bullet points on how the player can:
-  - Improve their health and soccer skills if their performance is not at the elite level.
-  - Achieve elite-level performance if they're close but not there yet.
-  - Maintain and excel if they are already performing at an elite level.
+//     const prompt = `
+// Analyze the performance metrics, physical attributes, and remarks of a soccer player. Provide concise, actionable suggestions under the following categories:
 
-  Performance Metrics:
-  - HRV: ${report.hrv}
-  - Top Speed: ${report.topSpeed} km/h
-  - Calories Burned: ${report.caloriesBurned} kcal
-  - Passing Accuracy: ${report.passingAccuracy}%
-  - Dribbling Success Rate: ${report.dribblingSuccessRate}%
-  - Shooting Accuracy: ${report.shootingAccuracy}%
-  - Tackling Success Rate: ${report.tacklingSuccessRate}%
-  - Crossing Accuracy: ${report.crossingAccuracy}%
+// 1. Health Improvement: Suggest specific strategies to enhance physical fitness based on the player's age, height, and weight.
+// 2. Skill Enhancement: If the player’s performance is below the elite level, outline steps to improve soccer skills.
+// 3. Elite Preparation: If the player is nearing elite-level performance, recommend strategies to achieve elite status.
+// 4. Sustained Excellence: If the player is already performing at an elite level, suggest ways to maintain and excel further.
 
-  Remarks:
-  ${report.remarks}
+// Player Details:
+// - Age: ${this.player?.age || 'N/A'} years
+// - Height: ${this.player?.height || 'N/A'} cm
+// - Weight: ${report.weight || 'N/A'} kg
 
-  Format your response strictly in bullet points with concise suggestions.
-  `;
+// Performance Metrics:
+// - Heart Rate Variability (HRV): ${report.hrv}
+// - Top Speed: ${report.topSpeed} km/h
+// - Calories Burned: ${report.caloriesBurned} kcal
+// - Passing Accuracy: ${report.passingAccuracy}%
+// - Dribbling Success Rate: ${report.dribblingSuccessRate}%
+// - Shooting Accuracy: ${report.shootingAccuracy}%
+// - Tackling Success Rate: ${report.tacklingSuccessRate}%
+// - Crossing Accuracy: ${report.crossingAccuracy}%
+
+// Remarks:
+// ${report.remarks}
+
+// Output Format:
+// Provide the response as a list of short, actionable points (should limit within 200 tokens). Ensure the language is precise, professional, and tailored to the provided details.
+// `;
+const prompt = `
+Analyze the given performance metrics, physical attributes, and remarks of a soccer player. Provide actionable suggestions to improve both health and technical skills. Tailor the suggestions based on the player’s age, height, and weight. Ensure the response is concise and within 200 tokens.
+
+Player Details:
+Age: ${this.player?.age} years
+Height: ${this.player?.height} cm
+Weight: ${report.weight} kg
+
+Performance Metrics:
+Heart Rate Variability (HRV): ${report.hrv}
+Top Speed: ${report.topSpeed} km/h
+Calories Burned: ${report.caloriesBurned} kcal
+Passing Accuracy: ${report.passingAccuracy}%
+Dribbling Success Rate: ${report.dribblingSuccessRate}%
+Shooting Accuracy: ${report.shootingAccuracy}%
+Tackling Success Rate: ${report.tacklingSuccessRate}%
+Crossing Accuracy: ${report.crossingAccuracy}%
+
+Remarks:
+${report.remarks}
+
+Provide a list of detailedsuggestions and diet plans if needed to improve as concise bullet points within 250 tokens,without bold or italic text.
+`;
+
+
+
 
     try {
       const result = await this.model.generateContent(prompt);
@@ -352,6 +377,21 @@ toggleStandards(report: any): void {
     report.showStandards = false;
   }
   report.showStandards = !report.showStandards;
+}
+
+getMetricIcon(metricName: string): string {
+  const icons: { [key: string]: string } = {
+    'Heart Rate Variability (HRV)': 'fas fa-heartbeat',
+    'Top Speed (km/h)': 'fas fa-tachometer-alt',
+    'Calories Burned': 'fas fa-fire',
+    'Passing Accuracy (%)': 'fas fa-futbol',
+    'Dribbling Success Rate (%)': 'fas fa-running',
+    'Shooting Accuracy (%)': 'fas fa-bullseye',
+    'Tackling Success Rate (%)': 'fas fa-shield-alt',
+    'Crossing Accuracy (%)': 'fas fa-crosshairs'
+  };
+  
+  return icons[metricName] || 'fas fa-chart-bar';
 }
 
 }
