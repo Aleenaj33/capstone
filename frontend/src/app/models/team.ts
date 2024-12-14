@@ -3,5 +3,5 @@ export interface Team {
   name: string;
   sportCategory: string;
   coachId: number;
-  playerIds: number[];
+  playerIds: number[] | string;
 }

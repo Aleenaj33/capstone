@@ -702,40 +702,137 @@
       </div>
     </div>
 
-
- 
-
-              
-
     <div *ngIf="selectedTab === 'performance'" class="analytics-section">
       <div class="analytics-header">
         <h2>Performance Reports</h2>
-      
-  </div>
-</div>
+        
+        <!-- Filters Row -->
+        <div class="filters-row">
+          <div class="filter-group">
+            <label for="teamSelect">Select Team</label>
+            <select id="teamSelect" class="filter-select" (change)="onTeamSelect($event)">
+              <option value="">Select a team</option>
+              <option *ngFor="let team of teams" [value]="team.teamId">
+                {{team.name}}
+              </option>
+            </select>
+          </div>
 
-<!-- Weather Results Modal -->
-<div class="modal-overlay" *ngIf="weatherData">
-  <div class="weather-results-modal">
-    <div class="modal-header">
-      <h2>Weather Forecast</h2>
-      <button class="close-btn" (click)="closeWeatherResults()">
-        <i class="fas fa-times"></i>
-      </button>
-    </div>
-    
-    <div class="weather-results">
-      <div *ngIf="weatherData.data && weatherData.data.length > 0; else noData">
-        <p><strong>City:</strong> {{ weatherData.city_name }}</p>
-        <p><strong>Date:</strong> {{ weatherData.data[0].datetime }}</p>
-        <p><strong>Temperature:</strong> {{ weatherData.data[0].temp }}°C</p>
-        <p><strong>Description:</strong> {{ weatherData.data[0].weather?.description || 'N/A' }}</p>
-        <p><strong>Humidity:</strong> {{ weatherData.data[0].rh }}%</p>
-        <p><strong>Wind Speed:</strong> {{ weatherData.data[0].wind_spd }} m/s</p>
+          <div class="filter-group">
+            <label for="playerSelect">Select Player</label>
+            <select id="playerSelect" class="filter-select" (change)="onPlayerSelect($event)">
+              <option value="">Select a player</option>
+              <option *ngFor="let player of selectedTeamPlayers" [value]="player.name">
+                {{player.name}}
+              </option>
+            </select>
+          </div>
+        </div>
       </div>
-      <ng-template #noData>
-        <p>No weather data available for the selected date and location.</p>
-      </ng-template>
+
+      <!-- Reports Display Section -->
+      <div class="reports-container">
+        <div *ngIf="performanceReports.length > 0; else noReports">
+          <div *ngFor="let report of sortedReports" class="report-card">
+            <!-- Report Header -->
+            <div class="report-header">
+              <div class="report-title">
+                <h3>Performance Report</h3>
+                <span class="report-date">{{report.recordDate | date:'mediumDate'}}</span>
+              </div>
+            </div>
+
+            <!-- Report Content -->
+            <div class="report-content">
+              <!-- Performance Metrics -->
+              <div class="metrics-group">
+                <h4>Performance Metrics</h4>
+                <div class="metrics-grid">
+                  <div class="metric-item">
+                    <span class="metric-label">Height</span>
+                    <span class="metric-value">{{ report.height }} cm</span>
+                    <span class="metric-remark">{{ extractRemark(report.remarks, 'Height') }}</span>
+                  </div>
+
+                  <div class="metric-item">
+                    <span class="metric-label">Weight</span>
+                    <span class="metric-value">{{ report.weight }} kg</span>
+                    <span class="metric-remark">{{ extractRemark(report.remarks, 'Weight') }}</span>
+                  </div>
+
+                  <div class="metric-item">
+                    <span class="metric-label">HRV</span>
+                    <span class="metric-value" [class.below-standard]="report.hrv < 50">{{ report.hrv }}</span>
+                    <span class="metric-remark">{{ extractRemark(report.remarks, 'HRV') }}</span>
+                  </div>
+
+                  <div class="metric-item">
+                    <span class="metric-label">Top Speed</span>
+                    <span class="metric-value">{{ report.topSpeed }} km/h</span>
+                    <span class="metric-remark">{{ extractRemark(report.remarks, 'Top Speed') }}</span>
+                  </div>
+
+                  <div class="metric-item">
+                    <span class="metric-label">Calories Burned</span>
+                    <span class="metric-value">{{ report.caloriesBurned }}</span>
+                    <span class="metric-remark">{{ extractRemark(report.remarks, 'Calories Burned') }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Technical Skills -->
+              <div class="metrics-group">
+                <h4>Technical Skills</h4>
+                <div class="metrics-grid">
+                  <div class="metric-item">
+                    <span class="metric-label">Passing Accuracy</span>
+                    <span class="metric-value" [ngClass]="{'below-standard': report.passingAccuracy < 70}">
+                      {{report.passingAccuracy | number:'1.0-1'}}%
+                    </span>
+                    <span class="metric-remark">{{extractRemark(report.remarks, 'passingAccuracy')}}</span>
+                  </div>
+                  <div class="metric-item">
+                    <span class="metric-label">Dribbling Success</span>
+                    <span class="metric-value" [ngClass]="{'below-standard': report.dribblingSuccessRate < 65}">
+                      {{report.dribblingSuccessRate | number:'1.0-1'}}%
+                    </span>
+                    <span class="metric-remark">{{extractRemark(report.remarks, 'dribblingSuccessRate')}}</span>
+                  </div>
+                  <div class="metric-item">
+                    <span class="metric-label">Shooting Accuracy</span>
+                    <span class="metric-value" [ngClass]="{'below-standard': report.shootingAccuracy < 60}">
+                      {{report.shootingAccuracy | number:'1.0-1'}}%
+                    </span>
+                    <span class="metric-remark">{{extractRemark(report.remarks, 'shootingAccuracy')}}</span>
+                  </div>
+                  <div class="metric-item">
+                    <span class="metric-label">Tackling Success</span>
+                    <span class="metric-value" [ngClass]="{'below-standard': report.tacklingSuccessRate < 60}">
+                      {{report.tacklingSuccessRate | number:'1.0-1'}}%
+                    </span>
+                    <span class="metric-remark">{{extractRemark(report.remarks, 'tacklingSuccessRate')}}</span>
+                  </div>
+                  <div class="metric-item">
+                    <span class="metric-label">Crossing Accuracy</span>
+                    <span class="metric-value" [ngClass]="{'below-standard': report.crossingAccuracy < 50}">
+                      {{report.crossingAccuracy | number:'1.0-1'}}%
+                    </span>
+                    <span class="metric-remark">{{extractRemark(report.remarks, 'crossingAccuracy')}}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <ng-template #noReports>
+          <div class="no-reports">
+            <i class="fas fa-chart-line fa-3x"></i>
+            <h3>No Performance Reports Available</h3>
+            <p>Select a player to view their performance reports</p>
+          </div>
+        </ng-template>
+      </div>
     </div>
   </div>
 </div>
