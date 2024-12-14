@@ -6,6 +6,10 @@ import { PlayerGoal } from 'src/app/models/playergoal';
 import { Coach } from 'src/app/models/coach';
 import { Router } from '@angular/router';
 import { AuthService } from 'src/app/services/auth.service';
+import { keys } from 'src/environments/keys';
+import { GoogleGenerativeAI } from '@google/generative-ai';
+
+const apiKey = keys.weatherApiKey;
 
 @Component({
   selector: 'app-dashboard',
@@ -27,6 +31,59 @@ export class DashboardComponent implements OnInit {
   loading: boolean = false;
   performanceReports: any[] = []; // Array to store reports with remarks
   errorMessage: string = '';
+  genAi = new GoogleGenerativeAI(apiKey);
+  response: string | null = null;
+  selectedReport: any = null;
+  performanceStandards = [
+    {
+      name: 'Heart Rate Variability (HRV)',
+      elite: '80',
+      professional: '40-80',
+      amateur: '40'
+    },
+    {
+      name: 'Top Speed (km/h)',
+      elite: '40',
+      professional: '20-40',
+      amateur: '20'
+    },
+    {
+      name: 'Calories Burned',
+      elite: '1500',
+      professional: '800-1500',
+      amateur: '800'
+    },
+    {
+      name: 'Passing Accuracy (%)',
+      elite: '85',
+      professional: '75-85',
+      amateur: '75'
+    },
+    {
+      name: 'Dribbling Success Rate (%)',
+      elite: '60',
+      professional: '50-60',
+      amateur: '50'
+    },
+    {
+      name: 'Shooting Accuracy (%)',
+      elite: '55',
+      professional: '45-55',
+      amateur: '45'
+    },
+    {
+      name: 'Tackling Success Rate (%)',
+      elite: '70',
+      professional: '60-70',
+      amateur: '60'
+    },
+    {
+      name: 'Crossing Accuracy (%)',
+      elite: '25',
+      professional: '15-25',
+      amateur: '15'
+    }
+  ];
 
   constructor(
     private playerService: PlayerService,
@@ -199,4 +256,142 @@ export class DashboardComponent implements OnInit {
       return dateB.getTime() - dateA.getTime(); // Sort in descending order (latest first)
     });
   }
+
+
+  getPerformanceClass(level: string): string {
+    level = level.toLowerCase();
+    if (level.includes('amateur')) return 'amateur';
+    if (level.includes('intermediate')) return 'intermediate';
+    if (level.includes('professional')) return 'professional';
+    return 'amateur';
+  }
+
+
+
+  //GEMINI AI START
+
+  model = this.genAi.getGenerativeModel({
+    model: 'gemini-1.5-flash',
+    generationConfig: {
+      candidateCount: 1,
+      maxOutputTokens: 250,
+      temperature: 0.7,
+    },
+  });
+
+  async getSuggestions(report: any): Promise<string> {
+//     const prompt = `
+// Analyze the performance metrics, physical attributes, and remarks of a soccer player. Provide concise, actionable suggestions under the following categories:
+
+// 1. Health Improvement: Suggest specific strategies to enhance physical fitness based on the player's age, height, and weight.
+// 2. Skill Enhancement: If the player’s performance is below the elite level, outline steps to improve soccer skills.
+// 3. Elite Preparation: If the player is nearing elite-level performance, recommend strategies to achieve elite status.
+// 4. Sustained Excellence: If the player is already performing at an elite level, suggest ways to maintain and excel further.
+
+// Player Details:
+// - Age: ${this.player?.age || 'N/A'} years
+// - Height: ${this.player?.height || 'N/A'} cm
+// - Weight: ${report.weight || 'N/A'} kg
+
+// Performance Metrics:
+// - Heart Rate Variability (HRV): ${report.hrv}
+// - Top Speed: ${report.topSpeed} km/h
+// - Calories Burned: ${report.caloriesBurned} kcal
+// - Passing Accuracy: ${report.passingAccuracy}%
+// - Dribbling Success Rate: ${report.dribblingSuccessRate}%
+// - Shooting Accuracy: ${report.shootingAccuracy}%
+// - Tackling Success Rate: ${report.tacklingSuccessRate}%
+// - Crossing Accuracy: ${report.crossingAccuracy}%
+
+// Remarks:
+// ${report.remarks}
+
+// Output Format:
+// Provide the response as a list of short, actionable points (should limit within 200 tokens). Ensure the language is precise, professional, and tailored to the provided details.
+// `;
+const prompt = `
+Analyze the given performance metrics, physical attributes, and remarks of a soccer player. Provide actionable suggestions to improve both health and technical skills. Tailor the suggestions based on the player’s age, height, and weight. Ensure the response is concise and within 200 tokens.
+
+Player Details:
+Age: ${this.player?.age} years
+Height: ${this.player?.height} cm
+Weight: ${report.weight} kg
+
+Performance Metrics:
+Heart Rate Variability (HRV): ${report.hrv}
+Top Speed: ${report.topSpeed} km/h
+Calories Burned: ${report.caloriesBurned} kcal
+Passing Accuracy: ${report.passingAccuracy}%
+Dribbling Success Rate: ${report.dribblingSuccessRate}%
+Shooting Accuracy: ${report.shootingAccuracy}%
+Tackling Success Rate: ${report.tacklingSuccessRate}%
+Crossing Accuracy: ${report.crossingAccuracy}%
+
+Remarks:
+${report.remarks}
+
+Provide a list of detailedsuggestions and diet plans if needed to improve as concise bullet points within 250 tokens,without bold or italic text.
+`;
+
+
+
+
+    try {
+      const result = await this.model.generateContent(prompt);
+      return result.response.text();
+    } catch (error) {
+      console.error('Error generating suggestions:', error);
+      throw error;
+    }
+  }
+
+  async toggleSuggestions(report: any): Promise<void> {
+    if (report.showSuggestions === undefined) {
+      report.showSuggestions = false;
+    }
+    
+    report.showSuggestions = !report.showSuggestions;
+    
+    if (report.showSuggestions && !report.suggestions) {
+      try {
+        report.suggestions = await this.getSuggestions(report.performanceReport);
+      } catch (error) {
+        console.error('Error getting suggestions:', error);
+        report.suggestions = 'Error getting suggestions. Please try again later.';
+      }
+    }
+  }
+
+  //GEMINI AI END
+
+notifyEvent() {
+  // Implement notification functionality
+  console.log('Notification requested for upcoming event');
+  // You could show a toast message or implement actual notification logic
+  alert('You will be notified when the event registration opens!');
+}
+
+toggleStandards(report: any): void {
+  // Initialize showStandards if it doesn't exist
+  if (report.showStandards === undefined) {
+    report.showStandards = false;
+  }
+  report.showStandards = !report.showStandards;
+}
+
+getMetricIcon(metricName: string): string {
+  const icons: { [key: string]: string } = {
+    'Heart Rate Variability (HRV)': 'fas fa-heartbeat',
+    'Top Speed (km/h)': 'fas fa-tachometer-alt',
+    'Calories Burned': 'fas fa-fire',
+    'Passing Accuracy (%)': 'fas fa-futbol',
+    'Dribbling Success Rate (%)': 'fas fa-running',
+    'Shooting Accuracy (%)': 'fas fa-bullseye',
+    'Tackling Success Rate (%)': 'fas fa-shield-alt',
+    'Crossing Accuracy (%)': 'fas fa-crosshairs'
+  };
+  
+  return icons[metricName] || 'fas fa-chart-bar';
+}
+
 }

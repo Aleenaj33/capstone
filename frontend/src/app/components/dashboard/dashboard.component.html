@@ -31,6 +31,10 @@
         <i class="fas fa-trophy"></i>
         <span>Player Goals</span>
       </li>
+      <li class="sidebar-nav-item" [class.active]="selectedTab === 'events'" (click)="setSelectedTab('events')">
+        <i class="fas fa-calendar-alt"></i>
+        <span>Upcoming Events</span>
+      </li>
       <li class="sidebar-nav-item logout-item" (click)="logout()">
         <i class="fas fa-sign-out-alt"></i>
         <span>Logout</span>
@@ -333,79 +337,236 @@
             <!-- Basic Details Section -->
             <div class="report-header">
               <div class="report-title">
-                <h3>{{report.performanceReport.playerName}}'s Report</h3>
-                <span class="report-date">{{report.performanceReport.recordDate | date:'mediumDate'}}</span>
+                <h3>Report - {{report.performanceReport.recordDate | date:'mediumDate'}}</h3>
+                <span class="player-name">{{report.performanceReport.playerName}}</span>
               </div>
-              <div class="basic-details">
-                <div class="detail-item">
-                  <i class="fas fa-user"></i>
-                  <span>Age: {{player.age}} years</span>
+            </div>
+
+            <div class="player-basic-info">
+              <h4 class="info-title">Player Information</h4>
+              <div class="info-cards">
+                <div class="info-card">
+                  <div class="info-icon">
+                    <i class="fas fa-user-alt"></i>
+                  </div>
+                  <div class="info-details">
+                    <label>Age</label>
+                    <span class="info-value">{{player.age}} years</span>
+                  </div>
                 </div>
-                <div class="detail-item">
-                  <i class="fas fa-ruler-vertical"></i>
-                  <span>Height: {{player.height}} cm</span>
+
+                <div class="info-card">
+                  <div class="info-icon">
+                    <i class="fas fa-ruler-vertical"></i>
+                  </div>
+                  <div class="info-details">
+                    <label>Height</label>
+                    <span class="info-value">{{player.height}} cm</span>
+                  </div>
                 </div>
-                <div class="detail-item">
-                  <i class="fas fa-weight"></i>
-                  <span>Weight: {{report.performanceReport.weight}} kg</span>
+
+                <div class="info-card">
+                  <div class="info-icon">
+                    <i class="fas fa-weight"></i>
+                  </div>
+                  <div class="info-details">
+                    <label>Weight</label>
+                    <span class="info-value">{{report.performanceReport.weight}} kg</span>
+                  </div>
                 </div>
               </div>
             </div>
             
             <!-- Performance Metrics Table -->
             <div class="metrics-section">
-              <h4 class="metrics-title">Performance Metrics</h4>
+              <h4 class="metrics-title">Performance Analysis</h4>
               <table class="metrics-table">
                 <thead>
                   <tr>
                     <th>Metric</th>
                     <th>Value</th>
-                    <th>Remarks</th>
+                    <th>Performance Level</th>
                   </tr>
                 </thead>
                 <tbody>
+                  <!-- Physical Metrics -->
                   <tr>
-                    <td>Heart Rate Variability</td>
+                    <td>
+                      <div class="metric-name">
+                        <i class="fas fa-heartbeat"></i>
+                        Heart Rate Variability
+                      </div>
+                    </td>
                     <td>{{report.performanceReport.hrv}}</td>
                     <td>{{extractRemark(report.remarks, 'Heart Rate Variability')}}</td>
                   </tr>
                   <tr>
-                    <td>Top Speed</td>
+                    <td>
+                      <div class="metric-name">
+                        <i class="fas fa-running"></i>
+                        Top Speed
+                      </div>
+                    </td>
                     <td>{{report.performanceReport.topSpeed}} km/h</td>
-                    <td>{{extractRemark(report.remarks, 'Top Speed')}}</td>
+                    <td>
+                      <span class="performance-badge" [ngClass]="getPerformanceClass(extractRemark(report.remarks, 'Top Speed'))">
+                        {{extractRemark(report.remarks, 'Top Speed')}}
+                      </span>
+                    </td>
                   </tr>
                   <tr>
-                    <td>Calories Burned</td>
+                    <td>
+                      <div class="metric-name">
+                        <i class="fas fa-fire"></i>
+                        Calories Burned
+                      </div>
+                    </td>
                     <td>{{report.performanceReport.caloriesBurned}} kcal</td>
-                    <td>{{extractRemark(report.remarks, 'Calories Burned')}}</td>
+                    <td>
+                      <span class="performance-badge" [ngClass]="getPerformanceClass(extractRemark(report.remarks, 'Calories Burned'))">
+                        {{extractRemark(report.remarks, 'Calories Burned')}}
+                      </span>
+                    </td>
                   </tr>
+
+                  <!-- Soccer Skills -->
                   <tr>
-                    <td>Passing Accuracy</td>
+                    <td>
+                      <div class="metric-name">
+                        <i class="fas fa-futbol"></i>
+                        Passing Accuracy
+                      </div>
+                    </td>
                     <td>{{report.performanceReport.passingAccuracy}}%</td>
-                    <td>{{extractRemark(report.remarks, 'Passing Accuracy')}}</td>
+                    <td>
+                      <span class="performance-badge" [ngClass]="getPerformanceClass(extractRemark(report.remarks, 'Passing Accuracy'))">
+                        {{extractRemark(report.remarks, 'Passing Accuracy')}}
+                      </span>
+                    </td>
                   </tr>
                   <tr>
-                    <td>Dribbling Success Rate</td>
+                    <td>
+                      <div class="metric-name">
+                        <i class="fas fa-running"></i>
+                        Dribbling Success Rate
+                      </div>
+                    </td>
                     <td>{{report.performanceReport.dribblingSuccessRate}}%</td>
-                    <td>{{extractRemark(report.remarks, 'Dribbling Success Rate')}}</td>
+                    <td>
+                      <span class="performance-badge" [ngClass]="getPerformanceClass(extractRemark(report.remarks, 'Dribbling Success Rate'))">
+                        {{extractRemark(report.remarks, 'Dribbling Success Rate')}}
+                      </span>
+                    </td>
                   </tr>
                   <tr>
-                    <td>Shooting Accuracy</td>
+                    <td>
+                      <div class="metric-name">
+                        <i class="fas fa-bullseye"></i>
+                        Shooting Accuracy
+                      </div>
+                    </td>
                     <td>{{report.performanceReport.shootingAccuracy}}%</td>
-                    <td>{{extractRemark(report.remarks, 'Shooting Accuracy')}}</td>
+                    <td>
+                      <span class="performance-badge" [ngClass]="getPerformanceClass(extractRemark(report.remarks, 'Shooting Accuracy'))">
+                        {{extractRemark(report.remarks, 'Shooting Accuracy')}}
+                      </span>
+                    </td>
                   </tr>
                   <tr>
-                    <td>Tackling Success Rate</td>
+                    <td>
+                      <div class="metric-name">
+                        <i class="fas fa-shield-alt"></i>
+                        Tackling Success Rate
+                      </div>
+                    </td>
                     <td>{{report.performanceReport.tacklingSuccessRate}}%</td>
-                    <td>{{extractRemark(report.remarks, 'Tackling Success Rate')}}</td>
+                    <td>
+                      <span class="performance-badge" [ngClass]="getPerformanceClass(extractRemark(report.remarks, 'Tackling Success Rate'))">
+                        {{extractRemark(report.remarks, 'Tackling Success Rate')}}
+                      </span>
+                    </td>
                   </tr>
                   <tr>
-                    <td>Crossing Accuracy</td>
+                    <td>
+                      <div class="metric-name">
+                        <i class="fas fa-crosshairs"></i>
+                        Crossing Accuracy
+                      </div>
+                    </td>
                     <td>{{report.performanceReport.crossingAccuracy}}%</td>
-                    <td>{{extractRemark(report.remarks, 'Crossing Accuracy')}}</td>
+                    <td>
+                      <span class="performance-badge" [ngClass]="getPerformanceClass(extractRemark(report.remarks, 'Crossing Accuracy'))">
+                        {{extractRemark(report.remarks, 'Crossing Accuracy')}}
+                      </span>
+                    </td>
                   </tr>
                 </tbody>
               </table>
+            </div>
+
+            <div class="report-footer">
+              <div class="footer-buttons">
+                <button class="btn-suggestions" (click)="toggleSuggestions(report)">
+                  <i class="fas fa-lightbulb"></i> 
+                  {{ report.showSuggestions ? 'Hide Suggestions' : 'Get Suggestions' }}
+                </button>
+                <button class="btn-standards" (click)="toggleStandards(report)">
+                  <i class="fas fa-chart-bar"></i> 
+                  {{ report.showStandards ? 'Hide Standards' : 'View Standards' }}
+                </button>
+              </div>
+            </div>
+
+            <!-- Standards Section -->
+            <div class="standards-section" *ngIf="report.showStandards">
+              <h4 class="standards-title">
+                <i class="fas fa-chart-bar"></i>
+                Performance Standards & Benchmarks
+              </h4>
+              <div class="standards-grid">
+                <div class="standard-category" *ngFor="let metric of performanceStandards">
+                  <h4>
+                    <i [class]="getMetricIcon(metric.name)"></i>
+                    {{metric.name}}
+                  </h4>
+                  <div class="standard-levels">
+                    <div class="level elite">
+                      <span class="level-name">
+                        <i class="fas fa-trophy"></i>
+                        Elite
+                      </span>
+                      <span class="level-value">> {{metric.elite}}</span>
+                    </div>
+                    <div class="level professional">
+                      <span class="level-name">
+                        <i class="fas fa-star"></i>
+                        Professional
+                      </span>
+                      <span class="level-value">{{metric.professional}}</span>
+                    </div>
+                    <div class="level amateur">
+                      <span class="level-name">
+                        <i class="fas fa-running"></i>
+                        Amateur
+                      </span>
+                      <span class="level-value">< {{metric.amateur}}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Suggestions Section (Inline) -->
+            <div class="suggestions-section" *ngIf="report.showSuggestions">
+              <h4 class="suggestions-title">
+                <i class="fas fa-lightbulb"></i> Performance Improvement Suggestions
+              </h4>
+              <div class="suggestions-content" *ngIf="report.suggestions">
+                {{ report.suggestions }}
+              </div>
+              <div class="loading-spinner" *ngIf="!report.suggestions">
+                <i class="fas fa-circle-notch fa-spin"></i> Generating suggestions...
+              </div>
             </div>
           </div>
         </div>
@@ -416,6 +577,105 @@
             <i class="fas fa-chart-area"></i>
             <h3>No Performance Reports</h3>
             <p>There are no performance reports available at this time.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Events Section -->
+    <div *ngIf="selectedTab === 'events'" class="events-section">
+      <div class="section-header">
+        <h2><i class="fas fa-calendar-alt"></i> Upcoming Events</h2>
+        <p class="section-subtitle">Stay tuned for exciting tournaments and training camps</p>
+      </div>
+
+      <div class="events-container">
+        <!-- Main Featured Event -->
+        <div class="event-card featured">
+          <div class="event-header">
+            <span class="event-badge">Featured Event</span>
+            <h3>Summer Soccer Championship 2024</h3>
+            <div class="event-meta">
+              <div class="meta-item">
+                <i class="fas fa-calendar-alt"></i>
+                <span>July 15-30, 2024</span>
+              </div>
+              <div class="meta-item">
+                <i class="fas fa-clock"></i>
+                <span>9:00 AM - 6:00 PM</span>
+              </div>
+              <div class="meta-item">
+                <i class="fas fa-map-marker-alt"></i>
+                <span>National Sports Complex, Main Stadium</span>
+              </div>
+            </div>
+          </div>
+          <div class="event-contact">
+            <div class="contact-item">
+              <i class="fas fa-envelope"></i>
+              <span>athleteedge@gmail.com</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Upcoming Events Grid -->
+        <div class="upcoming-events">
+          <h3 class="upcoming-title">Other Upcoming Events</h3>
+          
+          <div class="events-grid">
+            <div class="event-card">
+              <div class="event-header">
+                <span class="event-badge">Regional</span>
+                <h4>Youth Soccer League</h4>
+                <div class="event-meta">
+                  <div class="meta-item">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span>August 10-24, 2024</span>
+                  </div>
+                  <div class="meta-item">
+                    <i class="fas fa-clock"></i>
+                    <span>4:00 PM - 8:00 PM</span>
+                  </div>
+                  <div class="meta-item">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <span>Regional Sports Center</span>
+                  </div>
+                </div>
+              </div>
+              <div class="event-contact">
+                <div class="contact-item">
+                  <i class="fas fa-envelope"></i>
+                  <span>athleteedge@gmail.com</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="event-card">
+              <div class="event-header">
+                <span class="event-badge">Training</span>
+                <h4>Elite Training Camp</h4>
+                <div class="event-meta">
+                  <div class="meta-item">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span>September 5-10, 2024</span>
+                  </div>
+                  <div class="meta-item">
+                    <i class="fas fa-clock"></i>
+                    <span>7:00 AM - 2:00 PM</span>
+                  </div>
+                  <div class="meta-item">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <span>Elite Training Facility</span>
+                  </div>
+                </div>
+              </div>
+              <div class="event-contact">
+                <div class="contact-item">
+                  <i class="fas fa-envelope"></i>
+                  <span>athleteedge@gmail.com</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
