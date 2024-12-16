@@ -10,6 +10,7 @@ import { PlayerGoal } from '../models/playergoal';
 import { Player } from '../models/player';
 
 import { map } from 'rxjs/operators';
+import { PerformanceReportResponse } from '../models/playerperformancereport';
 
 @Injectable({
   providedIn: 'root'
@@ -99,7 +100,7 @@ export class CoachService {
 
   // Add this method to the CoachService class
   getPlayersByTeamId(teamId: number): Observable<Player[]> {
-    return this.http.get<Player[]>(`${this.apiUrl}/teams/${teamId}/players`);
+    return this.http.get<Player[]>(`${this.apiUrl}/team/${teamId}`);
   }
 
   getCoachId(email: string): Observable<number> {
@@ -116,6 +117,10 @@ export class CoachService {
     return forkJoin(playerObservables);
   }
 
- 
+  getReportsWithRemarksByPlayerName(playerName: string): Observable<PerformanceReportResponse[]> {
+    return this.http.get<PerformanceReportResponse[]>(
+      `${environment.apiBaseUrl}/api/performance-reports/player/name/${playerName}/with-remarks`
+    );
+  }
   
 }

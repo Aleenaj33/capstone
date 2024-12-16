@@ -2018,9 +2018,7 @@
 }
 
 /* Specific Modal Styles */
-.suggestions-modal {
-  composes: modal-base;
-}
+
 
 .suggestions-content {
   white-space: pre-line;
@@ -2028,9 +2026,6 @@
   color: #1e293b;
 }
 
-.standards-modal {
-  composes: modal-base;
-}
 
 .standards-modal .modal-content {
   max-width: 1000px;

@@ -430,11 +430,7 @@
                       </div>
                     </td>
                     <td>{{report.performanceReport.hrv}}</td>
-                    <td>
-                      <span class="performance-badge" [ngClass]="getPerformanceClass(extractRemark(report.remarks, 'HRV'))">
-                        {{extractRemark(report.remarks, 'HRV')}}
-                      </span>
-                    </td>
+                    <td>{{extractRemark(report.remarks, 'Heart Rate Variability')}}</td>
                   </tr>
                   <tr>
                     <td>

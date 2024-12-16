@@ -11,6 +11,7 @@ import { map } from 'rxjs/operators';
 import { AuthService } from 'src/app/services/auth.service';
 import { WeatherService } from 'src/app/services/weather.service';
 import { Router } from '@angular/router';
+import { PerformanceReport } from 'src/app/models/playerperformancereport';
 
 
 
@@ -61,6 +62,7 @@ export class CoachComponent implements OnInit {
   selectedGoal: PlayerGoal | null = null;
   showEditGoalModal = false;
 
+   performanceReports: PerformanceReport[] = [];
  
 
   setSelectedTab(tab: string) {
@@ -530,14 +532,22 @@ closeTeamDetails(): void {
 
 loadTeamPlayers(team: Team): void {
   if (team.playerIds && team.playerIds.length > 0) {
-    this.coachService.getPlayersByIds(team.playerIds).subscribe({
+    // Handle both array and string types
+    const playerIdArray = Array.isArray(team.playerIds) 
+      ? team.playerIds 
+      : (team.playerIds as string).split(',').map((id: string) => parseInt(id.trim(), 10));
+
+    this.coachService.getPlayersByIds(playerIdArray).subscribe({
       next: (players) => {
         this.teamPlayers = players;
       },
       error: (error) => {
         console.error('Error loading team players:', error);
+        this.teamPlayers = [];
       }
     });
+  } else {
+    this.teamPlayers = [];
   }
 }
 
@@ -689,6 +699,82 @@ closeEditGoalModal(): void {
   this.showEditGoalModal = false;
   this.selectedGoal = null;
   this.goalForm.reset();
+}
+
+// Add these properties
+selectedTeamPlayers: Player[] = [];
+selectedPlayerName: string = '';
+
+// Add these methods
+onTeamSelect(event: any): void {
+  const teamId = event.target.value;
+  if (teamId) {
+    this.coachService.getPlayersByTeamId(parseInt(teamId)).subscribe({
+      next: (players) => {
+        this.selectedTeamPlayers = players;
+      },
+      error: (error) => {
+        console.error('Error fetching team players:', error);
+      }
+    });
+  } else {
+    this.selectedTeamPlayers = [];
+  }
+}
+
+onPlayerSelect(event: any): void {
+  const playerName = event.target.value;
+  if (playerName) {
+    this.selectedPlayerName = playerName;
+    this.coachService.getReportsWithRemarksByPlayerName(playerName).subscribe({
+      next: (responses) => {
+        // Map the responses to include both report and remarks
+        this.performanceReports = responses.map(response => ({
+          ...response.performanceReport,
+          remarks: response.remarks
+        }));
+      },
+      error: (error) => {
+        console.error('Error fetching performance reports:', error);
+      }
+    });
+  } else {
+    this.performanceReports = [];
+  }
+}
+
+// Add the getter for sorted reports
+get sortedReports(): PerformanceReport[] {
+  return [...this.performanceReports].sort((a, b) => {
+    const dateA = new Date(a.recordDate);
+    const dateB = new Date(b.recordDate);
+    return dateB.getTime() - dateA.getTime();
+  });
+}
+
+// Update the extractRemark method
+extractRemark(remarks: any, metricName: string): string {
+  if (!remarks) return '';
+  
+  // Map the metric names to their corresponding keys in the remarks object
+  const metricToRemarkKey: { [key: string]: string } = {
+    'Height': 'heightRemark',
+    'Weight': 'weightRemark',
+    'HRV': 'hrvRemark',
+    'Top Speed': 'topSpeedRemark',
+    'Calories Burned': 'caloriesBurnedRemark',
+    'Passing Accuracy': 'passingAccuracyRemark',
+    'Dribbling Success Rate': 'dribblingSuccessRateRemark',
+    'Shooting Accuracy': 'shootingAccuracyRemark',
+    'Tackling Success Rate': 'tacklingSuccessRateRemark',
+    'Crossing Accuracy': 'crossingAccuracyRemark'
+  };
+
+  // Get the corresponding remark key
+  const remarkKey = metricToRemarkKey[metricName];
+  
+  // Return the remark if it exists
+  return remarkKey && remarks[remarkKey] ? remarks[remarkKey] : '';
 }
 
 

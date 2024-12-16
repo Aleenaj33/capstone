@@ -9,7 +9,7 @@ import { AuthService } from 'src/app/services/auth.service';
 import { keys } from 'src/environments/keys';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
-const apiKey = keys.apikey;
+const apiKey = keys.weatherApiKey;
 
 @Component({
   selector: 'app-dashboard',
