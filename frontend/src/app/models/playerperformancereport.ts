@@ -8,6 +8,7 @@ export class PerformanceReport {
   playerId!: number;
   height!: number;
   weight!: number;
+  age!: number;
   playerName!: string;
   recordDate!: string;
   hrv!: number;

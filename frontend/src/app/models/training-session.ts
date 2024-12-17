@@ -5,5 +5,6 @@ export interface TrainingSession {
   date: string;
   duration: string;
   playerIds: number[];
+  trainingFocus: string;
   playernames?: string[];
 }

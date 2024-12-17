@@ -20,6 +20,8 @@ import { CoachComponent } from './components/coach/coach.component';
 import { HomeComponent } from './components/home/home.component';
 import { DataComponent } from './components/data/data.component';
 
+import { CompletedGoalsCountPipe, InProgressGoalsCountPipe, AtRiskGoalsCountPipe } from './components/coach/coach.component';
+
   // Import AppRoutingModule
 
 @NgModule({
@@ -34,7 +36,10 @@ import { DataComponent } from './components/data/data.component';
     // PlayerFormComponent,
     CoachComponent,
     HomeComponent,
-    DataComponent
+    DataComponent,
+    CompletedGoalsCountPipe,
+    InProgressGoalsCountPipe,
+    AtRiskGoalsCountPipe
 
   ],
   imports: [

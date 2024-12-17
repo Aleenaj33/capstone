@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Pipe, PipeTransform } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Coach } from 'src/app/models/coach';
 import { Player } from 'src/app/models/player';
@@ -12,8 +12,34 @@ import { AuthService } from 'src/app/services/auth.service';
 import { WeatherService } from 'src/app/services/weather.service';
 import { Router } from '@angular/router';
 import { PerformanceReport } from 'src/app/models/playerperformancereport';
+import { firstValueFrom } from 'rxjs';
 
+@Pipe({
+  name: 'completedGoalsCount'
+})
+export class CompletedGoalsCountPipe implements PipeTransform {
+  transform(goals: PlayerGoal[] | null): number {
+    return goals ? goals.filter(g => g.status === 'Completed').length : 0;
+  }
+}
 
+@Pipe({
+  name: 'inProgressGoalsCount'
+})
+export class InProgressGoalsCountPipe implements PipeTransform {
+  transform(goals: PlayerGoal[] | null): number {
+    return goals ? goals.filter(g => g.status === 'In Progress').length : 0;
+  }
+}
+
+@Pipe({
+  name: 'atRiskGoalsCount'
+})
+export class AtRiskGoalsCountPipe implements PipeTransform {
+  transform(goals: PlayerGoal[] | null): number {
+    return goals ? goals.filter(g => g.status === 'At Risk').length : 0;
+  }
+}
 
 @Component({
   selector: 'app-coach',
@@ -78,6 +104,110 @@ export class CoachComponent implements OnInit {
     // Implement your logout logic here
     console.log('Logging out...');
   }
+  
+    showStandardsModal = false;
+    metricStandards = [
+      {
+        name: 'HRV',
+        elite: '80',
+        professional: ['40', '80'],
+        amateur: '40'
+      },
+      {
+        name: 'Top Speed',
+        elite: '40',
+        professional: ['20', '40'],
+        amateur: '20'
+      },
+      {
+        name: 'Calories Burned',
+        elite: '1500',
+        professional: ['800', '1500'],
+        amateur: '800'
+      },
+      {
+        name: 'Passing Accuracy',
+        elite: '85',
+        professional: ['75', '85'],
+        amateur: '75'
+      },
+      {
+        name: 'Dribbling Success Rate',
+        elite: '60',
+        professional: ['50', '60'],
+        amateur: '50'
+      },
+      {
+        name: 'Shooting Accuracy',
+        elite: '55',
+        professional: ['45', '55'],
+        amateur: '45'
+      },
+      {
+        name: 'Tackling Success Rate',
+        elite: '70',
+        professional: ['60', '70'],
+        amateur: '60'
+      },
+      {
+        name: 'Crossing Accuracy',
+        elite: '25',
+        professional: ['15', '25'],
+        amateur: '15'
+      }
+    ];
+  
+    toggleStandardsModal(): void {
+      this.showStandardsModal = !this.showStandardsModal;
+    }
+  
+
+  public evaluateMetric(metricName: string, value: number): string {
+    switch (metricName) {
+      case 'HRV':
+        if (value > 80) return 'Elite';
+        else if (value >= 40) return 'Professional';
+        else return 'Amateur';
+      
+      case 'Top Speed':
+        if (value > 40) return 'Elite';
+        else if (value >= 20) return 'Professional';
+        else return 'Amateur';
+      
+      case 'Calories Burned':
+        if (value > 1500) return 'Elite';
+        else if (value >= 800) return 'Professional';
+        else return 'Amateur';
+      
+      case 'Passing Accuracy':
+        if (value > 85) return 'Elite';
+        else if (value >= 75) return 'Professional';
+        else return 'Amateur';
+      
+      case 'Dribbling Success Rate':
+        if (value > 60) return 'Elite';
+        else if (value >= 50) return 'Professional';
+        else return 'Amateur';
+      
+      case 'Shooting Accuracy':
+        if (value > 55) return 'Elite';
+        else if (value >= 45) return 'Professional';
+        else return 'Amateur';
+      
+      case 'Tackling Success Rate':
+        if (value > 70) return 'Elite';
+        else if (value >= 60) return 'Professional';
+        else return 'Amateur';
+      
+      case 'Crossing Accuracy':
+        if (value > 25) return 'Elite';
+        else if (value >= 15) return 'Professional';
+        else return 'Amateur';
+      
+      default:
+        return 'Not evaluated';
+    }
+  }
 
   constructor(private coachService: CoachService,
     private authService: AuthService,
@@ -95,7 +225,8 @@ export class CoachComponent implements OnInit {
       date: ['', Validators.required],
       duration: ['', Validators.required],
       playerIds: [[], Validators.required],
-      coachId: [this.coachId, Validators.required]
+      coachId: [this.coachId, Validators.required],
+      trainingFocus: ['', Validators.required]
     });
      this.goalForm = this.fb.group({
       playerId: ['', Validators.required],
@@ -103,8 +234,8 @@ export class CoachComponent implements OnInit {
       goalDescription: ['', Validators.required],
       targetValue: ['', [Validators.required, Validators.min(0)]],
       deadline: ['', Validators.required],
-      achievedValue: [0],
       status: ['In Progress'],
+      achievedValue: [0],
       feedbackRemarks: ['']
     });
     
@@ -120,6 +251,9 @@ export class CoachComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.loadTeams();
+    this.loadGoals();
+    
     const storedCoachId = sessionStorage.getItem('coachId');
     if (storedCoachId) {
       this.coachId = parseInt(storedCoachId, 10);
@@ -253,6 +387,7 @@ export class CoachComponent implements OnInit {
     this.coachService.getTeamsByCoachId(this.coachId).subscribe({
       next: (teams) => {
         this.teams = teams;
+        this.updateCounts();
       },
       error: (error) => {
         console.error('Error loading teams:', error);
@@ -270,7 +405,8 @@ createSession(): void {
       coachId: this.coachId,
       date: formValue.date,
       duration: formValue.duration,
-      playerIds: formValue.playerIds
+      playerIds: formValue.playerIds,
+      trainingFocus: formValue.trainingFocus
     };
 
     this.coachService.createTrainingSession(newSession).subscribe({
@@ -328,11 +464,13 @@ deleteTeam(teamId: number | undefined): void {
 
 
 
-openCreateSessionModal(): void {
-  this.createSessionForm.patchValue({
-    coachId: this.coachId
-  });
+openCreateSessionModal(playerId?: number): void {
   this.showCreateSessionModal = true;
+  if (playerId) {
+    this.createSessionForm.patchValue({
+      playerIds: [playerId]
+    });
+  }
 }
 
 cancelCreateSession(): void {
@@ -400,6 +538,7 @@ loadGoals(): void {
     next: (goals) => {
       console.log('Loaded goals:', goals); // Debug log
       this.goals = goals;
+      this.updateCounts();
     },
     error: (error) => {
       console.error('Error loading goals:', error);
@@ -514,19 +653,37 @@ closeWeatherResults(): void {
 
 // Add these properties to the component class
 showTeamDetailsModal = false;
-selectedTeam1: Team | null = null;
+selectedTeam: Team | null = null;
 teamPlayers: Player[] = [];
 
 // Add these methods
 viewTeamDetails(team: Team): void {
-  this.selectedTeam1 = team;
+  this.selectedTeam = team;
   this.showTeamDetailsModal = true;
-  this.loadTeamPlayers(team);
+  
+  if (team.playerIds) {
+    // Convert playerIds to array if it's a string
+    const playerIdArray = Array.isArray(team.playerIds) 
+      ? team.playerIds 
+      : team.playerIds.split(',').map(id => parseInt(id.trim(), 10));
+
+    this.coachService.getPlayersByIds(playerIdArray).subscribe({
+      next: (players) => {
+        this.teamPlayers = players;
+      },
+      error: (error) => {
+        console.error('Error loading team players:', error);
+        this.teamPlayers = [];
+      }
+    });
+  } else {
+    this.teamPlayers = [];
+  }
 }
 
 closeTeamDetails(): void {
   this.showTeamDetailsModal = false;
-  this.selectedTeam1 = null;
+  this.selectedTeam = null;
   this.teamPlayers = [];
 }
 
@@ -616,43 +773,61 @@ closeSessionPlayers(): void {
   this.sessionPlayers = [];
 }
 
-openCreateGoalModal(): void {
-  this.showCreateGoalModal = true;
+openCreateGoalModal(playerData?: PerformanceReport) {
+  // Reset form
   this.goalForm.reset();
+  
+  // Set today as min date for deadline
+  this.today = new Date().toISOString().split('T')[0];
+  
+  if (playerData) {
+    // If opened from performance report, pre-fill player
+    this.goalForm.patchValue({
+      playerId: playerData.playerId,
+      goalType: '',
+      goalDescription: '',
+      targetValue: '',
+      deadline: '',
+      status: 'In Progress',
+      achievedValue: 0,
+      feedbackRemarks: ''
+    });
+  }
+  
+  this.showCreateGoalModal = true;
 }
 
 closeCreateGoalModal(): void {
   this.showCreateGoalModal = false;
   this.goalForm.reset();
 }
-createGoal(): void {
+
+async createGoal() {
   if (this.goalForm.valid) {
-    const newGoal: PlayerGoal = {
-      ...this.goalForm.value,
-      coachId: this.coachId,
-      achievedValue: 0,
-      status: 'In Progress'
-    };
-
-    console.log('Form values:', this.goalForm.value); // Add this for debugging
-    console.log('Form validation status:', this.goalForm.valid); // Add this for debugging
-
-    this.coachService.createGoal(newGoal).subscribe({
-      next: (response) => {
-        this.loadGoals();
-        this.showCreateGoalModal = false;
-        this.goalForm.reset();
-      },
-      error: (error) => {
-        console.error('Error creating goal:', error);
-      }
-    });
-  } else {
-    // Mark all fields as touched to trigger validation messages
-    Object.keys(this.goalForm.controls).forEach(key => {
-      const control = this.goalForm.get(key);
-      control?.markAsTouched();
-    });
+    try {
+      const newGoal = await firstValueFrom(this.coachService.createGoal(this.goalForm.value));
+      this.goals.push(newGoal);
+      this.showCreateGoalModal = false;
+      this.goalForm.reset();
+      
+      // Set success message
+      this.successMessage = 'Goal created successfully';
+      
+      // Clear success message after 3 seconds
+      setTimeout(() => {
+        this.successMessage = null;
+      }, 3000);
+      
+    } catch (error) {
+      console.error('Error creating goal:', error);
+      // Set error message
+      this.errorMessage = 'Failed to create goal';
+      
+      // Clear error message after 3 seconds
+      setTimeout(() => {
+        this.errorMessage = null;
+      }, 3000);
+    }
   }
 }
 
@@ -777,19 +952,71 @@ extractRemark(remarks: any, metricName: string): string {
   return remarkKey && remarks[remarkKey] ? remarks[remarkKey] : '';
 }
 
+// Add these properties
+teamCount: number = 0;
+goalCount: number = 0;
+sessionCount: number = 0;
 
+private updateCounts(): void {
+  // Update team count
+  this.teamCount = this.teams?.length || 0;
+  console.log('Teams count:', this.teamCount);
+  
+  // Update goal count
+  this.goalCount = this.goals?.length || 0;
+  console.log('Goals count:', this.goalCount);
+  
+  // Update session count
+  this.sessionCount = this.trainingSessions?.length || 0;
+  console.log('Sessions count:', this.sessionCount);
+}
 
+getStatusIcon(status: string): string {
+  switch (status.toLowerCase()) {
+    case 'completed':
+      return 'fa-check-circle';
+    case 'in progress':
+      return 'fa-clock';
+    case 'at risk':
+      return 'fa-exclamation-circle';
+    default:
+      return 'fa-circle';
+  }
+}
 
+getStatusClass(status: string): string {
+  return 'status-' + status.toLowerCase().replace(' ', '-');
+}
 
+getProgressPercentage(goal: PlayerGoal): number {
+  if (!goal.targetValue) return 0;
+  return Math.min(100, Math.round((goal.achievedValue / goal.targetValue) * 100));
+}
 
+// Add this property near the top of your component class
+today: string = new Date().toISOString().split('T')[0];  // This will give you today's date in YYYY-MM-DD format
 
-
-
-
-
-
-
-
+openCreateGoalFromReport(report: PerformanceReport) {
+  // Reset form
+  this.goalForm.reset();
+  
+  // Set today as min date for deadline
+  this.today = new Date().toISOString().split('T')[0];
+  
+  // Pre-fill the form with player data from the report
+  this.goalForm.patchValue({
+    playerId: report.playerId,
+    goalType: '',
+    goalDescription: '',
+    targetValue: '',
+    deadline: '',
+    status: 'In Progress',
+    achievedValue: 0,
+    feedbackRemarks: ''
+  });
+  
+  this.showCreateGoalModal = true;
+}
 
 }  
 

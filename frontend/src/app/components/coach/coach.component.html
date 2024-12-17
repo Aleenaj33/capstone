@@ -56,85 +56,121 @@
   <div class="main-content" [ngSwitch]="selectedTab">
     <!-- Your main content here -->
     <div class="profile-section" *ngIf="selectedTab === 'profile'">
+      <!-- Enhanced Profile Header -->
       <div class="profile-header">
         <div class="profile-avatar">
-          <i class="fas fa-user"></i>
+          <div class="avatar-circle">
+            <i class="fas fa-user-tie"></i>
+          </div>
         </div>
         <div class="profile-info">
           <h1>{{ coach?.name }}</h1>
-          <p class="designation">Head Coach</p>
-          <div class="profile-meta">
-            <span><i class="fas fa-envelope"></i> {{ coach?.email }}</span>
-            <span><i class="fas fa-trophy"></i> {{ coach?.sport }}</span>
+          <div class="coach-meta">
+            <span class="designation">
+              <i class="fas fa-award"></i>
+              Head Coach - {{ coach?.sport }}
+            </span>
+            <span class="email">
+              <i class="fas fa-envelope"></i>
+              {{ coach?.email }}
+            </span>
+            <span class="age">
+              <i class="fas fa-birthday-cake"></i>
+              {{ coach?.age }} years old
+            </span>
           </div>
         </div>
       </div>
 
+      <!-- Enhanced Stats Overview -->
       <div class="stats-overview">
-        <div class="stat-box">
+        <div class="stat-card">
           <div class="stat-icon">
             <i class="fas fa-users"></i>
           </div>
           <div class="stat-details">
-            <span class="stat-value">{{ teams.length }}</span>
-            <span class="stat-label">Teams</span>
+            <span class="stat-value">{{teamCount}}</span>
+            <span class="stat-label">Active Teams</span>
+          </div>
+          <div class="stat-trend positive">
+            <i class="fas fa-chart-line"></i>
           </div>
         </div>
 
-        <div class="stat-box">
+        <div class="stat-card">
           <div class="stat-icon">
-            <i class="fas fa-running"></i>
+            <i class="fas fa-bullseye"></i>
           </div>
           <div class="stat-details">
-            <span class="stat-value">{{ trainingSessions.length }}</span>
-            <span class="stat-label">Sessions</span>
+            <span class="stat-value">{{goalCount}}</span>
+            <span class="stat-label">Active Goals</span>
+          </div>
+          <div class="stat-trend positive">
+            <i class="fas fa-chart-line"></i>
           </div>
         </div>
 
-        <div class="stat-box">
+        <div class="stat-card">
           <div class="stat-icon">
-            <i class="fas fa-flag"></i>
+            <i class="fas fa-calendar-check"></i>
           </div>
           <div class="stat-details">
-            <span class="stat-value">{{ goals.length }}</span>
-            <span class="stat-label">Goals Set</span>
+            <span class="stat-value">{{sessionCount}}</span>
+            <span class="stat-label">Training Sessions</span>
+          </div>
+          <div class="stat-trend positive">
+            <i class="fas fa-chart-line"></i>
           </div>
         </div>
       </div>
 
-      <div class="teams-overview" *ngIf="teams.length > 0; else noTeams">
-        <h2>My Teams</h2>
+      <!-- Teams Overview Section -->
+      <div class="teams-overview">
+        <div class="section-header">
+          <h2>My Teams</h2>
+        </div>
+
         <div class="teams-grid">
-          <div class="team-item" *ngFor="let team of teams">
-            <div class="team-icon">
-              <i class="fas fa-users"></i>
+          <div class="team-card" *ngFor="let team of teams">
+            <div class="team-header">
+              <h3 class="team-name">
+                <i class="fas fa-users"></i>
+                {{ team.name }}
+              </h3>
+              <span class="sport-badge">{{ team.sportCategory }}</span>
             </div>
-            <div class="team-details">
-              <h3>{{ team.name }}</h3>
-              <p>{{ team.sportCategory }}</p>
-              <span class="player-count">{{ team.playerIds.length || 0 }} Players</span>
+
+            <div class="team-content">
+              <div class="team-stat">
+                <i class="fas fa-user-friends"></i>
+                <span>{{ team.playerIds.length || 0 }} Players</span>
+              </div>
+
+              
             </div>
           </div>
         </div>
-      </div>
-      <ng-template #noTeams>
-        <div class="no-teams">
+
+        <div class="empty-state" *ngIf="teams.length === 0">
           <i class="fas fa-users"></i>
-          <h3>No Teams Available</h3>
-          <p>Get started by creating your first team to manage players and training sessions.</p>
-          <button class="create-team-btn" (click)="openCreateTeamModal()">
+          <h3>No Teams Yet</h3>
+          <p>Create your first team to get started</p>
+          <button class="team-action-btn view-btn" (click)="openCreateTeamModal()">
             <i class="fas fa-plus"></i>
-            Create New Team
+            Create Team
           </button>
         </div>
-      </ng-template>
+      </div>
     </div>
 
     <div class="teams-management" *ngIf="selectedTab === 'teams'">
       <div class="teams-header">
-        <h2>Team Management</h2>
+        <div class="header-content">
+          <h2><i class="fas fa-users"></i> Team Management</h2>
+          <p class="header-subtitle">Manage your teams and players</p>
+        </div>
         <button class="create-team-btn" (click)="openCreateTeamModal()">
-          <i class="fas fa-plus"></i>
+          <i class="fas fa-plus-circle"></i>
           Create New Team
         </button>
       </div>
@@ -150,27 +186,38 @@
       </div>
 
       <div class="teams-container" *ngIf="teams.length > 0">
-        <!-- Team Cards -->
         <div class="team-card" *ngFor="let team of teams">
           <div class="team-card-header">
-            <h3>{{ team.name }}</h3>
-            <span class="sport-category">{{ team.sportCategory }}</span>
+            <div class="team-info">
+              <h3><i class="fas fa-users"></i> {{ team.name }}</h3>
+              <span class="sport-category">
+                <i class="fas fa-running"></i> {{ team.sportCategory }}
+              </span>
+            </div>
+            <div class="team-status" [class.active]="team.playerIds.length > 0">
+              {{ team.playerIds.length > 0 ? 'Active' : 'No Players' }}
+            </div>
           </div>
           
           <div class="team-card-body">
-            <div class="team-stats">
-              <div class="stat-item">
-                <div class="stat-value">{{ team.playerIds.length || 0 }}</div>
-                <div class="stat-label">Players</div>
+            <div class="team-metrics">
+              <div class="metric">
+                <i class="fas fa-user-friends"></i>
+                <div class="metric-info">
+                  <span class="metric-value">{{ team.playerIds.length || 0 }}</span>
+                  <span class="metric-label">Players</span>
+                </div>
               </div>
             </div>
             
             <div class="team-actions">
-              <button class="team-btn view-btn" (click)="viewTeamDetails(team)">
-                <i class="fas fa-users"></i> View Players
+              <button class="action-btn view-btn" (click)="viewTeamDetails(team)">
+                <i class="fas fa-eye"></i>
+                View Players
               </button>
-              <button class="team-btn delete-btn" (click)="deleteTeam(team.teamId!)">
-                <i class="fas fa-trash"></i> Delete
+              <button class="action-btn delete-btn" (click)="deleteTeam(team.teamId!)">
+                <i class="fas fa-trash"></i>
+                Delete Team
               </button>
             </div>
           </div>
@@ -259,72 +306,68 @@
     </div>
 
     <!-- Training Sessions Section -->
-    <div class="training-section" *ngIf="selectedTab === 'training'">
-      <div class="section-header">
-        <div class="header-content">
-          <h2>Training Sessions</h2>
-          <p class="subtitle">Manage and track your training schedule</p>
-        </div>
+    <div *ngIf="selectedTab === 'training'" class="training-section">
+      <div class="sessions-header">
+        <h2><i class="fas fa-dumbbell"></i> Training Sessions</h2>
         <button class="add-session-btn" (click)="openCreateSessionModal()">
-          <i class="fas fa-plus"></i> New Session
+          <i class="fas fa-plus"></i> Create Session
         </button>
       </div>
-
-      <div class="sessions-grid" *ngIf="trainingSessions.length > 0">
-        <div class="session-card" *ngFor="let session of trainingSessions">
-          <div class="session-card-header">
-            <div class="session-status" [ngClass]="getSessionStatus(session)">
-              {{ getSessionStatus(session) | titlecase }}
+      
+      <div class="session-card" *ngFor="let session of trainingSessions">
+        <div class="session-header">
+          <div class="session-title">
+            <div class="session-date">
+              <i class="fas fa-calendar-alt"></i>
+              {{session.date | date:'mediumDate'}}
+            </div>
+            <span class="session-status" [ngClass]="'status-' + getSessionStatus(session)">
+              {{getSessionStatus(session)}}
+            </span>
+          </div>
+          <div class="session-meta">
+            <div class="meta-item">
+              <i class="fas fa-clock"></i>
+              {{session.duration}}
+            </div>
+            <div class="meta-item">
+              <i class="fas fa-users"></i>
+              {{getPlayerCount(session.playerIds)}} Players
+            </div>
+            <div class="meta-item" *ngIf="session.teamId">
+              <i class="fas fa-shield-alt"></i>
+              {{getTeamName(session.teamId)}}
             </div>
           </div>
-          
-          <div class="session-card-body">
-            <div class="session-meta">
-              <div class="meta-item">
-                <i class="far fa-calendar"></i>
-                <span>{{ session.date | date:'MMM d, y' }}</span>
-              </div>
-              <div class="meta-item">
-                <i class="far fa-clock"></i>
-                <span>{{ session.date | date:'shortTime' }}</span>
-              </div>
+        </div>
+
+        <div class="session-body">
+          <div class="session-focus">
+            <div class="focus-title">
+              <i class="fas fa-bullseye"></i>
+              Training Focus
             </div>
-            
-            <div class="session-details">
-              <div class="detail-item">
-                <i class="fas fa-stopwatch"></i>
-                <span>{{ session.duration }}</span>
-              </div>
-              <div class="detail-item">
-                <i class="fas fa-users"></i>
-                <span>{{ getPlayerCount(session.playerIds) }} Players</span>
-              </div>
-            </div>
-            
-            <div class="session-actions">
-              <button class="action-btn view-btn" (click)="viewSessionPlayers(session)" title="View Players">
-                <i class="fas fa-users"></i>
-              </button>
-              <button 
-                class="action-btn delete-btn" 
-                (click)="deleteSession(session.sessionId)"
-                [disabled]="!session.sessionId"
-                title="Delete Session"
-              >
-                <i class="fas fa-trash"></i>
-              </button>
-            </div>
+            <p>{{session.trainingFocus}}</p>
+          </div>
+
+          <div class="session-actions">
+            <button class="action-button view-button" (click)="viewSession(session)">
+              <i class="fas fa-eye"></i>
+              View Details
+            </button>
+            <button class="action-button delete-button" (click)="deleteSession(session.sessionId)">
+              <i class="fas fa-trash-alt"></i>
+              Delete Session
+            </button>
           </div>
         </div>
       </div>
 
-      <div class="no-sessions" *ngIf="trainingSessions.length === 0">
-        <i class="fas fa-calendar-alt fa-3x"></i>
+      <!-- No sessions message -->
+      <div class="empty-state" *ngIf="trainingSessions.length === 0">
+        <i class="fas fa-calendar-times fa-3x"></i>
         <h3>No Training Sessions</h3>
-        <p>Schedule your first training session to get started</p>
-        <button class="add-session-btn" (click)="openCreateSessionModal()">
-          <i class="fas fa-plus"></i> Schedule Session
-        </button>
+        <p>Create your first training session to get started</p>
       </div>
     </div>
 
@@ -412,6 +455,24 @@
             <span class="helper-text">Hold Ctrl/Cmd to select multiple players</span>
           </div>
 
+          <div class="form-group">
+            <label>Training Focus</label>
+            <div class="input-wrapper">
+              <i class="fas fa-bullseye"></i>
+              <select formControlName="trainingFocus">
+                <option value="">Select Training Focus</option>
+                <option value="Technical Skills">Technical Skills</option>
+                <option value="Tactical Training">Tactical Training</option>
+                <option value="Physical Conditioning">Physical Conditioning</option>
+                <option value="Match Practice">Match Practice</option>
+                <option value="Recovery">Recovery</option>
+              </select>
+            </div>
+            <span class="error-message" *ngIf="createSessionForm.get('trainingFocus')?.touched && createSessionForm.get('trainingFocus')?.invalid">
+              Training focus is required
+            </span>
+          </div>
+
           <div class="form-actions">
             <button type="button" class="btn btn-secondary" (click)="showCreateSessionModal = false">Cancel</button>
             <button type="submit" class="btn btn-primary" [disabled]="!createSessionForm.valid">Create Session</button>
@@ -482,164 +543,195 @@
     </div>
 
     <!-- Goals Section -->
-    <div class="goals-section" *ngIf="selectedTab === 'goals'">
+    <div *ngIf="selectedTab === 'goals'" class="goals-section">
       <div class="goals-header">
-        <div class="header-content">
-          <h2>Goals Management</h2>
-          <p class="subtitle">Track and manage player performance goals</p>
-        </div>
-        <button class="add-goal-btn" (click)="openCreateGoalModal()">
-          <i class="fas fa-plus"></i>
-          Create Goal
-        </button>
-      </div>
-
-      <div class="goals-grid" *ngIf="goals.length > 0; else noGoals">
-        <div class="goal-card" *ngFor="let goal of goals">
-          <div class="goal-card-header">
-            <div class="goal-type">
-              <i class="fas fa-bullseye"></i>
-              <span>{{ goal.goalType }}</span>
-            </div>
-            <div class="status-badge" [ngClass]="goal.status.toLowerCase()">
-              {{ goal.status }}
-            </div>
+        <div class="goals-header-content">
+          <div class="header-left">
+            <h2><i class="fas fa-bullseye"></i> Goals Management</h2>
+            <p class="header-subtitle">Track and manage player performance goals</p>
           </div>
-
-          <div class="goal-card-body">
-            <div class="goal-player">
-              <i class="fas fa-user"></i>
-              <span>{{ getPlayerName(goal.playerId) }}</span>
-            </div>
-
-            <h3>{{ goal.goalDescription }}</h3>
-
-            <div class="goal-progress">
-              <div class="progress-info">
-                <span class="progress-label">Progress</span>
-                <span class="progress-value">{{ goal.achievedValue }} / {{ goal.targetValue }}</span>
-              </div>
-              <div class="progress-bar">
-                <div class="progress-fill" [style.width.%]="(goal.achievedValue / goal.targetValue) * 100"></div>
-              </div>
-              <div class="progress-metrics">
-                {{ (goal.achievedValue / goal.targetValue) * 100 | number:'1.0-0' }}% Complete
-              </div>
-            </div>
-
-            <div class="goal-meta">
-              <div class="deadline">
-                <i class="far fa-calendar-alt"></i>
-                <span>Due {{ goal.deadline | date }}</span>
-              </div>
-              <div class="goal-actions">
-                <button class="action-btn edit" (click)="editGoal(goal)">
-                  <i class="fas fa-edit"></i>
-                </button>
-                <button class="action-btn delete" (click)="deleteGoal(goal.goalId)">
-                  <i class="fas fa-trash"></i>
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <ng-template #noGoals>
-        <div class="no-goals">
-          <i class="fas fa-bullseye"></i>
-          <h3>No Goals Set</h3>
-          <p>Add new goals to track player performance.</p>
           <button class="create-goal-btn" (click)="openCreateGoalModal()">
-            <i class="fas fa-plus"></i>
-            Create Goal
+            <div class="btn-content">
+              <i class="fas fa-plus-circle"></i>
+              <span>Create New Goal</span>
+            </div>
+            <div class="btn-hover-effect"></div>
           </button>
         </div>
-      </ng-template>
+        
+        <div class="goals-stats">
+          <div class="goal-stat-item">
+            <i class="fas fa-check-circle goal-stat-icon"></i>
+            <div class="goal-stat-info">
+              <span class="goal-stat-value">
+                {{goals | completedGoalsCount}}
+              </span>
+              <span class="goal-stat-label">Completed Goals</span>
+            </div>
+          </div>
+          
+          <div class="goal-stat-item">
+            <i class="fas fa-clock goal-stat-icon"></i>
+            <div class="goal-stat-info">
+              <span class="goal-stat-value">
+                {{goals | inProgressGoalsCount}}
+              </span>
+              <span class="goal-stat-label">In Progress</span>
+            </div>
+          </div>
+          
+          <div class="goal-stat-item">
+            <i class="fas fa-exclamation-circle goal-stat-icon"></i>
+            <div class="goal-stat-info">
+              <span class="goal-stat-value">
+                {{goals | atRiskGoalsCount}}
+              </span>
+              <span class="goal-stat-label">At Risk</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="goals-grid">
+        <div class="goal-card" *ngFor="let goal of goals">
+          <div class="goal-header" [ngClass]="getStatusClass(goal.status)">
+            <h3 class="goal-title">
+              <i class="fas fa-target"></i>
+              {{goal.goalType}}
+            </h3>
+            <div class="goal-meta">
+              <span class="goal-meta-item">
+                <i class="fas fa-user"></i>
+                {{getPlayerName(goal.playerId)}}
+              </span>
+              <span class="goal-meta-item">
+                <i class="fas fa-calendar"></i>
+                {{goal.deadline | date:'mediumDate'}}
+              </span>
+            </div>
+          </div>
+
+          <div class="goal-body">
+            <p class="goal-description">{{goal.goalDescription}}</p>
+            
+            <div class="goal-progress">
+              <div class="progress-info">
+                <span class="progress-percentage">{{getProgressPercentage(goal)}}%</span>
+                <span class="progress-values">{{goal.achievedValue}} / {{goal.targetValue}}</span>
+              </div>
+              <div class="progress-bar">
+                <div class="progress-fill" [style.width.%]="getProgressPercentage(goal)"></div>
+              </div>
+            </div>
+
+            <div class="goal-status" [ngClass]="getStatusClass(goal.status)">
+              <i class="fas" [ngClass]="getStatusIcon(goal.status)"></i>
+              {{goal.status}}
+            </div>
+          </div>
+
+          <div class="goal-actions">
+            <button class="goal-btn edit-btn" (click)="editGoal(goal)">
+              <i class="fas fa-edit"></i>
+              Edit Goal
+            </button>
+            <button class="goal-btn delete-btn" (click)="deleteGoal(goal.goalId)">
+              <i class="fas fa-trash"></i>
+              Delete
+            </button>
+          </div>
+        </div>
+      </div>
 
       <!-- Create Goal Modal -->
       <div class="modal-overlay" *ngIf="showCreateGoalModal">
         <div class="create-goal-modal">
           <div class="modal-header">
-            <h2>Create New Goal</h2>
+            <h2><i class="fas fa-bullseye"></i> Create New Goal</h2>
             <button class="close-btn" (click)="closeCreateGoalModal()">
               <i class="fas fa-times"></i>
             </button>
           </div>
 
-          <form [formGroup]="goalForm" (ngSubmit)="createGoal()">
-            <div class="form-group">
-              <label for="playerId">Player</label>
-              <select id="playerId" formControlName="playerId" class="form-control">
-                <option value="">Select Player</option>
-                <option *ngFor="let player of players" [value]="player.playerId">
-                  {{player.name}}
-                </option>
-              </select>
-              <div class="error-message" *ngIf="goalForm.get('playerId')?.touched && goalForm.get('playerId')?.invalid">
-                Please select a player
+          <div class="modal-content">
+            <form [formGroup]="goalForm" (ngSubmit)="createGoal()" class="goal-form">
+              <!-- Player Selection -->
+              <div class="form-group">
+                <label for="playerId">
+                  <i class="fas fa-user"></i> Select Player
+                </label>
+                <select id="playerId" formControlName="playerId" class="form-control">
+                  <option value="">Choose a player</option>
+                  <option *ngFor="let player of players" [value]="player.playerId">
+                    {{player.name}}
+                  </option>
+                </select>
               </div>
-            </div>
 
-            <div class="form-group">
-              <label for="goalType">Goal Type</label>
-              <select id="goalType" formControlName="goalType" class="form-control">
-                <option value="">Select Type</option>
-                <option value="Performance">Performance</option>
-                <option value="Fitness">Fitness</option>
-                <option value="Skill">Skill</option>
-              </select>
-              <div class="error-message" *ngIf="goalForm.get('goalType')?.touched && goalForm.get('goalType')?.invalid">
-                Please select a goal type
+              <!-- Goal Type -->
+              <div class="form-group">
+                <label for="goalType">
+                  <i class="fas fa-flag"></i> Goal Type
+                </label>
+                <select id="goalType" formControlName="goalType" class="form-control">
+                  <option value="">Select goal type</option>
+                  <option value="Performance">Performance</option>
+                  <option value="Fitness">Fitness</option>
+                  <option value="Skill">Skill</option>
+                </select>
               </div>
-            </div>
 
-            <div class="form-group">
-              <label for="goalDescription">Description</label>
-              <textarea 
-                id="goalDescription" 
-                formControlName="goalDescription" 
-                class="form-control"
-                placeholder="Enter goal description">
-              </textarea>
-              <div class="error-message" *ngIf="goalForm.get('goalDescription')?.touched && goalForm.get('goalDescription')?.invalid">
-                Please enter a description
+              <!-- Goal Description -->
+              <div class="form-group">
+                <label for="goalDescription">
+                  <i class="fas fa-align-left"></i> Description
+                </label>
+                <textarea 
+                  id="goalDescription" 
+                  formControlName="goalDescription" 
+                  class="form-control"
+                  placeholder="Describe the goal objective..."
+                  rows="3">
+                </textarea>
               </div>
-            </div>
 
-            <div class="form-group">
-              <label for="targetValue">Target Value</label>
-              <input 
-                type="number" 
-                id="targetValue" 
-                formControlName="targetValue" 
-                class="form-control"
-                placeholder="Enter target value">
-              <div class="error-message" *ngIf="goalForm.get('targetValue')?.touched && goalForm.get('targetValue')?.invalid">
-                Please enter a valid target value
+              <!-- Target Value -->
+              <div class="form-group">
+                <label for="targetValue">
+                  <i class="fas fa-bullseye"></i> Target Value
+                </label>
+                <input 
+                  type="number" 
+                  id="targetValue" 
+                  formControlName="targetValue" 
+                  class="form-control"
+                  placeholder="Enter target value">
               </div>
-            </div>
 
-            <div class="form-group">
-              <label for="deadline">Deadline</label>
-              <input 
-                type="date" 
-                id="deadline" 
-                formControlName="deadline" 
-                class="form-control">
-              <div class="error-message" *ngIf="goalForm.get('deadline')?.touched && goalForm.get('deadline')?.invalid">
-                Please select a deadline
+              <!-- Deadline -->
+              <div class="form-group">
+                <label for="deadline">
+                  <i class="fas fa-calendar-alt"></i> Deadline
+                </label>
+                <input 
+                  type="date" 
+                  id="deadline" 
+                  formControlName="deadline" 
+                  class="form-control"
+                  [min]="today">
               </div>
-            </div>
 
-            <div class="form-actions">
-              <button type="button" class="btn-secondary" (click)="closeCreateGoalModal()">
-                Cancel
-              </button>
-              <button type="submit" class="btn-primary" [disabled]="!goalForm.valid">
-                Create Goal
-              </button>
-            </div>
-          </form>
+              <!-- Form Actions -->
+              <div class="form-actions">
+                <button type="button" class="btn-secondary" (click)="closeCreateGoalModal()">
+                  <i class="fas fa-times"></i> Cancel
+                </button>
+                <button type="submit" class="btn-primary" [disabled]="!goalForm.valid">
+                  <i class="fas fa-check"></i> Create Goal
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       </div>
 
@@ -702,136 +794,347 @@
       </div>
     </div>
 
-    <div *ngIf="selectedTab === 'performance'" class="analytics-section">
-      <div class="analytics-header">
-        <h2>Performance Reports</h2>
-        
-        <!-- Filters Row -->
-        <div class="filters-row">
-          <div class="filter-group">
-            <label for="teamSelect">Select Team</label>
-            <select id="teamSelect" class="filter-select" (change)="onTeamSelect($event)">
-              <option value="">Select a team</option>
-              <option *ngFor="let team of teams" [value]="team.teamId">
-                {{team.name}}
-              </option>
-            </select>
-          </div>
+    <!-- Replace the existing performance reports section in coach.component.html -->
+<div *ngIf="selectedTab === 'performance'" class="analytics-section">
+  <div class="analytics-header">
+    <div class="header-actions">
+      <h2>Performance Reports</h2>
+      <button class="standards-btn" (click)="toggleStandardsModal()">
+        <i class="fas fa-chart-bar"></i>
+        View Metric Standards
+      </button>
+    </div>
+    
+    <!-- Enhanced Filters Section -->
+    <div class="filters-row">
+      <div class="filter-group">
+        <label for="teamSelect">
+          <i class="fas fa-users"></i> Select Team
+        </label>
+        <select id="teamSelect" class="filter-select" (change)="onTeamSelect($event)">
+          <option value="">All Teams</option>
+          <option *ngFor="let team of teams" [value]="team.teamId">
+            {{team.name}}
+          </option>
+        </select>
+      </div>
 
-          <div class="filter-group">
-            <label for="playerSelect">Select Player</label>
-            <select id="playerSelect" class="filter-select" (change)="onPlayerSelect($event)">
-              <option value="">Select a player</option>
-              <option *ngFor="let player of selectedTeamPlayers" [value]="player.name">
-                {{player.name}}
-              </option>
-            </select>
+      <div class="filter-group">
+        <label for="playerSelect">
+          <i class="fas fa-user"></i> Select Player
+        </label>
+        <select id="playerSelect" class="filter-select" (change)="onPlayerSelect($event)">
+          <option value="">Choose Player</option>
+          <option *ngFor="let player of selectedTeamPlayers" [value]="player.name">
+            {{player.name}}
+          </option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Reports Display Section -->
+  <div class="reports-container">
+    <div *ngIf="performanceReports.length > 0; else noReports">
+      <div *ngFor="let report of sortedReports" class="report-card">
+        <!-- Enhanced Report Header -->
+        <div class="report-header">
+          <div class="report-title">
+            <div class="title-main">
+              <h3>
+                <i class="fas fa-chart-line"></i>
+                Performance Analysis
+              </h3>
+              <div class="player-meta">
+                <span class="player-name">
+                  <i class="fas fa-user"></i> {{report.playerName}}
+                </span>
+                <span class="report-date">
+                  <i class="far fa-calendar-alt"></i>
+                  {{report.recordDate | date:'MMM d, yyyy'}}
+                </span>
+              </div>
+            </div>
+            <div class="report-actions">
+              <button class="action-btn" (click)="openCreateSessionModal(report.playerId)">
+                <i class="fas fa-plus"></i>
+                Add Training
+              </button>
+              <button class="action-btn" (click)="openCreateGoalFromReport(report)">
+                <i class="fas fa-bullseye"></i>
+                Add Goal
+              </button>
+            </div>
+          </div>
+          
+          <div class="physical-stats-grid">
+            <div class="stat-card">
+              <i class="fas fa-ruler-vertical"></i>
+              <div class="stat-info">
+                <span class="stat-value">{{ report.height }}</span>
+                <span class="stat-label">Height (cm)</span>
+              </div>
+            </div>
+            <div class="stat-card">
+              <i class="fas fa-weight"></i>
+              <div class="stat-info">
+                <span class="stat-value">{{ report.weight }}</span>
+                <span class="stat-label">Weight (kg)</span>
+              </div>
+            </div>
+            <div class="stat-card">
+              <i class="fas fa-user"></i>
+              <div class="stat-info">
+                <span class="stat-value">{{ report.age }}</span>
+                <span class="stat-label">Age</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Enhanced Report Content -->
+        <div class="report-content">
+          <div class="metrics-group">
+            <div class="metrics-grid">
+              <div class="metric-category">
+                <h4>
+                  <i class="fas fa-running"></i>
+                  Physical Performance
+                </h4>
+                <div class="metrics-subgrid">
+                  <!-- Physical metrics -->
+                  <div class="metric-item" *ngFor="let metric of [
+                    { name: 'HRV', value: report.hrv, icon: 'fa-heartbeat' },
+                    { name: 'Top Speed', value: report.topSpeed, icon: 'fa-tachometer-alt' },
+                    { name: 'Calories Burned', value: report.caloriesBurned, icon: 'fa-fire' }
+                  ]">
+                    <div class="metric-header">
+                      <i class="fas {{metric.icon}}"></i>
+                      <span class="metric-label">{{metric.name}}</span>
+                    </div>
+                    <div class="metric-value">{{metric.value}}</div>
+                    <div class="metric-status" [ngClass]="'status-' + evaluateMetric(metric.name, metric.value).toLowerCase()">
+                      {{evaluateMetric(metric.name, metric.value)}}
+                    </div>
+                    <div class="metric-remark" *ngIf="extractRemark(report.remarks, metric.name)">
+                      <i class="fas fa-comment"></i>
+                      {{extractRemark(report.remarks, metric.name)}}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Add new Technical Skills category -->
+              <div class="metric-category">
+                <h4>
+                  <i class="fas fa-futbol"></i>
+                  Technical Skills
+                </h4>
+                <div class="metrics-subgrid">
+                  <div class="metric-item" *ngFor="let metric of [
+                    { name: 'Passing Accuracy', value: report.passingAccuracy, icon: 'fa-bullseye' },
+                    { name: 'Dribbling Success Rate', value: report.dribblingSuccessRate, icon: 'fa-running' },
+                    { name: 'Shooting Accuracy', value: report.shootingAccuracy, icon: 'fa-crosshairs' },
+                    { name: 'Tackling Success Rate', value: report.tacklingSuccessRate, icon: 'fa-shield-alt' },
+                    { name: 'Crossing Accuracy', value: report.crossingAccuracy, icon: 'fa-crosshairs' }
+                  ]">
+                    <div class="metric-header">
+                      <i class="fas {{metric.icon}}"></i>
+                      <span class="metric-label">{{metric.name}}</span>
+                    </div>
+                    <div class="metric-value">{{metric.value}}</div>
+                    <div class="metric-status" [ngClass]="'status-' + evaluateMetric(metric.name, metric.value).toLowerCase()">
+                      {{evaluateMetric(metric.name, metric.value)}}
+                    </div>
+                    <div class="metric-remark" *ngIf="extractRemark(report.remarks, metric.name)">
+                      <i class="fas fa-comment"></i>
+                      {{extractRemark(report.remarks, metric.name)}}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- No Reports Template -->
+    <ng-template #noReports>
+      <div class="no-reports">
+        <i class="fas fa-chart-line fa-3x"></i>
+        <h3>No Performance Reports Available</h3>
+        <p>Select a player to view their performance analytics</p>
+      </div>
+    </ng-template>
+  </div>
+</div>
+
+<!-- Add this modal markup at the bottom of your template -->
+<div class="modal-overlay" *ngIf="showStandardsModal">
+  <div class="standards-modal">
+    <div class="modal-header">
+      <h2>Performance Metric Standards</h2>
+      <button class="close-btn" (click)="toggleStandardsModal()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="standards-content">
+      <div class="standard-category" *ngFor="let metric of metricStandards">
+        <h3>{{metric.name}}</h3>
+        <div class="standards-grid">
+          <div class="standard-level elite">
+            <span class="level-name">Elite</span>
+            <span class="level-value">> {{metric.elite}}</span>
+          </div>
+          <div class="standard-level professional">
+            <span class="level-name">Professional</span>
+            <span class="level-value">{{metric.professional[0]}} - {{metric.professional[1]}}</span>
+          </div>
+          <div class="standard-level amateur">
+            <span class="level-name">Amateur</span>
+            <span class="level-value">< {{metric.amateur}}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add this at the bottom of your file, at the same level as other modals -->
+<div class="modal-overlay" *ngIf="showTeamDetailsModal">
+  <div class="team-details-modal">
+    <div class="modal-header">
+      <h2>
+        <i class="fas fa-users"></i>
+        {{ selectedTeam?.name }}
+      </h2>
+      <button class="close-btn" (click)="closeTeamDetails()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <div class="team-info-summary">
+      <span class="player-count">
+        <i class="fas fa-user-friends"></i>
+        {{ teamPlayers.length }} Players
+      </span>
+    </div>
+
+    <div class="modal-body">
+      <div class="players-list" *ngIf="teamPlayers.length > 0">
+        <div class="player-card" *ngFor="let player of teamPlayers">
+          <div class="player-info">
+            <div class="player-avatar">
+              <i class="fas fa-user"></i>
+            </div>
+            <div class="player-details">
+              <h3>{{ player.name }}</h3>
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- Reports Display Section -->
-      <div class="reports-container">
-        <div *ngIf="performanceReports.length > 0; else noReports">
-          <div *ngFor="let report of sortedReports" class="report-card">
-            <!-- Report Header -->
-            <div class="report-header">
-              <div class="report-title">
-                <h3>Performance Report</h3>
-                <span class="report-date">{{report.recordDate | date:'mediumDate'}}</span>
-              </div>
-            </div>
+      <div class="empty-state" *ngIf="teamPlayers.length === 0">
+        <i class="fas fa-users-slash"></i>
+        <p>No players in this team</p>
+      </div>
+    </div>
+  </div>
+</div>
 
-            <!-- Report Content -->
-            <div class="report-content">
-              <!-- Performance Metrics -->
-              <div class="metrics-group">
-                <h4>Performance Metrics</h4>
-                <div class="metrics-grid">
-                  <div class="metric-item">
-                    <span class="metric-label">Height</span>
-                    <span class="metric-value">{{ report.height }} cm</span>
-                    <span class="metric-remark">{{ extractRemark(report.remarks, 'Height') }}</span>
-                  </div>
+<!-- Add this inside the performance section -->
+<div *ngIf="selectedTab === 'performance'" class="analytics-section">
+  <!-- Existing performance report content -->
+  
+  <!-- Add the modal here -->
+  <div class="modal-overlay" *ngIf="showCreateGoalModal">
+    <div class="create-goal-modal">
+      <div class="modal-header">
+        <h2><i class="fas fa-bullseye"></i> Create New Goal</h2>
+        <button class="close-btn" (click)="closeCreateGoalModal()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
 
-                  <div class="metric-item">
-                    <span class="metric-label">Weight</span>
-                    <span class="metric-value">{{ report.weight }} kg</span>
-                    <span class="metric-remark">{{ extractRemark(report.remarks, 'Weight') }}</span>
-                  </div>
-
-                  <div class="metric-item">
-                    <span class="metric-label">HRV</span>
-                    <span class="metric-value" [class.below-standard]="report.hrv < 50">{{ report.hrv }}</span>
-                    <span class="metric-remark">{{ extractRemark(report.remarks, 'HRV') }}</span>
-                  </div>
-
-                  <div class="metric-item">
-                    <span class="metric-label">Top Speed</span>
-                    <span class="metric-value">{{ report.topSpeed }} km/h</span>
-                    <span class="metric-remark">{{ extractRemark(report.remarks, 'Top Speed') }}</span>
-                  </div>
-
-                  <div class="metric-item">
-                    <span class="metric-label">Calories Burned</span>
-                    <span class="metric-value">{{ report.caloriesBurned }}</span>
-                    <span class="metric-remark">{{ extractRemark(report.remarks, 'Calories Burned') }}</span>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Technical Skills -->
-              <div class="metrics-group">
-                <h4>Technical Skills</h4>
-                <div class="metrics-grid">
-                  <div class="metric-item">
-                    <span class="metric-label">Passing Accuracy</span>
-                    <span class="metric-value" [ngClass]="{'below-standard': report.passingAccuracy < 70}">
-                      {{report.passingAccuracy | number:'1.0-1'}}%
-                    </span>
-                    <span class="metric-remark">{{extractRemark(report.remarks, 'passingAccuracy')}}</span>
-                  </div>
-                  <div class="metric-item">
-                    <span class="metric-label">Dribbling Success</span>
-                    <span class="metric-value" [ngClass]="{'below-standard': report.dribblingSuccessRate < 65}">
-                      {{report.dribblingSuccessRate | number:'1.0-1'}}%
-                    </span>
-                    <span class="metric-remark">{{extractRemark(report.remarks, 'dribblingSuccessRate')}}</span>
-                  </div>
-                  <div class="metric-item">
-                    <span class="metric-label">Shooting Accuracy</span>
-                    <span class="metric-value" [ngClass]="{'below-standard': report.shootingAccuracy < 60}">
-                      {{report.shootingAccuracy | number:'1.0-1'}}%
-                    </span>
-                    <span class="metric-remark">{{extractRemark(report.remarks, 'shootingAccuracy')}}</span>
-                  </div>
-                  <div class="metric-item">
-                    <span class="metric-label">Tackling Success</span>
-                    <span class="metric-value" [ngClass]="{'below-standard': report.tacklingSuccessRate < 60}">
-                      {{report.tacklingSuccessRate | number:'1.0-1'}}%
-                    </span>
-                    <span class="metric-remark">{{extractRemark(report.remarks, 'tacklingSuccessRate')}}</span>
-                  </div>
-                  <div class="metric-item">
-                    <span class="metric-label">Crossing Accuracy</span>
-                    <span class="metric-value" [ngClass]="{'below-standard': report.crossingAccuracy < 50}">
-                      {{report.crossingAccuracy | number:'1.0-1'}}%
-                    </span>
-                    <span class="metric-remark">{{extractRemark(report.remarks, 'crossingAccuracy')}}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
+      <div class="modal-content">
+        <form [formGroup]="goalForm" (ngSubmit)="createGoal()" class="goal-form">
+          <!-- Player Selection -->
+          <div class="form-group">
+            <label for="playerId">
+              <i class="fas fa-user"></i> Select Player
+            </label>
+            <select id="playerId" formControlName="playerId" class="form-control">
+              <option value="">Choose a player</option>
+              <option *ngFor="let player of players" [value]="player.playerId">
+                {{player.name}}
+              </option>
+            </select>
           </div>
-        </div>
 
-        <ng-template #noReports>
-          <div class="no-reports">
-            <i class="fas fa-chart-line fa-3x"></i>
-            <h3>No Performance Reports Available</h3>
-            <p>Select a player to view their performance reports</p>
+          <!-- Goal Type -->
+          <div class="form-group">
+            <label for="goalType">
+              <i class="fas fa-flag"></i> Goal Type
+            </label>
+            <select id="goalType" formControlName="goalType" class="form-control">
+              <option value="">Select goal type</option>
+              <option value="Performance">Performance</option>
+              <option value="Fitness">Fitness</option>
+              <option value="Skill">Skill</option>
+            </select>
           </div>
-        </ng-template>
+
+          <!-- Goal Description -->
+          <div class="form-group">
+            <label for="goalDescription">
+              <i class="fas fa-align-left"></i> Description
+            </label>
+            <textarea 
+              id="goalDescription" 
+              formControlName="goalDescription" 
+              class="form-control"
+              placeholder="Describe the goal objective..."
+              rows="3">
+            </textarea>
+          </div>
+
+          <!-- Target Value -->
+          <div class="form-group">
+            <label for="targetValue">
+              <i class="fas fa-bullseye"></i> Target Value
+            </label>
+            <input 
+              type="number" 
+              id="targetValue" 
+              formControlName="targetValue" 
+              class="form-control"
+              placeholder="Enter target value">
+          </div>
+
+          <!-- Deadline -->
+          <div class="form-group">
+            <label for="deadline">
+              <i class="fas fa-calendar-alt"></i> Deadline
+            </label>
+            <input 
+              type="date" 
+              id="deadline" 
+              formControlName="deadline" 
+              class="form-control"
+              [min]="today">
+          </div>
+
+          <!-- Form Actions -->
+          <div class="form-actions">
+            <button type="button" class="btn-secondary" (click)="closeCreateGoalModal()">
+              <i class="fas fa-times"></i> Cancel
+            </button>
+            <button type="submit" class="btn-primary" [disabled]="!goalForm.valid">
+              <i class="fas fa-check"></i> Create Goal
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   </div>
